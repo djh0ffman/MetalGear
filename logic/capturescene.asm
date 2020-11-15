@@ -6,7 +6,7 @@
 ;----------------------------------------------------------------------------
 
 CaptureSceneLogic:
-		    ld	    a, (CaptureStatus)
+		    ld	    a, (+vars.CaptureStatus)
 		    call    JumpIndex
 
 		    dw AddCaptureGuard			    ; Add the guard A that says	"DON'T MOVE"
@@ -25,32 +25,32 @@ CaptureSceneLogic:
 
 
 AddCaptureGuard:
-		    ld	    hl,	CaptureStatus
+		    ld	    hl,	+vars.CaptureStatus
 		    inc	    (hl)			    ; Next capture scene status
 
 		    ld	    c, ID_CAPTURE_GUARD
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    ld	    e, a			    ; Guard Y
 		    ld	    d, 0F0h			    ; Guard X
 		    jp	    AddEnemy			    ; The logic	of this	guard will control part	of the scene
 
 
 CaptureSetup:
-		    ld	    hl,	CaptureStatus
+		    ld	    hl,	+vars.CaptureStatus
 		    inc	    (hl)			    ; Next capture scene status
 
-		    ld	    hl,	CaptureTimer
+		    ld	    hl,	+vars.CaptureTimer
 		    ld	    (hl), 3Ch			    ; Wait timer
 
 		    ld	    a, 5Ch			    ; Mute music
-		    ld	    (MusicToSet), a		    ; New music	to play	(fade out current one)
+		    ld	    (+vars.MusicToSet), a		    ; New music	to play	(fade out current one)
 
 DummyRet4:
 		    ret
 
 
 CaptureWait:
-		    ld	    hl,	CaptureTimer
+		    ld	    hl,	+vars.CaptureTimer
 		    dec	    (hl)
 		    ret	    nz				    ; Wait
 
@@ -70,7 +70,7 @@ CaptureFadeOut:
 		    call    FadeOutLogic
 		    ret	    nc				    ; Fade still in progress
 
-		    ld	    hl,	CaptureStatus
+		    ld	    hl,	+vars.CaptureStatus
 		    inc	    (hl)			    ; Next capture scene status
 
 		    inc	    hl
@@ -85,34 +85,34 @@ CaptureFadeOut:
 ;----------------------------------------------------------------------------
 
 PutInPrison:
-		    ld	    hl,	CaptureTimer
+		    ld	    hl,	+vars.CaptureTimer
 		    dec	    (hl)
 		    ret	    nz				    ; Wait after the fade
 
-		    ld	    hl,	EquipRemoved		    ; The equipment and	weapons	have been removed by the enemy (captured)
+		    ld	    hl,	+vars.EquipRemoved		    ; The equipment and	weapons	have been removed by the enemy (captured)
 		    ld	    (hl), 1			    ; Remove the equipment flag
 
 		    xor	    a
-		    ld	    (SelectedWeapon), a		    ; Remove selected weapon
-		    ld	    (SelectedItem), a		    ; Remove selected item
-		    ld	    (AlertMode), a		    ; Disable the alert
-		    ld	    (AlertRespawnTimer), a
+		    ld	    (+vars.SelectedWeapon), a		    ; Remove selected weapon
+		    ld	    (+vars.SelectedItem), a		    ; Remove selected item
+		    ld	    (+vars.AlertMode), a		    ; Disable the alert
+		    ld	    (+vars.AlertRespawnTimer), a
 
-		    ld	    hl,	Room
+		    ld	    hl,	+vars.Room
 		    ld	    (hl), 165			    ; Prison room
-		    ld	    hl,	PreviousRoom
+		    ld	    hl,	+vars.PreviousRoom
 		    ld	    (hl), 8			    ; Capture room
 
-		    ld	    hl,	PlayerY
+		    ld	    hl,	+vars.PlayerY
 		    ld	    (hl), 50h
-		    ld	    hl,	PlayerX
+		    ld	    hl,	+vars.PlayerX
 		    ld	    (hl), 80h			    ; Set player location
 
 		    call    EraseSprAttRAM
 		    call    DisableScreen
 		    call    SetSnakePal
 
-		    ld	    hl,	GameMode		    ; Set "playing" mode
+		    ld	    hl,	+vars.GameMode		    ; Set "playing" mode
 		    ld	    (hl), 0
 		    jp	    InitGame4
 
@@ -174,7 +174,7 @@ AddCaptureGuardB:
 		    call    SetTextUnskippable
 
 		    ld	    c, ID_CAPTURE_GUARD
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    cp	    98h
 		    ld	    e, 0B0h			    ; Under the	player
 		    jr	    c, AddCaptureGuardB2
@@ -232,7 +232,7 @@ CaptureGuardBX2:
 CaptureGuardBY:
 		    call    AnimateGuard
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    and	    0FEh			    ; Adjust to	even number
 		    cp	    (ix+ACTOR.Y)
 		    ret	    nz				    ; Not the same Y yet
@@ -269,7 +269,7 @@ CaptureWaitText:
 
 		    inc	    (ix+ACTOR.Status)		    ; Next guard status	-> do nothing from now on
 
-		    ld	    hl,	CaptureStatus
+		    ld	    hl,	+vars.CaptureStatus
 		    inc	    (hl)			    ; Continue with the	capture	scene logic
 
 ;----------------------------------------------------------------------------

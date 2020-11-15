@@ -6,14 +6,14 @@
 
 
 InitHindD:
-		    ld	    a, (BossHindD_KO)
+		    ld	    a, (+vars.BossHindD_KO)
 		    or	    a
 		    jp	    nz,	DismissActor		    ; Hind D is	destroyed
 
 		    ld	    (ix+HIND_D.ShootDelay), 5
 		    ld	    (ix+HIND_D.NumberShots), 5
 
-		    ld	    hl,	BossHindD_KO
+		    ld	    hl,	+vars.BossHindD_KO
 		    ld	    (ix+HIND_D.KO_POINTER_L), l
 		    ld	    (ix+HIND_D.KO_POINTER_H), h	    ; Store pointer to defeated	flag
 
@@ -22,7 +22,7 @@ InitHindD:
 		    call    SetBossMusic		    ; Mercenary	theme
 
 ChkDrawHindD:
-		    ld	    a, (EnemyList)		    ; Array of enemies in the room
+		    ld	    a, (+vars.EnemyList)		    ; Array of enemies in the room
 		    cp	    ID_HIND_D
 		    ret	    nz				    ; There is no Hind D
 

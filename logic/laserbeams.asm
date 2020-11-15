@@ -86,7 +86,7 @@ TouchLaserAlarm:
 ;----------------------------------------------------------------------------
 
 RemoveLaserBeans:
-		    ld	    ix,	EnemyList		    ; Array of enemies in the room
+		    ld	    ix,	+vars.EnemyList		    ; Array of enemies in the room
 		    ld	    b, 16			    ; Max. number of enemies
 
 RemoveLaserBeans2:

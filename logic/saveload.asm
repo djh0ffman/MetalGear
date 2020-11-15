@@ -5,7 +5,7 @@
 ;----------------------------------------------------------------------------
 
 LoadSaveLogic:
-		    ld	    hl,	SaveLoadMode		    ; 1=Load mode, 2=Save mode
+		    ld	    hl,	+vars.SaveLoadMode		    ; 1=Load mode, 2=Save mode
 		    ld	    a, (hl)
 		    inc	    hl
 		    dec	    a
@@ -75,7 +75,7 @@ SaveFilename2:
 		    djnz    SaveFilename2
 
 		    ld	    b, 6
-		    ld	    hl,	Filename
+		    ld	    hl,	+vars.Filename
 
 SaveFilename3:
 		    push    hl
@@ -116,7 +116,7 @@ SaveGameData:
 		    call    TAPOON			    ; Turns on the cassette motor and writes the header
 		    jr	    c, SaveError
 
-		    ld	    de,	GameProgressBuffer
+		    ld	    de,	+vars.GameProgressBuffer
 		    ld	    bc,	300h			    ; (!?) #220	should be enough
 
 SaveGameData2:
@@ -134,7 +134,7 @@ SaveGameData2:
 		    or	    c				    ; All bytes	saved?
 		    jr	    nz,	SaveGameData2
 
-		    ld	    a, (TailDataByte)
+		    ld	    a, (+vars.TailDataByte)
 		    call    TAPOUT			    ; Writes data on the tape
 		    jr	    c, SaveError
 
@@ -144,7 +144,7 @@ SaveGameData2:
 		    call    PrintTextXY_		    ; Print "VERIFY?"
 
 NextSaveLoadStat:
-		    ld	    hl,	SaveLoadStat
+		    ld	    hl,	+vars.SaveLoadStat
 		    inc	    (hl)
 		    ret
 
@@ -157,7 +157,7 @@ NextSaveLoadStat:
 SaveChkVerify:
 		    djnz    SaveNotVerify
 
-		    ld	    hl,	KeyboardRow5
+		    ld	    hl,	+vars.KeyboardRow5
 		    bit	    6, (hl)			    ; Y	key pressed?
 		    jr	    nz,	SaveVerify		    ; Yes
 
@@ -175,7 +175,7 @@ SaveChkVerify:
 		    call    PrintTextXY_
 
 		    ld	    a, 5
-		    ld	    (SaveLoadStat), a
+		    ld	    (+vars.SaveLoadStat), a
 		    ret
 
 
@@ -194,7 +194,7 @@ SaveVerify:
 
 		    call    SearchFile
 
-		    ld	    hl,	GameProgressBuffer
+		    ld	    hl,	+vars.GameProgressBuffer
 		    ld	    bc,	300h			    ; (!?) #220	is the size of the buffer
 
 SaveVerify2:
@@ -221,7 +221,7 @@ SaveVerify3:
 		    jr	    c, VerifyError
 
 		    ld	    b, a
-		    ld	    a, (TailDataByte)
+		    ld	    a, (+vars.TailDataByte)
 		    cp	    b
 
 SaveVerify4:
@@ -252,7 +252,7 @@ SaveVerify4:
 SaveNotVerify:
 		    djnz    SaveRetry
 
-		    ld	    hl,	KeyboardRow5
+		    ld	    hl,	+vars.KeyboardRow5
 		    bit	    6, (hl)			    ; Y	key pressed?
 		    jr	    z, SaveNotVerify2
 
@@ -271,20 +271,20 @@ SaveNotVerify2:
 		    ret	    z				    ; No
 
 ExitSaveLoad:
-		    ld	    de,	 SoundWorkArea+1
-		    ld	    hl,	SoundWorkArea
+		    ld	    de,	 +vars.SoundWorkArea+1
+		    ld	    hl,	+vars.SoundWorkArea
 		    ld	    bc,	0DFh
 		    ld	    (hl), 0
 		    ldir
 
-		    ld	    hl,	RestoreSavedGame	    ; ;Set after loading tape data
+		    ld	    hl,	+vars.RestoreSavedGame	    ; ;Set after loading tape data
 		    ld	    (hl), 0
 
-		    ld	    a, (SaveLoadMode)		    ; 1=Load mode, 2=Save mode
+		    ld	    a, (+vars.SaveLoadMode)		    ; 1=Load mode, 2=Save mode
 		    dec	    a
 		    jp	    nz,	InitGameArea
 
-		    ld	    a, (DoNotAddEnemies)
+		    ld	    a, (+vars.DoNotAddEnemies)
 		    or	    a
 		    jp	    nz,	InitGameArea
 
@@ -298,7 +298,7 @@ ExitSaveLoad:
 ;----------------------------------------------------------------------------
 
 SaveRetry:
-		    ld	    hl,	KeyboardRow5
+		    ld	    hl,	+vars.KeyboardRow5
 		    bit	    6, (hl)			    ; Y	key pressed?
 		    jr	    z, SaveRetry2		    ; No
 
@@ -312,7 +312,7 @@ SaveRetry:
 		    call    EraseTextXY_		    ; Erase VERIFY ERROR
 
 		    ld	    a, 1
-		    ld	    (SaveLoadStat), a		    ; Enter filename mode
+		    ld	    (+vars.SaveLoadStat), a		    ; Enter filename mode
 		    jp	    InitSave
 
 
@@ -326,7 +326,7 @@ SaveRetry2:
 		    ret	    z
 
 		    ld	    a, 1
-		    ld	    (DoNotAddEnemies), a
+		    ld	    (+vars.DoNotAddEnemies), a
 		    jr	    ExitSaveLoad
 
 
@@ -364,7 +364,7 @@ EnterLoadName:
 		    jr	    nc,	loc_11FAFB
 
 		    ld	    a, 1
-		    ld	    (DoNotAddEnemies), a
+		    ld	    (+vars.DoNotAddEnemies), a
 		    jr	    ExitSaveLoad
 
 
@@ -390,7 +390,7 @@ LoadData:
 
 		    call    SearchFile
 
-		    ld	    de,	EnemyListCopy		    ; Used when	entering binoculars mode
+		    ld	    de,	+vars.EnemyListCopy		    ; Used when	entering binoculars mode
 		    ld	    bc,	300h
 
 LoadData2:
@@ -413,20 +413,20 @@ LoadData2:
 		    call    TAPIN			    ; Read data	from the tape
 		    jr	    c, TapeError
 
-		    ld	    (TailDataByte), a
+		    ld	    (+vars.TailDataByte), a
 		    call    TAPIOF			    ; Stops reading from the tape
 
 		    call    CalcDataChecksum
 		    cp	    (hl)			    ; Right checksum?
 		    jr	    nz,	TapeError
 
-		    ld	    de,	GameProgressBuffer
-		    ld	    hl,	EnemyListCopy		    ; Used when	entering binoculars mode
+		    ld	    de,	+vars.GameProgressBuffer
+		    ld	    hl,	+vars.EnemyListCopy		    ; Used when	entering binoculars mode
 		    ld	    bc,	300h
 		    ldir
 
 		    xor	    a
-		    ld	    (DoNotAddEnemies), a
+		    ld	    (+vars.DoNotAddEnemies), a
 		    jp	    ExitSaveLoad
 
 
@@ -434,11 +434,11 @@ TapeError:
 		    call    TAPIOF			    ; Stops reading from the tape
 
 		    ld	    a, 1
-		    ld	    (DoNotAddEnemies), a
+		    ld	    (+vars.DoNotAddEnemies), a
 
 		    ld	    hl,	txtLoadError
 		    ld	    b, 3
-		    ld	    a, (SaveLoadMode)		    ; 1=Load mode, 2=Save mode
+		    ld	    a, (+vars.SaveLoadMode)		    ; 1=Load mode, 2=Save mode
 		    dec	    a
 		    jr	    z, PrintError
 
@@ -447,7 +447,7 @@ TapeError:
 
 PrintError:
 		    ld	    a, b
-		    ld	    (SaveLoadStat), a
+		    ld	    (+vars.SaveLoadStat), a
 		    call    PrintTextXY_
 
 		    ld	    hl,	txtRetry
@@ -465,12 +465,12 @@ PrintError:
 ;----------------------------------------------------------------------------
 
 ChkLoadRetry:
-		    ld	    hl,	KeyboardRow5
+		    ld	    hl,	+vars.KeyboardRow5
 		    bit	    6, (hl)			    ; Y	key pressed?
 		    jr	    z, ChkLoadRetry2
 
 		    ld	    a, 2			    ; load data	from tape status
-		    ld	    (SaveLoadStat), a
+		    ld	    (+vars.SaveLoadStat), a
 
 		    ld	    hl,	txtVerifyError
 		    call    EraseTextXY_		    ; Erase VERIFY ERROR
@@ -515,7 +515,7 @@ TapeError_:
 		    djnz    SearchFile2
 
 		    ld	    b, 6
-		    ld	    hl,	FilenameFound
+		    ld	    hl,	+vars.FilenameFound
 
 SearchFile3:
 		    push    bc
@@ -530,8 +530,8 @@ SearchFile3:
 		    djnz    SearchFile3
 
 ; Compare filenames
-		    ld	    hl,	FilenameFound
-		    ld	    de,	Filename
+		    ld	    hl,	+vars.FilenameFound
+		    ld	    de,	+vars.Filename
 		    ld	    b, 6
 
 SearchFile4:
@@ -568,7 +568,7 @@ PrintSkipName:
 
 PrintFileFound:
 		    ld	    de,	5860h
-		    ld	    hl,	FilenameFound
+		    ld	    hl,	+vars.FilenameFound
 		    jr	    PrintFilename2
 
 
@@ -590,8 +590,8 @@ GetKeyTyped:
 		    call    CHGET			    ; One character input
 
 		    ld	    c, a
-		    ld	    hl,	FilenameSize
-		    ld	    de,	Filename
+		    ld	    hl,	+vars.FilenameSize
+		    ld	    de,	+vars.Filename
 		    ld	    a, (hl)
 		    call    ADD_DE_A__
 
@@ -676,7 +676,7 @@ EraseCharacter2:
 
 PrintFilename:
 		    ld	    de,	3050h			    ; DE = DX,DY
-		    ld	    hl,	Filename
+		    ld	    hl,	+vars.Filename
 
 PrintFilename2:
 		    ld	    c, 1			    ; Print flag (0=Erase)
@@ -705,8 +705,8 @@ InitSaveLoad:
 		    ld	    hl,	808h			    ; HL = XY
 		    ld	    bc,	0A0A0h			    ; BC = NX,NY
 		    xor	    a
-		    ld	    (RestoreSavedGame),	a	    ; ;Set after loading tape data
-		    ld	    (DoNotAddEnemies), a
+		    ld	    (+vars.RestoreSavedGame),	a	    ; ;Set after loading tape data
+		    ld	    (+vars.DoNotAddEnemies), a
 		    ld	    d, a			    ; Page 0
 		    call    FillRect_			    ; Draw black rectangle
 
@@ -714,13 +714,13 @@ InitSaveLoad:
 		    ld	    b, 28h
 		    call    ClearBuffer			    ; Clear keyboard buffer
 
-		    ld	    hl,	Filename
+		    ld	    hl,	+vars.Filename
 		    ld	    b, 6
 		    jr	    ClearBuffer
 
 
 ResetFilename:
-		    ld	    hl,	FilenameSize
+		    ld	    hl,	+vars.FilenameSize
 		    ld	    b, 0Eh
 
 ClearBuffer:
@@ -737,7 +737,7 @@ ClearBuffer:
 ;----------------------------------------------------------------------------
 
 CalcDataChecksum:
-		    ld	    hl,	GameProgressBuffer
+		    ld	    hl,	+vars.GameProgressBuffer
 		    ld	    bc,	2FFh
 		    ld	    a, (hl)
 		    inc	    hl
@@ -749,7 +749,7 @@ CalcDataChecksum2:
 		    ld	    a, c
 		    or	    b
 		    jr	    nz,	CalcDataChecksum2
-		    ld	    hl,	TailDataByte
+		    ld	    hl,	+vars.TailDataByte
 		    ret
 
 

@@ -18,7 +18,7 @@ SpawnItem:
 
 		    ld	    a, (hl)			    ; Get the item ID to spawn
 
-		    ld	    hl,	SpawnItemData		    ; Item ID, Y, X  (#FF = End	list)
+		    ld	    hl,	+vars.SpawnItemData		    ; Item ID, Y, X  (#FF = End	list)
 		    ld	    (hl), a			    ; Item
 		    inc	    hl
 		    ld	    (hl), e			    ; Y
@@ -36,20 +36,20 @@ SpawnItem:
 		    dec	    c
 
 SpawnItem2:
-		    ld	    a, (SpawnedItems)
+		    ld	    a, (+vars.SpawnedItems)
 		    and	    a
 		    ret	    nz				    ; There is a previously spawned item
 
 		    inc	    a
-		    ld	    (SpawnedItems), a
+		    ld	    (+vars.SpawnedItems), a
 
-		    ld	    hl,	ItemsInTheRoom		    ; ID, size,	Y, X
+		    ld	    hl,	+vars.ItemsInTheRoom		    ; ID, size,	Y, X
 		    ld	    a, (hl)
 		    and	    a
 		    ret	    nz				    ; There is another item in the room
 
 		    push    bc
-		    ld	    de,	SpawnItemData		    ; Item ID, Y, X  (#FF = End	list)
+		    ld	    de,	+vars.SpawnItemData		    ; Item ID, Y, X  (#FF = End	list)
 		    call    AddRoomItems2
 		    ld	    bc,	0Ch
 		    and	    a
@@ -57,7 +57,7 @@ SpawnItem2:
 		    pop	    bc
 
 		    ld	    (hl), c			    ; Amount of	the item
-		    ld	    ix,	ItemsInTheRoom		    ; ID, size,	Y, X
+		    ld	    ix,	+vars.ItemsInTheRoom		    ; ID, size,	Y, X
 		    ld	    bc,	100h
 		    call    DrawRoomItems2		    ; Draw the spawned item
 

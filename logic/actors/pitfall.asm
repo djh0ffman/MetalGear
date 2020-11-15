@@ -139,13 +139,13 @@ InitPitfall:
 		    call    SetColorsIndexes2		    ; Configure	colors to unpack the tiles
 
 		    ld	    hl,	GfxPitfall		    ; Pitfall compressed graphics
-		    ld	    de,	GfxPitfallBuffer	    ; Buffer used to unpack the	pitfall	tiles
+		    ld	    de,	+vars.GfxPitfallBuffer	    ; Buffer used to unpack the	pitfall	tiles
 		    ld	    b, 0Ch
 		    call    SetupPitfall		    ; Unpack pitfall tiles and draw it fully open in VRAM buffer
 
 		    ld	    (ix+ACTOR.COLLISION_CFG), 5	    ; Enable collision with the	player and set the pitfall as closed
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    190				    ; Isolated room in basement	building 2 (CARD 1)
 		    ret	    nz				    ; (!?) There is no pitfall in that room. Only a prisoner
 
@@ -172,11 +172,11 @@ InitPitfall:
 
 DrawOpenPitfalls:
 		    xor	    a
-		    ld	    (TempData),	a		    ; Pitfall not draw in VRAM buffer
+		    ld	    (+vars.TempData),	a		    ; Pitfall not draw in VRAM buffer
 
 DrawOpenPitfalls2:
 		    ld	    b, 10h
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
 
 DrawOpenPitfalls3:
 		    ld	    a, ID_PITFALL
@@ -195,7 +195,7 @@ DrawOpenPitfalls3:
 DrawOpenPitfalls4:
 		    push    hl
 
-		    ld	    hl,	TempData
+		    ld	    hl,	+vars.TempData
 		    ld	    a, (hl)
 		    inc	    (hl)
 		    or	    a				    ; Already drawn in buffer?

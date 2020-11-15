@@ -92,11 +92,11 @@ StopBulldozer:
 ;----------------------------------------------------------------------------
 
 InitBulldozer:
-		    ld	    a, (Bulldozer_KO)
+		    ld	    a, (+vars.Bulldozer_KO)
 		    or	    a
 		    jp	    nz,	DismissActor		    ; Remove actor
 
-		    ld	    hl,	BossTank_KO		    ; (!?) It should be	"Bulldozer_KO"
+		    ld	    hl,	+vars.BossTank_KO		    ; (!?) It should be	"Bulldozer_KO"
 		    ld	    (ix+BULLDOZER.KO_POINTER_L), l
 		    ld	    (ix+BULLDOZER.KO_POINTER_H), h  ; This pointer is not user
 
@@ -119,7 +119,7 @@ InitBulldozer:
 
 SetBulldozerKO:
 		    ld	    a, 1
-		    ld	    (Bulldozer_KO), a
+		    ld	    (+vars.Bulldozer_KO), a
 		    call    SetAreaMusic
 
 BulldozerDummy:

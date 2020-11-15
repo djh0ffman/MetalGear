@@ -12,7 +12,7 @@
 InitDesertSecurity:
 		    call    StopAlert
 
-		    ld	    a, (PreviousRoom)
+		    ld	    a, (+vars.PreviousRoom)
 		    cp	    73				    ; 2nd building fisrt room
 		    jp	    z, RemoveActor_		    ; The players comes	from building 2. Remove	the actor
 
@@ -27,7 +27,7 @@ InitDesertSecurity:
 ;---------------------------------------------------------------------------
 
 DesertSecurityLogic:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a				    ; Alert mode?
 		    jp	    nz,	RemoveActor_		    ; Remove this actor
 
@@ -63,7 +63,7 @@ DesertSecurity1:
 		    inc	    (ix+ACTOR2.Status)		    ; Next status
 
 DesertSecurity2:
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_UNIFORM		    ; Uniform
 		    jr	    z, DesertSecurity3		    ; Let Snake	pass in
 
@@ -80,7 +80,7 @@ DesertSecurity2:
 ;----------------------------------------------------------------------------
 
 ChkDesertGuardTxt:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    ret	    nz				    ; Alert on
 
@@ -91,7 +91,7 @@ ChkDesertGuardTxt:
 		    dec	    (ix+ACTOR2.TIMER)		    ; Decrement	wait time
 		    ret	    nz
 
-		    ld	    hl,	DesertGuardsTextF
+		    ld	    hl,	+vars.DesertGuardsTextF
 		    ld	    a, (hl)
 		    or	    a
 		    ret	    nz				    ; Text already shown
@@ -127,8 +127,8 @@ DesertSecurity4:
 		    ret	    nc
 
 		    ld	    a, 1
-		    ld	    (DoorBuild2LockedF), a	    ; Open door	flag
-		    ld	    (byte_C62D), a
+		    ld	    (+vars.DoorBuild2LockedF), a	    ; Open door	flag
+		    ld	    (+vars.byte_C62D), a
 
 		    inc	    (ix+ACTOR2.DOOR_STATUS)	    ; Next door	status
 		    ret

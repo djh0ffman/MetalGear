@@ -40,7 +40,7 @@ FireTrooperIntro:
 ;----------------------------------------------------------------------------
 
 FT_GetFlames:
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
 		    ld	    de,	80h			    ; Actor sctructure size
 		    ld	    bc,	1000h			    ; B	= Max. number of enemies, C = Flames counter
 		    ld	    a, ID_FLAME
@@ -96,7 +96,7 @@ FT_MoveToPlayer_:
 FT_MoveToPlayer:
 		    ld	    (ix+FIRE_TROPPER.MOVING), 1	    ; Enable movement
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    (ix+FIRE_TROPPER.X)
 
 		    ld	    b, 2Ch			    ; Fire Tropper to the right	sprite ID
@@ -148,7 +148,7 @@ FT_InitFlames2:
 ; Locate all flames in the flamethrower
 
 		    ld	    b, (ix+FIRE_TROPPER.NUM_FLAMES)
-		    ld	    hl,	 EnemyListEntry1+3	    ; Pointer to flame 1 actor,	Y property
+		    ld	    hl,	 +vars.EnemyListEntry1+3	    ; Pointer to flame 1 actor,	Y property
 		    ld	    de,	7Eh			    ; Offset to	next actor
 
 FT_InitFlames3:
@@ -170,13 +170,13 @@ FT_InitFlames3:
 		    ld	    b, (ix+FIRE_TROPPER.NUM_FLAMES)
 		    push    ix
 		    pop	    hl				    ; HL = Pointer to Fire Tropper actor
-		    ld	    (TempData),	hl
+		    ld	    (+vars.TempData),	hl
 
 FT_InitFlames4:
 		    ld	    a, b			    ; Index of the flame
 		    sla	    a				    ; x2
 		    add	    a, c			    ; Offset to	pointers of flame actors
-		    ld	    hl,	(TempData)		    ; Pointer to Fire Tropper actor
+		    ld	    hl,	(+vars.TempData)		    ; Pointer to Fire Tropper actor
 		    call    ADD_HL_A
 		    ld	    e, (hl)
 		    inc	    l
@@ -194,7 +194,7 @@ FT_InitFlames4:
 
 		    djnz    FT_InitFlames4		    ; Next flame
 
-		    ld	    ix,	(TempData)
+		    ld	    ix,	(+vars.TempData)
 		    ld	    (ix+FIRE_TROPPER.FLAME_JET_CNT), 10h
 
 FT_NextStatus:
@@ -546,7 +546,7 @@ loc_10649F:
 ;----------------------------------------------------------------------------
 
 InitFireTrooper:
-		    ld	    a, (FireTrooper_KO)
+		    ld	    a, (+vars.FireTrooper_KO)
 		    or	    a
 		    jr	    nz,	InitFlame2		    ; Jump to dismiss actor
 

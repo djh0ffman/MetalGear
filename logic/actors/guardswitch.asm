@@ -5,7 +5,7 @@
 ;----------------------------------------------------------------------------
 
 InitGuardSwitch:
-		    ld	    a, (PreviousRoom)
+		    ld	    a, (+vars.PreviousRoom)
 		    cp	    139				    ; Room goggles
 		    jp	    z, DismissActor0		    ; Remove guard when	the player comes from the goggles room
 
@@ -40,7 +40,7 @@ GuardSwitchLogic:
 
 
 GuardSwPatrol:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a				    ; Alert on?
 		    jp	    nz,	SetStatGoToSwitch	    ; Change to	"Go to the switch" status
 
@@ -85,7 +85,7 @@ GuardSwTurn:
 ;----------------------------------------------------------------------------
 
 GuardSwLookNorth:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a				    ; Alert mode?
 		    jp	    nz,	SetStatGoToSwitch
 
@@ -117,7 +117,7 @@ GuardSwChkPlayer:
 		    cp	    0D0h
 		    jr	    nz,	GuardSwChkSee
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    0C0h
 		    jr	    nc,	GuardSwChkBox		    ; The player and guard are in the right part of the	screen
 							    ; The guard	can see	the player unless he is	in the cardboard box
@@ -126,7 +126,7 @@ GuardSwChkPlayer:
 
 
 GuardSwChkSee:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 
 		    sub	    (ix+ACTOR.X)
 		    add	    a, 8
@@ -134,22 +134,22 @@ GuardSwChkSee:
 		    jr	    c, GuardSwChkBox
 
 GuardSwChkSeeY:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    rla
 		    ret	    nc				    ; The player is not	inline with the	guard
 
 GuardSwChkBox:
-		    ld	    a, (PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    a, (+vars.PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 		    cp	    7				    ; Is the player using the cardboard	box?
 		    jr	    nz,	GuardSwAlarm		    ; No, the guard will trigger the alarm
 
-		    ld	    hl,	PlayerSpeedY
+		    ld	    hl,	+vars.PlayerSpeedY
 		    ld	    a, (hl)
 		    inc	    hl
 		    or	    (hl)			    ; Is the player moving?
 		    jr	    nz,	GuardSwAlarm		    ; Yes, the guard will trigger the alarm
 
-		    ld	    hl,	PlayerSpeedX
+		    ld	    hl,	+vars.PlayerSpeedX
 		    ld	    a, (hl)
 		    or	    (hl)			    ; (!?)
 		    inc	    hl
@@ -242,7 +242,7 @@ GuardSwRight:
 
 
 GuardSwShot:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    rla
 		    ret	    nc				    ; The player is in the upper part of the room
 

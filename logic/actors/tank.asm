@@ -5,7 +5,7 @@
 ;---------------------------------------------------------------------------
 
 InitTank:
-		    ld	    a, (BossTank_KO)
+		    ld	    a, (+vars.BossTank_KO)
 		    or	    a
 		    jp	    nz,	DismissActor		    ; The tank is already destroyed
 
@@ -23,17 +23,17 @@ InitTank:
 		    ld	    (ix+TANK.CannonlDelay), 3Ch
 		    ld	    (ix+TANK.MovingTime), 9Ah
 
-		    ld	    hl,	BossTank_KO
+		    ld	    hl,	+vars.BossTank_KO
 		    ld	    (ix+TANK.KO_POINTER_L), l
 		    ld	    (ix+TANK.KO_POINTER_H), h	    ; Pointer to defeated flag
 
 SetBossMusic:
-		    ld	    a, (GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    a, (+vars.GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 		    cp	    GAME_MODE_BINOCULARS	    ; Using binoculars?
 		    ret	    z				    ; Do not change the	music
 
 		    ld	    a, 3Eh			    ; Music: Mercenary
-		    ld	    (AreaMusic), a
+		    ld	    (+vars.AreaMusic), a
 		    jp	    SetSoundEntryChk
 
 ;----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ TankLogic:
 
 ; Shoot	if the player is in front of the tank
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    (ix+TANK.X)
 		    add	    a, 4
 		    cp	    9
@@ -235,7 +235,7 @@ TankIdle:
 
 TankAlive:
 		    xor	    a				    ; Not used (!?)
-		    ld	    (BossTank_KO), a
+		    ld	    (+vars.BossTank_KO), a
 		    ret
 
 

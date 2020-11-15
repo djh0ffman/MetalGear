@@ -7,13 +7,13 @@
 
 ChkTouchEnemies:
 		    xor	    a
-		    ld	    (isOnBridge), a		    ; Not on a bridge by default
+		    ld	    (+vars.isOnBridge), a		    ; Not on a bridge by default
 
-		    ld	    ix,	EnemyList		    ; Array of enemies structures
+		    ld	    ix,	+vars.EnemyList		    ; Array of enemies structures
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    ld	    e, a
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    d, a			    ; DE = Player XY
 
 		    ld	    b, 16			    ; Maximum number of	enemies	on a room
@@ -69,11 +69,11 @@ ChkTouchEnemy:
 		    cp	    ID_LASER_SHOT
 		    jp	    z, ChkLaserShot		    ; Check if a laser from a camera hits the player
 
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    20h				    ; Is the punch button pressed?
 		    jr	    z, ChkTouchEnemy2
 
-		    ld	    a, (PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    a, (+vars.PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 		    dec	    a				    ; Is the player punching?
 		    call    z, ChkPunchEnemy		    ; Check if the enemy is punched
 
@@ -118,7 +118,7 @@ ChkScorpion:
 		    jr	    nz,	TouchPlayer		    ; No
 
 		    ld	    a, 1
-		    ld	    (Poisoned),	a		    ; Set poisoned status
+		    ld	    (+vars.Poisoned),	a		    ; Set poisoned status
 
 PlayDamageSfx:
 		    ld	    a, 10h			    ; SFX damage
@@ -146,17 +146,17 @@ TouchPlayer:
 		    ret	    z				    ; Fake Dr. Madnar does not cause damage
 
 TouchPlayer2:
-		    ld	    a, (DamageDelayTimer)
+		    ld	    a, (+vars.DamageDelayTimer)
 		    and	    a
 		    ret	    nz				    ; Wait a bit before	damaging again
 
 		    call    PlayDamageSfx		    ; Play damage SFX
 
 		    ld	    a, 20h
-		    ld	    (DamageDelayTimer),	a	    ; Set the damage delay to prevent continuos	damage
+		    ld	    (+vars.DamageDelayTimer),	a	    ; Set the damage delay to prevent continuos	damage
 
 		    ld	    hl,	ActorTouchDamage	    ; List of damage values caused by each enemy type
-		    ld	    (TempData),	hl
+		    ld	    (+vars.TempData),	hl
 
 		    ld	    a, (ix+ACTOR.ID)		    ; Enemy type
 
@@ -179,7 +179,7 @@ TouchPlayer2:
 		    jr	    nc,	DecrementLife		    ; Big explosion?
 
 ChkUsingArmor:
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_ARMOR		    ; Is the player using the armor?
 		    jr	    nz,	DecrementLife		    ; No
 

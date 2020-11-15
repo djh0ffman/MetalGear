@@ -8,13 +8,13 @@
 ;---------------------------------------------------------------------------
 
 SetMaxAmmoVals:
-		    ld	    de,	 MaxAmmoGun+1
-		    ld	    hl,	MaxAmmoGun
+		    ld	    de,	 +vars.MaxAmmoGun+1
+		    ld	    hl,	+vars.MaxAmmoGun
 		    ld	    bc,	4Fh
 		    ld	    (hl), 0FFh
 		    ldir				    ; Clear amounts
 
-		    ld	    a, (Class)			    ; Rank level
+		    ld	    a, (+vars.Class)			    ; Rank level
 		    and	    a
 		    ld	    hl,	MaxAmmoLv1
 		    ld	    c, 3			    ; Max. rations
@@ -35,22 +35,22 @@ SetMaxAmmoVals:
 
 SetMaxAmmo2:
 		    ld	    a, c
-		    ld	    de,	MaxAmmoGun
+		    ld	    de,	+vars.MaxAmmoGun
 		    ld	    bc,	10h
 		    ldir				    ; Update the weapon's maximum amount of ammo
 
 		    ld	    l, a			    ; Max. rations
 		    ld	    h, 0
-		    ld	    (MaxRations), hl		    ; Update maximum amount of rations
+		    ld	    (+vars.MaxRations), hl		    ; Update maximum amount of rations
 ;
 ; Check	if INTRUDER password cheat is enabled
 ;
-		    ld	    a, (MaxAmmoRatioF)		    ; Bit 0=Max.Ammo, 1=Max.Rations
+		    ld	    a, (+vars.MaxAmmoRatioF)		    ; Bit 0=Max.Ammo, 1=Max.Rations
 		    rra					    ; Maximum amount of	ammo?
 		    jr	    nc,	SetMaxAmmo3
 
 		    ld	    hl,	MaxAmmoVals
-		    ld	    de,	MaxAmmoGun
+		    ld	    de,	+vars.MaxAmmoGun
 		    ld	    bc,	10h
 		    ldir				    ; Set the maximum amount of	ammo allowed in	the game
 ;
@@ -62,14 +62,14 @@ SetMaxAmmo3:
 		    jr	    nc,	ChkMaxRations
 
 		    ld	    hl,	999h
-		    ld	    (MaxRations), hl
+		    ld	    (+vars.MaxRations), hl
 
 ChkMaxRations:
 		    ld	    a, SELECTED_RATION		    ; Rations
 		    call    GetItemInvAdd		    ; Get pointer to rations data in inventory
 		    jr	    nc,	ChkMaxAmmo		    ; There are	no rations in inventory
 
-		    ld	    bc,	(MaxRations)
+		    ld	    bc,	(+vars.MaxRations)
 		    call    ChkMaxAmount		    ; Limit the	number of rations
 ;
 ; Limit	the ammo of weapons if it exceed the maximum value
@@ -78,7 +78,7 @@ ChkMaxRations:
 ChkMaxAmmo:
 		    ld	    b, 8			    ; Number of	weapons
 		    ld	    c, HAND_GUN
-		    ld	    ix,	MaxAmmoGun
+		    ld	    ix,	+vars.MaxAmmoGun
 
 ChkMaxAmmo2:
 		    ld	    a, c			    ; Weapon ID

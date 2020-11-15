@@ -5,15 +5,15 @@
 ;----------------------------------------------------------------------------
 
 DrawLaserBeams:
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_GOGGLES		    ; Using Goggles?
 		    ret	    nz				    ; No
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    and	    a
 		    ret	    nz				    ; No laser beams in	alert mode
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    sub	    24				    ; Room with	lasers 1 (24)
 		    jr	    z, DrawLaserBeams2
 
@@ -24,8 +24,8 @@ DrawLaserBeams:
 		    ret	    nz
 
 DrawLaserBeams2:
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
-		    ld	    a, (NumEnemies)
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
+		    ld	    a, (+vars.NumEnemies)
 		    ld	    b, a
 
 DrawLaserBeams3:
@@ -82,8 +82,8 @@ DrawLaserBeams5:
 ;----------------------------------------------------------------------------
 
 RestLasersBack:
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
-		    ld	    a, (NumEnemies)
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
+		    ld	    a, (+vars.NumEnemies)
 		    ld	    b, a
 
 RestLaserBack2:

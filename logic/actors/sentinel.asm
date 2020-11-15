@@ -5,7 +5,7 @@
 ;---------------------------------------------------------------------------
 
 InitSentinel:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    c, a
 
 		    ld	    b, 1			    ; Sleepy guard
@@ -16,7 +16,7 @@ InitSentinel:
 
 InitSentinel2:
 		    ld	    a, b
-		    ld	    (SleepyGuardFlag), a	    ; Configure	sleepy property
+		    ld	    (+vars.SleepyGuardFlag), a	    ; Configure	sleepy property
 
 		    ld	    a, c			    ; Room
 		    cp	    39				    ; 3rd floor	building 1
@@ -29,7 +29,7 @@ InitSentinel2:
 		    jr	    nz,	InitSentinel4
 
 		    ld	    b, 1
-		    ld	    a, (PreviousRoom)
+		    ld	    a, (+vars.PreviousRoom)
 		    cp	    73				    ; Building 2 entrance
 		    jr	    nz,	InitSentinel3
 
@@ -60,18 +60,18 @@ SentinelLogic:
 		    or	    a
 		    jp	    nz,	RemoveActor_
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    69				    ; Desert guards to building	2
 		    jr	    z, SentinelLogic2		    ; Do not check if the guard	sees the player
 
-		    ld	    a, (SleepyGuardFlag)
+		    ld	    a, (+vars.SleepyGuardFlag)
 		    or	    a				    ; Is a sleepy guard?
 		    jr	    nz,	SentinelChkPlayer	    ; Yes, check if the	player touchs him, or uses a weapon
 
 		    call    ChkActSeePlayer		    ; Check if the guard sees the player
 
 SentinelLogic2:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a				    ; Alert mode?
 		    jp	    nz,	TransformAlertGuard	    ; Yes, transform the sentinel guard	in alert guard
 

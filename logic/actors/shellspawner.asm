@@ -5,7 +5,7 @@
 ;----------------------------------------------------------------------------
 
 InitSpawnTankShell:
-		    ld	    a, (BossTank_KO)
+		    ld	    a, (+vars.BossTank_KO)
 		    or	    a
 		    jp	    nz,	DismissActor		    ; The tank is destroyed, so	there are no shells falling
 
@@ -53,7 +53,7 @@ SpawnTankShell2:
 
 		    ld	    a, (ix+ACTOR.ANIM_CNT)
 		    and	    3
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    jr	    z, SpawnTankShell3		    ; Shell X =	Player X
 
 		    ld	    a, r

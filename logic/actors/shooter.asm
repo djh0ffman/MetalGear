@@ -10,15 +10,15 @@ InitShooter:
 		    ld	    (ix+SHOOTER.Direction), 1	    ; Facing up	by default
 		    ld	    (ix+SHOOTER.TransformTimer), 3  ; Shooter iteration	before transformint into alert guard
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    206				    ; Building 2, elevator east
 		    jr	    z, InitShooterElev
 
-		    ld	    hl,	AlertMode
+		    ld	    hl,	+vars.AlertMode
 		    ld	    (hl), 1			    ; Trigger alert mode
 
 		    ld	    hl,	0A80h
-		    ld	    (AlertRespawnTimer), hl
+		    ld	    (+vars.AlertRespawnTimer), hl
 
 		    sub	    90
 		    jr	    z, InitShooterRoom90	    ; Room 90
@@ -27,7 +27,7 @@ InitShooter:
 		    jr	    z, InitShooterRoom91	    ; Room 91
 
 ; Room 88
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    rla					    ; Is the player in the upper or lower part of the screen?
 		    jr	    c, InitShooter2
 
@@ -49,7 +49,7 @@ InitShooter2:
 InitShooterRoom90:
 		    ld	    (ix+SHOOTER.NextDirection),	0
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    rla
 		    jr	    c, SetShooterDir
 
@@ -81,7 +81,7 @@ InitShooter5:
 InitShooterElev:
 		    ld	    (ix+SHOOTER.NextDirection),	0   ; Has not decided where to move
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    rla					    ; Is the player in the upper or lower part of the screen?
 		    jr	    nc,	SetShooterDir
 
@@ -109,7 +109,7 @@ SetShooterDir2:
 ;---------------------------------------------------------------------------
 
 ShooterLogic:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    sub	    (ix+SHOOTER.Y)
 		    add	    a, 10h
 		    cp	    21h

@@ -23,7 +23,7 @@ InitSnoringSymbol:
 ;---------------------------------------------------------------------------
 
 SnoringSymbolLogic:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    jr	    nz,	RemoveSnoringSymbol	    ; Remove the actor in alert	mode
 
@@ -34,14 +34,14 @@ SnoringSymbolLogic:
 		    ld	    bc,	0F3Ah			    ; B	= Timer	mask, C	= Zzz sprite ID
 		    call    AnimZzzSign			    ; Animate the symbol
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    140				    ; 3	sleeping guards	(mines)
 		    ret	    z				    ; These guards do not wake up
 
 		    dec	    (ix+ACTOR.COUNTER)		    ; This counter is useless. The sign	is removed by the guard	when he	wakes up.
 		    ret	    nz				    ; Continue showing the sign
 
-		    ld	    a, (SleepyGuardFlag)
+		    ld	    a, (+vars.SleepyGuardFlag)
 		    or	    a
 		    ret	    nz				    ; There is at least	a sleepy guard
 

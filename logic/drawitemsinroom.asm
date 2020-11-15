@@ -5,7 +5,7 @@
 ;---------------------------------------------------------------------------
 
 DrawRoomItems:
-		    ld	    ix,	ItemsInTheRoom		    ; ID, size,	Y, X
+		    ld	    ix,	+vars.ItemsInTheRoom		    ; ID, size,	Y, X
 		    ld	    bc,	300h
 
 DrawRoomItems2:

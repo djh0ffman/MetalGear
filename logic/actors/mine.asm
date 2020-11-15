@@ -20,7 +20,7 @@ InitMines:
 		    ld	    a, 10h			    ; From VRAM	page 0 to 1
 		    call    VDP_Copy_Dot		    ; Save mine	background
 
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_MINE_DETECTOR	    ; Mine detector
 		    ret	    nz				    ; Mine detector not	selected. Don't draw mines on screen
 
@@ -73,11 +73,11 @@ GetMineBackXY:
 ;---------------------------------------------------------------------------
 
 DrawMines:
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_MINE_DETECTOR
 		    ret	    nz				    ; Mine detector not	selected
 
-		    ld	    ix,	EnemyList		    ; Array of enemies in the room
+		    ld	    ix,	+vars.EnemyList		    ; Array of enemies in the room
 		    ld	    b, 10h			    ; Max. number of enemies
 
 DrawMines2:

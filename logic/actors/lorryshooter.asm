@@ -15,12 +15,12 @@ InitLorryShooter:
 
 		    call    GuardLookDirection2
 
-		    ld	    a, (GameMode)		    ; Do not change music when using the binoculars
+		    ld	    a, (+vars.GameMode)		    ; Do not change music when using the binoculars
 		    cp	    GAME_MODE_BINOCULARS	    ; Binoculars mode
 		    jr	    z, LorrySetRndWait
 
 		    ld	    a, 32h			    ; Alert music
-		    ld	    (AreaMusic), a
+		    ld	    (+vars.AreaMusic), a
 		    call    SetSoundEntryChk
 
 LorrySetRndWait:

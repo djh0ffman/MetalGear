@@ -10,7 +10,7 @@ BridgeLogic:
 		    dec	    a
 		    jp	    z, BridgeCtrlLogic
 
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
 		    ld	    de,	80h			    ; Actor structure size
 		    ld	    bc,	1000h			    ; B	= Max. number of enemies, C = Bridge actor counter
 		    ld	    a, ID_BRIDGE

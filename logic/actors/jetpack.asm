@@ -76,7 +76,7 @@ JetpackTakeoffEnd:
 ;---------------------------------------------------------------------------
 
 InitJetpackSwitch:
-		    ld	    a, (PreviousRoom)
+		    ld	    a, (+vars.PreviousRoom)
 		    cp	    160				    ; Mine detector room
 		    jp	    z, DismissActor0		    ; Remove the jetpack guard
 
@@ -108,7 +108,7 @@ JetpackSwitchLogic:
 		    ld	    (ix+ACTOR.SpeedY), 2
 		    call    SetJetpackFlySpr
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    ret	    nz
 
@@ -156,7 +156,7 @@ InitJetpack:
 		    call    SetRespawnTime
 
 JetPackAlert:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    ret	    nz				    ; Not in alert mode
 
@@ -191,7 +191,7 @@ JetpackLogic:
 		    ld	    c, ID_BULLET
 		    jp	    AddEnemyShot2		    ; Shoot to the player
 
-		    db 0DDh ; Ý
+		    db 0DDh ; ï¿½
 		    db	7Eh ; ~
 		    db	11h
 

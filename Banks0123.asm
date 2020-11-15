@@ -37,22 +37,22 @@
 		    ; These pointers are not used by the game.
 		    ; Since they are related to the sound driver, probably were added to be used by a future cartridge (i.e.: Game Master 2) in order to play musics and SFXs from the game
 
-		    dw MuteSoundFlag			    ; 1	= Mute
-		    dw SoundWorkArea+2
-		    dw SoundWorkAreaB+2
-		    dw SoundWorkAreaC+2
-		    dw SoundWorkArea
-		    dw SoundWorkArea+1
-		    dw SoundWorkAreaB
-		    dw SoundWorkAreaB+1
-		    dw SoundWorkAreaC
-		    dw SoundWorkAreaC+1
+		    dw +vars.MuteSoundFlag			    ; 1	= Mute
+		    dw +vars.SoundWorkArea+2
+		    dw +vars.SoundWorkAreaB+2
+		    dw +vars.SoundWorkAreaC+2
+		    dw +vars.SoundWorkArea
+		    dw +vars.SoundWorkArea+1
+		    dw +vars.SoundWorkAreaB
+		    dw +vars.SoundWorkAreaB+1
+		    dw +vars.SoundWorkAreaC
+		    dw +vars.SoundWorkAreaC+1
 		    dw idxSoundData
-		    dw SoundDataSaved
-		    dw MusicToSet			    ; New music	to play	(fade out current one)
-		    dw SoundWorkAreaSfx+2
-		    dw SoundWorkAreaSfx
-		    dw SoundWorkAreaSfx+1
+		    dw +vars.SoundDataSaved
+		    dw +vars.MusicToSet			    ; New music	to play	(fade out current one)
+		    dw +vars.SoundWorkAreaSfx+2
+		    dw +vars.SoundWorkAreaSfx
+		    dw +vars.SoundWorkAreaSfx+1
 
 
 ;----------------------------------------------------------------------------
@@ -412,13 +412,13 @@ SetBanks_1_2_X:
 		    call    SetBanks1_2_3
 
 		    push    af
-		    ld	    a, (BankInA0Fixed)
+		    ld	    a, (+vars.BankInA0Fixed)
 		    and	    a
 		    jr	    z, SetBanks_1_2_X2
 
 		    di
 		    ld	    (0A000h), a
-		    ld	    (BankInA0),	a
+		    ld	    (+vars.BankInA0),	a
 		    ei
 
 SetBanks_1_2_X2:
@@ -448,12 +448,12 @@ InterruptTick:
 
 		    call    UpdateSound			    ; Update sound: music and sfx
 
-		    ld	    a, (BankIn60)
+		    ld	    a, (+vars.BankIn60)
 		    ld	    (6000h), a
-		    ld	    a, (BankIn80)
+		    ld	    a, (+vars.BankIn80)
 		    ld	    (8000h), a			    ; Restore previous banks in	#4000-#9FFF
 
-		    ld	    hl,	TickInProgress
+		    ld	    hl,	+vars.TickInProgress
 		    bit	    0, (hl)
 		    jp	    nz,	InterruptTick2		    ; There was	an game	iteration in progess. Skip this	iteration
 
@@ -463,7 +463,7 @@ InterruptTick:
 		    call    GameStatusLogic		    ; Main logic
 
 		    xor	    a
-		    ld	    (TickInProgress), a		    ; Erase "iteration in progress flag"
+		    ld	    (+vars.TickInProgress), a		    ; Erase "iteration in progress flag"
 
 InterruptTick2:
 		    call    RDVDP			    ; Read VDP status register to clear	interrupt flag
@@ -551,7 +551,7 @@ JumpIndex:
 
 Start:
 		    di
-		    ld	    sp,	Stack
+		    ld	    sp,	+vars.Stack
 
 		    call    RSLREG			    ; Read primary slot	register
 		    rrca
@@ -575,8 +575,8 @@ Start:
 		    ld	    h, 80h
 		    call    ENASLT			    ; Set cartridge slot in page 2 (#8000-#BFFF)
 
-		    ld	    hl,	GameStatus
-		    ld	    de,	GameSubstatus
+		    ld	    hl,	+vars.GameStatus
+		    ld	    de,	+vars.GameSubstatus
 		    ld	    bc,	30EFh
 		    ld	    (hl), l
 		    ldir				    ; Clear RAM	area used as variables
@@ -585,7 +585,7 @@ Start:
 		    call    RegionLock			    ; In the japanese version, this is the region lock check
 
 		    xor	    a
-		    ld	    hl,	BankIn60Fixed
+		    ld	    hl,	+vars.BankIn60Fixed
 		    ld	    (hl), a
 		    inc	    hl
 		    ld	    (hl), a
@@ -653,7 +653,7 @@ SetBanks_4_5_6:
 
 SetBanks:
 		    push    hl
-		    ld	    hl,	BankIn60
+		    ld	    hl,	+vars.BankIn60
 		    ld	    (6000h), a
 		    ld	    (hl), a
 		    inc	    a
@@ -734,7 +734,7 @@ SetBanks_D_E_F:
 
 SetSoundEntryChk:
 		    push    hl
-		    ld	    hl,	ControlConfig		    ; Bit6: 1=Enable music/Player control
+		    ld	    hl,	+vars.ControlConfig		    ; Bit6: 1=Enable music/Player control
 		    bit	    6, (hl)
 		    pop	    hl
 		    ret	    z				    ; Sound disabled
@@ -745,22 +745,22 @@ SetSoundEntry:
 		    push    de
 		    push    bc				    ; Save BC, DE, HL
 
-		    ld	    hl,	(BankIn60)
+		    ld	    hl,	(+vars.BankIn60)
 		    push    hl				    ; Save current banks at #6000-#7FFF	and #8000-#9FFF
 
 		    push    af
 		    ld	    a, 4
 		    ld	    (6000h), a
-		    ld	    (BankIn60),	a
+		    ld	    (+vars.BankIn60),	a
 		    inc	    a
-		    ld	    (BankIn80),	a
+		    ld	    (+vars.BankIn80),	a
 		    ld	    (8000h), a			    ; Set sound	driver banks
 		    pop	    af
 
 		    call    SetSound
 
 		    pop	    hl
-		    ld	    (BankIn60),	hl
+		    ld	    (+vars.BankIn60),	hl
 		    ld	    a, l
 		    ld	    (6000h), a
 		    ld	    a, h
@@ -786,7 +786,7 @@ SetSoundEntry:
 ;----------------------------------------------------------------------------
 
 GetRoomPointer:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 
 GetPointerDE2A:
 		    ld	    l, a
@@ -830,7 +830,7 @@ SetColorsIndexes:
 		    ld	    c, 8
 
 SetColorsIndexes2:
-		    ld	    de,	BufferColor		    ; Buffer used to store the colors' indexes for decoding 2/3bpp graphics
+		    ld	    de,	+vars.BufferColor		    ; Buffer used to store the colors' indexes for decoding 2/3bpp graphics
 		    ld	    b, 0
 		    ldir
 		    ret
@@ -845,7 +845,7 @@ SetColorsIndexes2:
 ;----------------------------------------------------------------------------
 
 GetNibbleRoom:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 
 ;----------------------------------------------------------------------------
 ;
@@ -890,7 +890,7 @@ GetNextRoomNum:
 		    call    SetBanks_4_5_6
 
 		    ld	    c, 0FFh
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    126				    ; First lorry room
 		    jr	    c, GetNextRoomNum3		    ; Rooms 0-125 have 1:1 exit	table index relation
 
@@ -915,7 +915,7 @@ GetNextRoomNum3:
 		    ld	    de,	RoomConnections
 		    call    HL_4xA
 		    add	    hl,	de
-		    ld	    a, (NextRoomDirect)		    ; 4=Right, 3=Left, 2=Down, 1=Up
+		    ld	    a, (+vars.NextRoomDirect)		    ; 4=Right, 3=Left, 2=Down, 1=Up
 		    dec	    a
 		    call    ADD_HL_A
 		    ld	    c, (hl)
@@ -941,7 +941,7 @@ GetElevatorPosY:
 		    call    SetBanks_4_5_6
 
 		    inc	    hl
-		    ld	    a, (PreviousRoom)		    ; Get the room used	to enter the elevator
+		    ld	    a, (+vars.PreviousRoom)		    ; Get the room used	to enter the elevator
 
 GetElevatorPos2:
 		    cp	    (hl)			    ; search the same room in the elevator data
@@ -980,18 +980,18 @@ GetElevPlayerY:
 GetElevatorRoomDat:
 		    call    SetBanks_4_5_6
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    sub	    0F0h			    ; First elevator room
 		    ld	    de,	idxElevatorRoom
 		    call    GetPointerDE2A
 
 		    ex	    de,	hl
 		    ld	    a, (hl)
-		    ld	    (ElevatorLimitUp), a	    ; Set elevator top limit
+		    ld	    (+vars.ElevatorLimitUp), a	    ; Set elevator top limit
 
 		    inc	    hl
 		    ld	    a, (hl)
-		    ld	    (ElevatorLimitDown), a	    ; Set elevator bottom limit
+		    ld	    (+vars.ElevatorLimitDown), a	    ; Set elevator bottom limit
 
 		    jr	    SetBanks_1_2_3_
 
@@ -1007,7 +1007,7 @@ SetDefaultDoorLock:
 
 
 		    ld	    de,	IdDoorsLogic		    ; Array that defines the open logic	of each	door and its default status (open/closed)
-		    ld	    hl,	DoorOpenArray		    ; 0=Open/1=Closed status of	all doors
+		    ld	    hl,	+vars.DoorOpenArray		    ; 0=Open/1=Closed status of	all doors
 		    ld	    b, 160			    ; (!?) 156 datas
 
 SetDefaultDoorLock2:
@@ -1038,13 +1038,13 @@ SetDefaultDoorLock3:
 ChkIsolatedRoom:
 		    call    SetBanks_A_B_C
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    hl,	RoomsMusic
 		    call    ADD_HL_A
 
 		    ld	    a, (hl)
 		    and	    7
-		    ld	    (IsolatedRoom), a		    ; Can't use binoculars. Shooting does not trigger the alarm
+		    ld	    (+vars.IsolatedRoom), a		    ; Can't use binoculars. Shooting does not trigger the alarm
 
 		    jr	    SetBanks_1_2_3_
 
@@ -1063,7 +1063,7 @@ SetRadioArea:
 		    ld	    hl,	idxMapZones
 		    call    GetNibbleRoom
 
-		    ld	    (MapZone), a		    ; Values of	5 or more need the antenna
+		    ld	    (+vars.MapZone), a		    ; Values of	5 or more need the antenna
 
 		    jr	    SetBanks_1_2_3_
 
@@ -1085,7 +1085,7 @@ GetWeaponDamages:
 		    ld	    de,	idxWeaponPow
 		    call    GetPointerDE2A
 
-		    ld	    (TempData),	de
+		    ld	    (+vars.TempData),	de
 		    dec	    de				    ; Pointer to maximum number	of simultaneous	'bullets'
 
 GET_DE_A:
@@ -1101,7 +1101,7 @@ GET_DE_A:
 
 GetTempPHL_A:
 		    call    SetBanks_4_5_6
-		    ld	    hl,	(TempData)
+		    ld	    hl,	(+vars.TempData)
 
 
 ;----------------------------------------------------------------------------
@@ -1168,7 +1168,7 @@ GetShapeInfo:
 
 		    ld	    de,	ImpactAreasInfo
 		    add	    hl,	de
-		    ld	    de,	TempImpactInfo		    ; Buffer used to store the shape/size of an	actor
+		    ld	    de,	+vars.TempImpactInfo		    ; Buffer used to store the shape/size of an	actor
 		    push    de
 		    ld	    bc,	4
 		    ldir
@@ -1200,9 +1200,9 @@ CalcCursorXYEquip:
 CalcCursorXY:
 		    call    SetBanks_4_5_6
 
-		    ld	    a, (SelectIdx)
+		    ld	    a, (+vars.SelectIdx)
 		    call    GetPointerDE2A
-		    ld	    (MenuCursorXY), de		    ; Coordinates
+		    ld	    (+vars.MenuCursorXY), de		    ; Coordinates
 
 		    jr	    SetBanks_1_2_3_
 
@@ -1222,7 +1222,7 @@ CalcCursorXY:
 
 
 GetItemInvAdd:
-		    ld	    hl,	Equipment		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
+		    ld	    hl,	+vars.Equipment		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
 		    ld	    b, 25			    ; Max. number of items
 		    jr	    GetInventoryAdd
 
@@ -1242,7 +1242,7 @@ GetItemInvAdd:
 
 
 GetWeaponInvAdd:
-		    ld	    hl,	Weapons
+		    ld	    hl,	+vars.Weapons
 		    ld	    b, 7			    ; Max. number of weapons
 
 GetInventoryAdd:
@@ -1268,10 +1268,10 @@ GetInventoryAdd2:
 ;----------------------------------------------------------------------------
 
 AddDoorsData:
-		    ld	    ix,	DoorsInRoom		    ; Number of	doors in the room
+		    ld	    ix,	+vars.DoorsInRoom		    ; Number of	doors in the room
 		    ld	    (ix+0), 0			    ; No doors by default
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    225				    ; Second ladders room
 		    jr	    c, AddDoorsData2
 
@@ -1286,7 +1286,7 @@ AddDoorsData2:
 		    ld	    de,	idxDoors
 		    call    GetPointerDE2A		    ; DE = Pointer to doors data in current room
 
-		    ld	    hl,	DoorsList		    ; 0=ID, 1=Open, 2=LogicOpen, 3=Type, 4=Cnt,	5=DrawY, 6=DrawX, 7=OpenOffY, 8=OpenNY,	9=OpenOffX, 10=OpenNX, 11=EnterOffY, 12=EnterNY, 13=EnterOffsetX, 14=EnterNY, 15=Destination room
+		    ld	    hl,	+vars.DoorsList		    ; 0=ID, 1=Open, 2=LogicOpen, 3=Type, 4=Cnt,	5=DrawY, 6=DrawX, 7=OpenOffY, 8=OpenNY,	9=OpenOffX, 10=OpenNX, 11=EnterOffY, 12=EnterNY, 13=EnterOffsetX, 14=EnterNY, 15=Destination room
 
 AddDoorsData3:
 		    ld	    a, (de)
@@ -1308,7 +1308,7 @@ AddDoorsData3:
 		    push    de
 
 		    dec	    a
-		    ld	    de,	DoorOpenArray		    ; 0=Open/1=Closed status of	all doors
+		    ld	    de,	+vars.DoorOpenArray		    ; 0=Open/1=Closed status of	all doors
 		    call    ADD_DE_A
 
 		    ld	    a, (de)			    ; Door open/close status
@@ -1486,7 +1486,7 @@ DrawTileBlkTimp:
 
 DrawTileBlkTimp2:
 		    xor	    a
-		    ld	    (TilesetBank), a		    ; 0=First bank of 256 tiles, 1=Second bank
+		    ld	    (+vars.TilesetBank), a		    ; 0=First bank of 256 tiles, 1=Second bank
 
 DrawTileBlkTimp3:
 		    call    SetBanks_D_E_F
@@ -1547,10 +1547,10 @@ DrawTileBlkTimp5:
 
 SetAreaMusic:
 		    xor	    a
-		    ld	    (AlertMode), a		    ; Stop alert mode
+		    ld	    (+vars.AlertMode), a		    ; Stop alert mode
 
 SetAreaMusic2:
-		    ld	    a, (GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    a, (+vars.GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 		    cp	    GAME_MODE_BINOCULARS
 		    ret	    z				    ; Binoculars mode. Do not change music or check for	incoming calls
 
@@ -1559,7 +1559,7 @@ SetAreaMusic2:
 ;
 		    ld	    c, 0			    ; Alert mode off
 
-		    ld	    a, (MapZone)		    ; Values of	5 or more need the antenna
+		    ld	    a, (+vars.MapZone)		    ; Values of	5 or more need the antenna
 		    cp	    4				    ; Building 1 basement?
 		    jr	    z, SetAreaMusic5
 
@@ -1568,7 +1568,7 @@ SetAreaMusic2:
 
 ; The alert is not triggered in	some rooms (e.g.: moving lorries, courtyard...)
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    hl,	RoomsNoAlert
 		    ld	    b, 11h
 
@@ -1588,7 +1588,7 @@ SetAreaMusic3:
 		    jr	    nc,	SetAreaMusic5
 
 SetAreaMusic4:
-		    ld	    a, (TransmiTaken)
+		    ld	    a, (+vars.TransmiTaken)
 		    and	    a				    ; Has the transmissor?
 		    jr	    z, SetAreaMusic6
 
@@ -1596,9 +1596,9 @@ SetAreaMusic4:
 
 SetAreaMusic5:
 		    ld	    a, c
-		    ld	    (AlertMode), a
+		    ld	    (+vars.AlertMode), a
 		    ld	    a, 1Eh
-		    ld	    (AlertRespawnTimer), a
+		    ld	    (+vars.AlertRespawnTimer), a
 
 
 ;
@@ -1606,27 +1606,27 @@ SetAreaMusic5:
 ;
 
 SetAreaMusic6:
-		    ld	    a, (SoundWorkAreaSfx+2)
+		    ld	    a, (+vars.SoundWorkAreaSfx+2)
 		    cp	    22h				    ; Sfx incoming call
 		    ld	    a, 28h			    ; Stop sfx
 		    call    z, SetSoundEntryChk		    ; Stop incoming call sfx
 
 		    call    SetBanks_A_B_C
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    hl,	RoomsMusic
 		    call    ADD_HL_A			    ; A	= Default music	for this area
 
-		    ld	    a, (DestructionTimerOn)
+		    ld	    a, (+vars.DestructionTimerOn)
 		    and	    a
 		    ld	    c, 3Bh			    ; Music: Escape beyond Big Boss
 		    jr	    nz,	SetAreaMusic8
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    and	    a
 		    jr	    z, SetAreaMusic7
 
-		    ld	    a, (AreaMusic)
+		    ld	    a, (+vars.AreaMusic)
 		    cp	    2Fh				    ; Music: (Alarm) Red alert
 		    jr	    z, ChkRadioCalls
 
@@ -1655,12 +1655,12 @@ SetAreaMusic7:
 		    ld	    c, 32h			    ; Music: (Sfx surprise) Red	alert
 
 SetAreaMusic8:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    and	    a				    ; Is the alert active?
 		    ld	    a, 32h			    ; Music: (Sfx surprise) Red	alert
 		    jr	    nz,	SetAreaMusic9
 
-		    ld	    a, (AreaMusic)		    ; Current area music
+		    ld	    a, (+vars.AreaMusic)		    ; Current area music
 		    cp	    c				    ; New area music
 		    jr	    z, ChkRadioCalls		    ; Are the same
 
@@ -1669,7 +1669,7 @@ SetAreaMusic8:
 SetAreaMusic9:
 		    ld	    c, a
 
-		    ld	    a, (DestructionTimerOn)
+		    ld	    a, (+vars.DestructionTimerOn)
 		    and	    a				    ; Is the destruction countdown running?
 		    jr	    z, SetAreaMusic10		    ; No
 
@@ -1677,8 +1677,8 @@ SetAreaMusic9:
 
 SetAreaMusic10:
 		    ld	    a, c
-		    ld	    (AreaMusic), a
-		    ld	    (MusicToSet), a		    ; New music	to play	(fade out current one)
+		    ld	    (+vars.AreaMusic), a
+		    ld	    (+vars.MusicToSet), a		    ; New music	to play	(fade out current one)
 
 ;
 ; Checks for incoming calls.
@@ -1689,11 +1689,11 @@ SetAreaMusic10:
 ChkRadioCalls:
 		    ld	    c, 2			    ; Stop incoming call by default
 
-		    ld	    a, (SchneiderCaptured)
+		    ld	    a, (+vars.SchneiderCaptured)
 		    and	    a
 		    jr	    z, ChkRadioCalls2		    ; Skip Scheneider. He is captured
 
-		    ld	    a, (RadioPersonsDat)	    ; 0=Frequency, 1=dummy, 2=bit0:autoreply 1:autotune, 3=Text	id
+		    ld	    a, (+vars.RadioPersonsDat)	    ; 0=Frequency, 1=dummy, 2=bit0:autoreply 1:autotune, 3=Text	id
 		    cp	    FREQ_SCHNEIDER
 		    jr	    z, ChkRadioCalls5		    ; Schneider	never calls
 
@@ -1701,15 +1701,15 @@ ChkRadioCalls:
 		    jr	    z, ChkRadioCalls5		    ; Schneider	never calls
 
 ChkRadioCalls2:
-		    ld	    a, (RadioPersonsDat)	    ; 0=Frequency, 1=dummy, 2=bit0:autoreply 1:autotune, 3=Text	id
+		    ld	    a, (+vars.RadioPersonsDat)	    ; 0=Frequency, 1=dummy, 2=bit0:autoreply 1:autotune, 3=Text	id
 		    cp	    FREQ_JENIFFER
 		    jr	    nz,	ChkRadioCalls3
 
-		    ld	    a, (Class)			    ; Logo end flag
+		    ld	    a, (+vars.Class)			    ; Logo end flag
 		    cp	    3
 		    jr	    nz,	ChkRadioCalls5		    ; Snake needs 4 stars rank to receive calls	from Jeniffer
 
-		    ld	    a, (JennifBrotherDead)
+		    ld	    a, (+vars.JennifBrotherDead)
 		    and	    a
 		    jr	    nz,	ChkRadioCalls5		    ; If Jeniffer's brother is dead, she will not call
 
@@ -1718,11 +1718,11 @@ ChkRadioCalls2:
 ;
 
 ChkRadioCalls3:
-		    ld	    a, (MapZone)		    ; Values of	5 or more need the antenna
+		    ld	    a, (+vars.MapZone)		    ; Values of	5 or more need the antenna
 		    cp	    5
 		    jr	    c, ChkRadioCalls4
 
-		    ld	    a, (AntennaTaken)
+		    ld	    a, (+vars.AntennaTaken)
 		    and	    a				    ; Does the player have the radio antenna?
 		    jr	    z, ChkRadioCalls5
 
@@ -1734,13 +1734,13 @@ ChkRadioCalls4:
 
 		    add	    a, a
 		    add	    a, a
-		    ld	    (IncomingCallTimer), a	    ; waits 32 iterations before receiving the radio call
+		    ld	    (+vars.IncomingCallTimer), a	    ; waits 32 iterations before receiving the radio call
 
 		    ld	    c, 0
 
 ChkRadioCalls5:
 		    ld	    a, c
-		    ld	    (RadioCallFlag), a		    ; 1=Start incoming call, 2=Stop incoming call
+		    ld	    (+vars.RadioCallFlag), a		    ; 1=Start incoming call, 2=Stop incoming call
 		    jp	    SetBanks1_2_3
 
 
@@ -1784,7 +1784,7 @@ SaveBackgTiles:
 
 		    call    SetBanks1_2_3
 
-		    ld	    de,	SavedTilesBuffer	    ; Buffer used to save the background tiles of a tileblock
+		    ld	    de,	+vars.SavedTilesBuffer	    ; Buffer used to save the background tiles of a tileblock
 		    call    CoordToBuffTile
 
 SaveBckgTiles2:
@@ -1851,7 +1851,7 @@ DecItemUnits2:
 		    call    RemoveItem
 
 		    xor	    a
-		    ld	    (SelectedWeapon), a
+		    ld	    (+vars.SelectedWeapon), a
 		    jp	    DrawWeaponHUD
 
 
@@ -1892,7 +1892,7 @@ DecItemUnits3:
 		    call    FillRect			    ; Erase item icon and name
 
 		    xor	    a
-		    ld	    (SelectedItem), a
+		    ld	    (+vars.SelectedItem), a
 		    jp	    DrawItemHUD			    ; Erase item in HUD
 
 
@@ -1971,16 +1971,16 @@ DrawWeaponMenu:
 		    ld	    hl,	txtWeaponSelect
 		    call    PrintTextXY			    ; Prints the title
 
-		    ld	    a, (EquipRemoved)		    ; The equipment and	weapons	have been removed by the enemy (captured)
+		    ld	    a, (+vars.EquipRemoved)		    ; The equipment and	weapons	have been removed by the enemy (captured)
 		    and	    a				    ; Was the equipment	removed	by the enemy?
 		    jp	    nz,	SetBanks1_2_3
 
 		    ld	    hl,	1828h
-		    ld	    (TempData2+1), hl		    ; First weapon DX,DY
+		    ld	    (+vars.TempData2+1), hl		    ; First weapon DX,DY
 		    ld	    a, 18h			    ; Next weapon Y offset
-		    ld	    (TempData3+1), a		    ; MetaTiles, Enemy
+		    ld	    (+vars.TempData3+1), a		    ; MetaTiles, Enemy
 
-		    ld	    hl,	Weapons
+		    ld	    hl,	+vars.Weapons
 		    ld	    b, 8			    ; 7	weapons	+ supressor
 
 DrawWeaponMenu2:
@@ -1991,19 +1991,19 @@ DrawWeaponMenu2:
 		    and	    a				    ; Empty slot?
 		    jr	    z, DrawWeaponMenu4
 
-		    ld	    (TempData),	a		    ; Weapon ID
+		    ld	    (+vars.TempData),	a		    ; Weapon ID
 		    inc	    hl
 		    ld	    e, (hl)
 		    inc	    hl
 		    ld	    d, (hl)			    ; DE = Amount of ammo
-		    ld	    (TempData+1), de
+		    ld	    (+vars.TempData+1), de
 
-		    ld	    a, (TempData)
+		    ld	    a, (+vars.TempData)
 		    ld	    hl,	WeaponGfxXY
 		    call    ADD_HL_2A_DEC		    ; HL = Pointer to weapong gfx coordinates in VRAM
 
 		    ld	    c, (hl)			    ; X
-		    ld	    de,	(TempData2+1)		    ; DX, DY
+		    ld	    de,	(+vars.TempData2+1)		    ; DX, DY
 		    rr	    c				    ; odd number?
 		    ld	    bc,	2010h			    ; NX, NY (32x16)
 		    jr	    nc,	DrawWeaponMenu3
@@ -2023,25 +2023,25 @@ DrawWeaponMenu3:
 		    call    VDP_Copy_Byte
 
 		    ld	    de,	idxWeaponName
-		    ld	    a, (TempData)		    ; Weapon ID
+		    ld	    a, (+vars.TempData)		    ; Weapon ID
 		    dec	    a
 		    call    GetPointerDE2A		    ; DE = Pointer to weapon's name
 
-		    ld	    hl,	(TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    hl,	(+vars.TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
 		    ld	    a, 32
 		    add	    a, h
 		    ld	    h, a			    ; DX = DX +	32 (name to the	right of weapon's icon)
 		    ex	    de,	hl
 		    call    PrintText			    ; Print weapon's name
 
-		    ld	    a, (TempData)
+		    ld	    a, (+vars.TempData)
 		    cp	    SUPRESSOR			    ; Is the supressor?
 		    jr	    z, DrawWeaponMenu4		    ; Skip printing ammo amount
 
-		    ld	    hl,	(TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    hl,	(+vars.TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
 		    ld	    de,	5008h			    ; Ammo amount XY offset (+80,+8)
 		    add	    hl,	de
-		    ld	    de,	TempData2		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    de,	+vars.TempData2		    ; Enemy XY,	MetaTileSetAddr
 		    ex	    de,	hl
 
 		    call    SetBanks1_2_3
@@ -2049,10 +2049,10 @@ DrawWeaponMenu3:
 		    call    SetBanks_4_5_6
 
 DrawWeaponMenu4:
-		    ld	    a, (TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
-		    ld	    hl,	 TempData3+1		    ; MetaTiles, Enemy
+		    ld	    a, (+vars.TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    hl,	 +vars.TempData3+1		    ; MetaTiles, Enemy
 		    add	    a, (hl)
-		    ld	    (TempData2+1), a		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    (+vars.TempData2+1), a		    ; Enemy XY,	MetaTileSetAddr
 
 		    pop	    hl
 		    ld	    a, 4
@@ -2064,7 +2064,7 @@ DrawWeaponMenu4:
 		    jr	    nz,	DrawWeaponMenu5
 
 		    ld	    de,	8828h			    ; XY Right weapons column
-		    ld	    (TempData2+1), de		    ; Next weapon coordinates
+		    ld	    (+vars.TempData2+1), de		    ; Next weapon coordinates
 		    jr	    DrawWeaponMenu6
 
 
@@ -2073,7 +2073,7 @@ DrawWeaponMenu5:
 		    jr	    nz,	DrawWeaponMenu6
 
 		    ld	    de,	60A8h			    ; Supressor	coordinates
-		    ld	    (TempData2+1), de		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    (+vars.TempData2+1), de		    ; Enemy XY,	MetaTileSetAddr
 
 DrawWeaponMenu6:
 		    dec	    b
@@ -2099,11 +2099,11 @@ DrawWeaponHUD:
 
 		    call    EraseWeaponBox		    ; Erase the	selected weapon	box
 
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    and	    a				    ; Any weapon selected?
 		    jr	    z, SetBanks_1_2_3__
 
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    ld	    hl,	WeaponGfxXY
 		    call    ADD_HL_2A_DEC		    ; Pointer to weapon	gfx coordinates
 
@@ -2129,7 +2129,7 @@ DrawWeapon2:
 
 		    call    SetBanks1_2_3
 
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    call    GetWeaponInvAdd		    ; Get pointer to weapon data in inventory
 
 		    inc	    hl
@@ -2168,14 +2168,14 @@ DrawEquipMenu:
 		    ld	    hl,	txtEquipmentSel
 		    call    PrintTextXY			    ; Print title
 
-		    ld	    a, (EquipRemoved)		    ; The equipment and	weapons	have been removed by the enemy (captured)
+		    ld	    a, (+vars.EquipRemoved)		    ; The equipment and	weapons	have been removed by the enemy (captured)
 		    and	    a
 		    jr	    nz,	SetBanks_1_2_3__	    ; Don't show the equipment screen
 
 		    ld	    hl,	1828h
-		    ld	    (TempData2+1), hl		    ; Firts item DX, DY
+		    ld	    (+vars.TempData2+1), hl		    ; Firts item DX, DY
 
-		    ld	    hl,	Equipment		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
+		    ld	    hl,	+vars.Equipment		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
 		    ld	    b, 25
 
 DrawEquipMenu2:
@@ -2186,14 +2186,14 @@ DrawEquipMenu2:
 		    and	    a				    ; Empty slot?
 		    jr	    z, DrawEquipMenu3
 
-		    ld	    (TempData),	a
+		    ld	    (+vars.TempData),	a
 		    inc	    hl
 		    ld	    e, (hl)
 		    inc	    hl
 		    ld	    d, (hl)			    ; DE = amount
-		    ld	    (TempData+1), de
+		    ld	    (+vars.TempData+1), de
 
-		    ld	    a, (TempData)
+		    ld	    a, (+vars.TempData)
 		    ld	    de,	ItemGfxXY
 		    dec	    a
 		    call    GetPointerDE2A		    ; DE = Item	coordinates in VRAM page 1
@@ -2202,39 +2202,39 @@ DrawEquipMenu2:
 		    res	    0, e
 		    ld	    l, d
 		    ld	    h, e
-		    ld	    de,	(TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    de,	(+vars.TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
 		    ld	    a, 1			    ; From VRAM	page 1 to 0
 		    call    VDP_Copy_Byte		    ; Draw item
 
 		    ld	    de,	idxItemName
-		    ld	    a, (TempData)		    ; Item ID
+		    ld	    a, (+vars.TempData)		    ; Item ID
 		    dec	    a
 		    call    GetPointerDE2A		    ; DE = Pointer to item name
 
-		    ld	    hl,	(TempData2+1)		    ; Item DX, DY
+		    ld	    hl,	(+vars.TempData2+1)		    ; Item DX, DY
 		    ld	    a, 16
 		    add	    a, h
 		    ld	    h, a			    ; DX = DX +	8 (Print the name to the right of the item)
 		    ex	    de,	hl
 		    call    PrintText			    ; Print item name
 
-		    ld	    a, (TempData)
+		    ld	    a, (+vars.TempData)
 		    cp	    16h
 		    jr	    nz,	DrawEquipMenu3
 
-		    ld	    hl,	(TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    hl,	(+vars.TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
 		    ld	    de,	2808h
 		    add	    hl,	de
-		    ld	    de,	TempData2		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    de,	+vars.TempData2		    ; Enemy XY,	MetaTileSetAddr
 		    ex	    de,	hl
 		    call    SetBanks1_2_3
 		    call    Render3Numbers
 		    call    SetBanks_4_5_6
 
 DrawEquipMenu3:
-		    ld	    a, (TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    a, (+vars.TempData2+1)		    ; Enemy XY,	MetaTileSetAddr
 		    add	    a, 10h
-		    ld	    (TempData2+1), a		    ; Next item	DY
+		    ld	    (+vars.TempData2+1), a		    ; Next item	DY
 
 		    pop	    hl
 		    ld	    a, 4
@@ -2252,7 +2252,7 @@ DrawEquipMenu3:
 		    ld	    d, 0B8h			    ; X	coordinate for 3rd (right) items column
 
 DrawEquipMenu4:
-		    ld	    (TempData2+1), de		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    (+vars.TempData2+1), de		    ; Enemy XY,	MetaTileSetAddr
 
 DrawEquipMenu5:
 		    dec	    b
@@ -2277,7 +2277,7 @@ DrawItemHUD:
 
 		    call    EraseItemBox		    ; Erase item in HUD
 
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    and	    a				    ; Any item selected?
 		    jp	    z, SetBanks1_2_3		    ; No
 
@@ -2296,7 +2296,7 @@ DrawItemHUD:
 		    call    SetBanks1_2_3
 
 		    ld	    c, 0
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_CARD1
 		    ret	    c
 
@@ -2390,7 +2390,7 @@ UpdateRadio:
 		    ld	    c, 0			    ; Number of	persons	available on the radio
 		    jr	    z, SetNumRadioPers
 
-		    ld	    de,	RadioPersonsDat		    ; 0=Frequency, 1=dummy, 2=bit0:autoreply 1:autotune, 3=Text	id
+		    ld	    de,	+vars.RadioPersonsDat		    ; 0=Frequency, 1=dummy, 2=bit0:autoreply 1:autotune, 3=Text	id
 
 UpdateRadio2:
 		    ld	    a, (hl)
@@ -2422,7 +2422,7 @@ UpdateRadio2:
 		    jr	    z, UpdateRadio3
 
 		    ld	    a, b
-		    ld	    (RadioFreq), a		    ; Set the right frequency
+		    ld	    (+vars.RadioFreq), a		    ; Set the right frequency
 
 UpdateRadio3:
 		    inc	    de
@@ -2444,7 +2444,7 @@ UpdateRadio3:
 
 SetNumRadioPers:
 		    ld	    a, c			    ; Number of	available characters on	radio
-		    ld	    (NumRadioPersons), a
+		    ld	    (+vars.NumRadioPersons), a
 		    jp	    SetBanks1_2_3
 
 
@@ -2523,9 +2523,9 @@ SetBankInA0_F:
 ;----------------------------------------------------------------------------
 
 SetBankInA0:
-		    ld	    (BankInA0),	a
+		    ld	    (+vars.BankInA0),	a
 		    ld	    (0A000h), a
-		    ld	    (BankInA0Fixed), a
+		    ld	    (+vars.BankInA0Fixed), a
 		    pop	    af
 		    ei
 		    ret
@@ -2545,7 +2545,7 @@ LoadRoomTiles:
 		    ld	    hl,	RoomGfxSetIds
 		    call    GetNibbleRoom		    ; Get tileset ID of	current	room
 
-		    ld	    hl,	CurrentTileSet
+		    ld	    hl,	+vars.CurrentTileSet
 		    cp	    (hl)			    ; Already loaded?
 		    jp	    z, SetBanks1_2_3
 
@@ -2590,10 +2590,10 @@ LoadRoomTiles3:
 LoadColliTiles:
 		    call    SetBanks1_2_3		    ; (!?)
 
-		    ld	    a, (CurrentTileSet)
+		    ld	    a, (+vars.CurrentTileSet)
 		    call    SetBanks_7_8_9
 
-		    ld	    hl,	CollisionTiles		    ; Collision	property of the	tiles (bit 0 = 1 collision)
+		    ld	    hl,	+vars.CollisionTiles		    ; Collision	property of the	tiles (bit 0 = 1 collision)
 		    exx
 		    ld	    hl,	IdxColisTiles
 		    call    ADD_HL_2A			    ; Pointer to collision data	of current tileset
@@ -2646,14 +2646,14 @@ LoadTileset:
 
 		    ld	    b, (ix+1)			    ; Number of	tiles
 		    ld	    a, b
-		    ld	    (TempData),	a
+		    ld	    (+vars.TempData),	a
 
 		    ld	    a, (ix+2)			    ; Destination tile number
 		    call    TileToVramAdd		    ; Calculate	destination VRAM address
 
 		    ld	    e, (ix+3)
 		    ld	    d, (ix+4)			    ; DE = Pointer to graphics data
-		    ld	    (TempData+1), de
+		    ld	    (+vars.TempData+1), de
 		    ex	    de,	hl
 		    call    Load3bppTiles
 		    pop	    bc
@@ -2661,12 +2661,12 @@ LoadTileset:
 
 
 LoadTilesFlip:
-		    ld	    a, (TempData)
+		    ld	    a, (+vars.TempData)
 		    ld	    b, a			    ; Number of	tiles
 		    ld	    a, (ix+1)			    ; Destination tile number
 		    call    TileToVramAdd
 
-		    ld	    de,	(TempData+1)
+		    ld	    de,	(+vars.TempData+1)
 		    ex	    de,	hl			    ; HL = Pointer to graphics data
 		    call    Load3bppTileFlip
 		    pop	    bc
@@ -2778,7 +2778,7 @@ LoadTilesGfxBlk:
 LoadRoomSpr:
 		    call    SetBanks_A_B_C
 
-		    ld	    a, (Room)			    ; Current room
+		    ld	    a, (+vars.Room)			    ; Current room
 		    ld	    hl,	SpritesetRooms
 		    call    ADD_HL_A			    ; A	= Spriteset ID of the room
 
@@ -2916,7 +2916,7 @@ SetSprPal:
 		    call    SetBanks_A_B_C
 
 		    ld	    hl,	SpritesetRooms
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    call    ADD_HL_A
 
 		    ld	    a, (hl)			    ; A	= Spriteset ID
@@ -2938,7 +2938,7 @@ SetRoomPal:
 		    ld	    hl,	IdsRoomPal
 		    call    SetBanks_4_5_6
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    b, a
 		    cp	    251				    ; Ending
 		    jr	    z, SetRoomPal1
@@ -2956,7 +2956,7 @@ SetRoomPal:
 		    jr	    c, ChkGogglesPal
 
 ChkFlashLight:
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_FLASHLIGHT		    ; Flash light
 		    jr	    z, ChkGogglesPal
 
@@ -2965,7 +2965,7 @@ ChkFlashLight:
 
 
 ChkGogglesPal:
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_GOGGLES		    ; Goggles
 		    jr	    nz,	SetRoomPal1
 
@@ -3136,7 +3136,7 @@ SetBanks_1_2_3_b:
 LoadSprProjectile:
 		    call    SetBanks_A_B_C
 
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    and	    a				    ; Any weapon selected?
 		    jr	    z, SetBanks_1_2_3_b		    ; None
 
@@ -3321,9 +3321,9 @@ DrawTileList4:
 
 UnpackMetatiles:
 		    ld	    a, 8
-		    ld	    (MetatilesNX), a		    ; Number of	X metatiles in a room
-		    ld	    (TempData),	de
-		    ld	    (TempData3), hl		    ; MetaTiles, Enemy
+		    ld	    (+vars.MetatilesNX), a		    ; Number of	X metatiles in a room
+		    ld	    (+vars.TempData),	de
+		    ld	    (+vars.TempData3), hl		    ; MetaTiles, Enemy
 
 		    ld	    hl,	MetaTileSetIDs
 		    call    GetNibbleRoom		    ; Get metatileset ID
@@ -3331,22 +3331,22 @@ UnpackMetatiles:
 		    dec	    a
 		    ld	    de,	idxMetatileSet
 		    call    GetPointerDE2A
-		    ld	    (TempData2), de		    ; Pointer to metatiles definition
+		    ld	    (+vars.TempData2), de		    ; Pointer to metatiles definition
 
 UnpackMetatiles2:
-		    ld	    hl,	(TempData3)		    ; Pointer to room metatile
+		    ld	    hl,	(+vars.TempData3)		    ; Pointer to room metatile
 		    ld	    a, (hl)			    ; Metatile ID
 		    inc	    hl
-		    ld	    (TempData3), hl		    ; MetaTiles, Enemy
+		    ld	    (+vars.TempData3), hl		    ; MetaTiles, Enemy
 
-		    ld	    de,	(TempData2)		    ; Pointer to metatiles
+		    ld	    de,	(+vars.TempData2)		    ; Pointer to metatiles
 		    call    DEC_A_HL_4xA
 
 		    add	    hl,	hl
 		    add	    hl,	hl
 		    add	    hl,	de			    ; HL = Pointer to the tiles	of the metatile
 
-		    ld	    de,	(TempData)		    ; Room tiles buffer
+		    ld	    de,	(+vars.TempData)		    ; Room tiles buffer
 
 		    ld	    c, 4			    ; 4	tiles height
 
@@ -3369,9 +3369,9 @@ UnpackMetatiles4:
 		    and	    a
 		    ld	    de,	7Ch
 		    sbc	    hl,	de
-		    ld	    (TempData),	hl
+		    ld	    (+vars.TempData),	hl
 
-		    ld	    hl,	MetatilesNX
+		    ld	    hl,	+vars.MetatilesNX
 		    dec	    (hl)
 		    jr	    nz,	UnpackMetatiles2
 		    ret
@@ -3393,8 +3393,8 @@ RenderRoom:
 
 		    call    ClearPage0
 
-		    ld	    hl,	RoomTileBuffer		    ; Buffer to	store the tiles	of the room
-		    ld	    (TempData),	hl
+		    ld	    hl,	+vars.RoomTileBuffer		    ; Buffer to	store the tiles	of the room
+		    ld	    (+vars.TempData),	hl
 
 		    ld	    de,	idxRooms
 		    call    GetRoomPointer
@@ -3406,7 +3406,7 @@ RenderRoom:
 
 RenderRoom2:
 		    push    bc
-		    ld	    de,	(TempData)
+		    ld	    de,	(+vars.TempData)
 
 		    push    de
 		    push    hl
@@ -3416,7 +3416,7 @@ RenderRoom2:
 
 		    ld	    a, 80h			    ; 32 tiles (NX room) * 4 (metatile NY)
 		    call    ADD_DE_A
-		    ld	    (TempData),	de		    ; Pointer to next row
+		    ld	    (+vars.TempData),	de		    ; Pointer to next row
 
 		    ld	    a, 8			    ; Number of	metatiles in a row
 		    call    ADD_HL_A
@@ -3427,7 +3427,7 @@ RenderRoom2:
 
 ; Render the room
 
-		    ld	    hl,	RoomTileBuffer
+		    ld	    hl,	+vars.RoomTileBuffer
 		    ld	    de,	0
 		    ld	    bc,	300h
 
@@ -3818,8 +3818,8 @@ ClearSprAttr:
 ;----------------------------------------------------------------------------
 
 EraseSprAttRAM:
-		    ld	    de,	 SprAttRAM+1
-		    ld	    hl,	SprAttRAM
+		    ld	    de,	 +vars.SprAttRAM+1
+		    ld	    hl,	+vars.SprAttRAM
 		    ld	    bc,	7Fh
 		    ld	    (hl), 0E0h
 		    ldir
@@ -4457,7 +4457,7 @@ Load1bppTile:
 		    add	    a, 80h			    ; #8000 = VRAM address page	1
 		    ld	    d, a			    ; DE = VRAM	address	of (DX,	DY)
 
-		    ld	    hl,	DecodeTileBuf
+		    ld	    hl,	+vars.DecodeTileBuf
 		    call    LoadTileGfx			    ; Transfer one tile	from RAM to VRAM
 
 		    pop	    hl
@@ -4543,7 +4543,7 @@ LoadTilesGfxFlip:
 		    push    bc
 		    push    de
 
-		    ld	    de,	 DecodeTileBuf+3
+		    ld	    de,	 +vars.DecodeTileBuf+3
 		    ld	    c, 8			    ; 8	lines
 
 LoadTilesGfxFlip2:
@@ -4568,7 +4568,7 @@ LoadTilesGfxFlip3:
 		    pop	    de				    ; Destination VRAM address
 
 		    push    hl
-		    ld	    hl,	DecodeTileBuf
+		    ld	    hl,	+vars.DecodeTileBuf
 		    call    LoadTileGfx			    ; Transfer the flipped tile	from RAM to VRAM
 		    pop	    hl
 
@@ -4601,7 +4601,7 @@ LoadTilesGfxFlip4:
 
 Decode1bppTile:
 		    ld	    b, 8			    ; 8	lines
-		    ld	    de,	DecodeTileBuf
+		    ld	    de,	+vars.DecodeTileBuf
 
 Decode1bppTile2:
 		    push    bc
@@ -4791,7 +4791,7 @@ DrawTileTIMP:
 		    push    hl
 		    push    de
 
-		    ld	    hl,	TilesetBank		    ; 0=First bank of 256 tiles, 1=Second bank
+		    ld	    hl,	+vars.TilesetBank		    ; 0=First bank of 256 tiles, 1=Second bank
 
 		    bit	    0, (hl)
 		    jr	    z, DrawTileTIMP2		    ; Main bank
@@ -5023,7 +5023,7 @@ DrawPitfallTiles4:
 Load2bppTile:
 		    push    bc
 		    exx
-		    ld	    hl,	BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
+		    ld	    hl,	+vars.BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
 		    exx
 
 		    push    de
@@ -5031,7 +5031,7 @@ Load2bppTile:
 		    pop	    de
 
 		    push    hl
-		    ld	    hl,	BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
+		    ld	    hl,	+vars.BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
 		    ld	    b, 1			    ; 1	tile
 		    call    LoadTilesGfx		    ; Transfer tiles from RAM to VRAM
 		    pop	    hl
@@ -5089,7 +5089,7 @@ Decode2bppRow2:
 
 		    exx
 		    ld	    e, a
-		    ld	    d, BufferColor/256;		0E7h			    ; (!?) #E700 (BufferColor) + color index
+		    ld	    d, +vars.BufferColor/256;		0E7h			    ; (!?) #E700 (+vars.BufferColor) + color index
 		    ld	    a, (de)
 		    add	    a, a
 		    add	    a, a
@@ -5106,7 +5106,7 @@ Decode2bppRow2:
 
 		    exx
 		    ld	    e, a
-		    ld	    d, BufferColor/256;		0E7h			    ; (!?) #E700 (BufferColor) + color index
+		    ld	    d, +vars.BufferColor/256;		0E7h			    ; (!?) #E700 (+vars.BufferColor) + color index
 		    ld	    a, (de)			    ; A	= Color	pixel 2	(low nibble)
 		    or	    c
 		    ld	    (hl), a
@@ -5130,7 +5130,7 @@ Load3bppTiles:
 		    push    bc
 
 		    exx
-		    ld	    hl,	BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
+		    ld	    hl,	+vars.BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
 		    exx
 
 		    push    de
@@ -5138,7 +5138,7 @@ Load3bppTiles:
 		    pop	    de
 
 		    push    hl
-		    ld	    hl,	BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
+		    ld	    hl,	+vars.BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
 		    ld	    b, 1
 		    call    LoadTilesGfx
 		    pop	    hl
@@ -5152,7 +5152,7 @@ Load3bppTileFlip:
 		    push    bc
 
 		    exx
-		    ld	    hl,	BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
+		    ld	    hl,	+vars.BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
 		    exx
 
 		    push    de
@@ -5160,7 +5160,7 @@ Load3bppTileFlip:
 		    pop	    de
 
 		    push    hl
-		    ld	    hl,	BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
+		    ld	    hl,	+vars.BufferGfx		    ; Buffer used to decode 2bpp and 3bpp graphics
 		    ld	    b, 1
 		    call    LoadTilesGfxFlip
 		    pop	    hl
@@ -5222,7 +5222,7 @@ Decode3bpp2:
 
 		    exx
 		    ld	    e, a
-		    ld	    d, BufferColor/256;		0E7h			    ; (!?) #E700 (BufferColor) + color index
+		    ld	    d, +vars.BufferColor/256;		0E7h			    ; (!?) #E700 (+vars.BufferColor) + color index
 		    ld	    a, (de)
 		    add	    a, a
 		    add	    a, a
@@ -5241,7 +5241,7 @@ Decode3bpp2:
 
 		    exx
 		    ld	    e, a
-		    ld	    d, BufferColor/256;		0E7h			    ; (!?) #E700 (BufferColor) + color index
+		    ld	    d, +vars.BufferColor/256;		0E7h			    ; (!?) #E700 (+vars.BufferColor) + color index
 		    ld	    a, (de)			    ; A	= Color	pixel 2	(low nibble)
 		    or	    c				    ; A	= Both pixels colors
 		    ld	    (hl), a			    ; Store the	result in the gfx buffer
@@ -5275,18 +5275,18 @@ GetText:
 		    call    SetBanks_A_B_C
 
 		    xor	    a
-		    ld	    (SkipTextF), a
+		    ld	    (+vars.SkipTextF), a
 
-		    ld	    a, (TextId)			    ; Text ID
+		    ld	    a, (+vars.TextId)			    ; Text ID
 		    dec	    a
 		    ld	    de,	idxTexts
 		    call    GetPointerDE2A
 
 
-		    ld	    (TextPointer), de		    ; Pointer to text
+		    ld	    (+vars.TextPointer), de		    ; Pointer to text
 
 		    ld	    a, (de)
-		    ld	    (TextBoxType), a		    ; Text box type
+		    ld	    (+vars.TextBoxType), a		    ; Text box type
 
 SetBanks1_2_3_e:
 		    jp	    SetBanks1_2_3
@@ -5305,8 +5305,8 @@ SetBanks1_2_3_e:
 DecodeText:
 		    call    SetBanks_A_B_C
 
-		    ld	    de,	TextBuffer		    ; Pointer to text buffer
-		    ld	    hl,	(TextPointer)		    ; Pointer to text to decode
+		    ld	    de,	+vars.TextBuffer		    ; Pointer to text buffer
+		    ld	    hl,	(+vars.TextPointer)		    ; Pointer to text to decode
 
 DecodeText2:
 		    ld	    a, (hl)
@@ -5406,22 +5406,22 @@ SetSnakeSprAtt:
 		    call    SetBanks_A_B_C
 
 		    ld	    de,	SnakeSprAttIds		    ; List of attributes sets IDs
-		    ld	    a, (SnakeSprId)		    ; Current Snake sprite ID
+		    ld	    a, (+vars.SnakeSprId)		    ; Current Snake sprite ID
 		    call    ADD_DE_A
 		    ld	    a, (de)			    ; Sprites attributes ID
 
 		    ld	    de,	idxSnakeSprAttr
 		    call    GetPointerDE2A		    ; DE = Pointer to attributes for current frame
 
-		    ld	    a, (Room)			    ; Current room
+		    ld	    a, (+vars.Room)			    ; Current room
 		    cp	    240				    ; Elevator?
-		    ld	    hl,	SprAttRAM		    ; Use sprite layer 0 by default
+		    ld	    hl,	+vars.SprAttRAM		    ; Use sprite layer 0 by default
 		    jr	    c, SetSnakeSprAtt2
 
 		    cp	    251				    ; Ending?
 		    jr	    z, SetSnakeSprAtt2
 
-		    ld	    hl,	SnakeAttrLow		    ; Sprite layer 16 in elevator rooms
+		    ld	    hl,	+vars.SnakeAttrLow		    ; Sprite layer 16 in elevator rooms
 
 SetSnakeSprAtt2:
 		    ex	    de,	hl
@@ -5436,7 +5436,7 @@ SetSnakeSprAtt3:
 		    ld	    a, 0E0h			    ; Hidden Y
 		    jr	    z, SetSnakeSprAtt4
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    add	    a, (hl)			    ; Add Y offset
 
 SetSnakeSprAtt4:
@@ -5444,7 +5444,7 @@ SetSnakeSprAtt4:
 
 		    inc	    hl
 		    inc	    e
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    add	    a, (hl)			    ; Add X offset
 		    ld	    (de), a
 
@@ -5469,14 +5469,14 @@ SetSnakeSprCol:
 		    call    SetBanks_A_B_C
 
 		    ld	    de,	SnakeSprAttIds		    ; List of attributes sets IDs
-		    ld	    a, (SnakeSprId)
+		    ld	    a, (+vars.SnakeSprId)
 		    call    ADD_DE_A
 		    ld	    a, (de)			    ; Sprites attributes set ID
 
 		    ld	    de,	idxSnakeSprAttr
 		    call    GetPointerDE2A		    ; DE = Pointer to attributes for current frame
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    240				    ; Elevator?
 		    ld	    hl,	0E800h			    ; Sprite color table address (layer	0)
 
@@ -5486,11 +5486,11 @@ SetSnakeSprCol:
 SetSnakeSprCol2:
 		    ex	    de,	hl
 
-		    ld	    a, (DamageDelayTimer)
+		    ld	    a, (+vars.DamageDelayTimer)
 		    and	    a				    ; flashing colors to show damage?
 		    jr	    z, SetSnakeSprCol3
 
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    bit	    0, a			    ; One frame	red, one frame normal
 		    jr	    nz,	SetSnakeSprCol3
 
@@ -5545,7 +5545,7 @@ SetSnakeSprPatt:
 		    call    SetVramAddressWR		    ; Set destination VRAM address
 
 		    ld	    de,	idxSnakeSpr		    ; Index of Snake sprites graphics
-		    ld	    a, (SnakeSprId)		    ; Current sprite ID
+		    ld	    a, (+vars.SnakeSprId)		    ; Current sprite ID
 		    call    SetBanks_A_B_C
 		    call    GetPointerDE2A		    ; Pointer to packed	sprite
 
@@ -5651,11 +5651,11 @@ SetShotSpr4:
 ;----------------------------------------------------------------------------
 
 InitLaserRoom:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    and	    a
 		    jp	    nz,	DismissActor		    ; There are	no laser beams in alert	mode
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    sub	    24				    ; Lasers room 1 (24)
 		    ld	    de,	LasersRoom24
 		    jr	    z, InitLaserRoom2
@@ -5669,9 +5669,9 @@ InitLaserRoom:
 InitLaserRoom2:
 		    call    SetBanks_A_B_C
 
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
 		    ld	    a, (de)			    ; Number of	laser beans
-		    ld	    (NumEnemies), a
+		    ld	    (+vars.NumEnemies), a
 		    inc	    de
 		    ld	    b, a
 
@@ -5686,7 +5686,7 @@ InitLaserRoom3:
 		    inc	    hl
 		    ld	    a, (de)			    ; 1	= Status
 		    ld	    (hl), a
-		    ld	    (TempData),	a
+		    ld	    (+vars.TempData),	a
 
 		    inc	    de
 		    inc	    hl
@@ -5705,7 +5705,7 @@ InitLaserRoom3:
 		    ld	    a, (de)			    ; 5	= X
 		    ld	    (hl), a
 		    ld	    b, a
-		    ld	    (TempData+1), bc		    ; XY
+		    ld	    (+vars.TempData+1), bc		    ; XY
 
 		    inc	    de
 		    inc	    hl
@@ -5716,7 +5716,7 @@ InitLaserRoom3:
 		    ld	    (hl), 1			    ; 13 = Life
 
 		    inc	    hl
-		    ld	    a, (TempData)
+		    ld	    a, (+vars.TempData)
 		    ld	    (hl), a			    ; 14 = Collisions config. =	status (Check collisions with the player ON/OFF)
 
 		    inc	    hl
@@ -5735,7 +5735,7 @@ InitLaserRoom3:
 		    ld	    a, (de)
 		    ld	    (hl), a			    ; 20 = DX VRAM buffer
 		    ld	    b, a
-		    ld	    (TempData2+1), bc		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    (+vars.TempData2+1), bc		    ; Enemy XY,	MetaTileSetAddr
 
 		    inc	    de
 		    inc	    hl
@@ -5749,8 +5749,8 @@ InitLaserRoom3:
 		    ld	    (hl), a			    ; 22 = Vert/Horiz
 
 		    ld	    c, 2
-		    ld	    hl,	(TempData+1)		    ; SX,SY
-		    ld	    de,	(TempData2+1)		    ; DX,DY
+		    ld	    hl,	(+vars.TempData+1)		    ; SX,SY
+		    ld	    de,	(+vars.TempData2+1)		    ; DX,DY
 		    rra
 		    jr	    c, InitLaserRoom4
 
@@ -5783,15 +5783,15 @@ InitLaserRoom4:
 ;----------------------------------------------------------------------------
 
 DrawMovingLasers:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    72				    ; Laser room (1st floor building 2)
 		    ret	    nz
 
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_GOGGLES		    ; Goggles
 		    ret	    nz
 
-		    ld	    hl,	LaserRoomTimer		    ; Wait time	before moving lasers
+		    ld	    hl,	+vars.LaserRoomTimer		    ; Wait time	before moving lasers
 		    inc	    (hl)
 		    ld	    a, (hl)
 		    cp	    0C0h
@@ -5816,12 +5816,12 @@ DrawMovingLasers2:
 		    call    SetBanks1_2_3		    ; (!?)
 		    call    SetBanks_A_B_C
 
-		    ld	    a, (LaserRoomCnt)		    ; Laser position counter
+		    ld	    a, (+vars.LaserRoomCnt)		    ; Laser position counter
 		    ld	    de,	idxLaserOnOff
 		    call    GetPointerDE2A
 
-		    ld	    hl,	 EnemyList+1		    ; Array of enemies in the room
-		    ld	    a, (NumEnemies)
+		    ld	    hl,	 +vars.EnemyList+1		    ; Array of enemies in the room
+		    ld	    a, (+vars.NumEnemies)
 		    ld	    b, a
 
 DrawMovingLasers3:
@@ -5989,7 +5989,7 @@ idxSprOffsets:	    dw SprOffsets1
 ;----------------------------------------------------------------------------
 
 UpdateEnemySprRAM:
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
 		    ld	    b, 10h
 
 UpdateEnemySprRAM2:
@@ -6024,7 +6024,7 @@ UpdateEnemySprRAM4:
 		    ld	    b, a
 
 		    inc	    l
-		    ld	    de,	EnemySprAttRAM
+		    ld	    de,	+vars.EnemySprAttRAM
 		    ld	    a, b
 		    add	    a, a
 		    add	    a, a			    ; Sprite layer x 4
@@ -6088,45 +6088,45 @@ UpdateEnemySprRAM6:
 SetupEnemyRoom:
 		    call    ChkAlarmEnd			    ; Check if the alarm ends
 
-		    ld	    a, (AlertMode)
-		    ld	    (AlertModeCopy), a		    ; Save the alert mode
+		    ld	    a, (+vars.AlertMode)
+		    ld	    (+vars.AlertModeCopy), a		    ; Save the alert mode
 
 		    xor	    a
-		    ld	    (PowerSwitchOn), a		    ; Power switch status 1=On,	0=Off/destroyed
-		    ld	    (AlertSignNotOnScreen), a	    ; 1	= No need to erase the alert sign. The alert was triggered by a	camera
+		    ld	    (+vars.PowerSwitchOn), a		    ; Power switch status 1=On,	0=Off/destroyed
+		    ld	    (+vars.AlertSignNotOnScreen), a	    ; 1	= No need to erase the alert sign. The alert was triggered by a	camera
 
-		    ld	    hl,	AlertIconTimer
+		    ld	    hl,	+vars.AlertIconTimer
 		    ld	    (hl), a
 		    inc	    hl
 		    ld	    (hl), a			    ; No alert icon on screen
 
-		    ld	    hl,	PowerSwitchY
+		    ld	    hl,	+vars.PowerSwitchY
 		    ld	    (hl), a
 		    inc	    hl
 		    ld	    (hl), a			    ; No power switch by default
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    83				    ; Arnolds
 		    jr	    nz,	SetupEnemyRoom2
 
-		    ld	    hl,	ArnoldsCnt
+		    ld	    hl,	+vars.ArnoldsCnt
 		    ld	    (hl), 2			    ; Two Arnolds
 
 SetupEnemyRoom2:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    150				    ; Supressor	room (3rd floor	building 1)
 		    jr	    nz,	SetupEnemyRoom3
 
-		    ld	    hl,	GuardSilencerCnt	    ; Four soldiers (supressor room)
+		    ld	    hl,	+vars.GuardSilencerCnt	    ; Four soldiers (supressor room)
 		    ld	    (hl), 4			    ; Four guards in the supressor room
 
 SetupEnemyRoom3:
 		    ld	    a, ID_DOG_BASEMENT
 		    call    CountEnemyType
-		    ld	    (NumBasementDogs), a	    ; Number of	dogs in	the room
+		    ld	    (+vars.NumBasementDogs), a	    ; Number of	dogs in	the room
 
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
-		    ld	    de,	 EnemyList+1		    ; Array of enemies in the room
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
+		    ld	    de,	 +vars.EnemyList+1		    ; Array of enemies in the room
 		    ld	    bc,	7FFh
 		    ld	    (hl), 0
 		    ldir				    ; Erase enemies
@@ -6136,9 +6136,9 @@ SetupEnemyRoom3:
 		    call    SetBanks_4_5_6
 
 		    ld	    a, 1
-		    ld	    (NoEnemiesRoom), a		    ; No enemies in the	room by	default
+		    ld	    (+vars.NoEnemiesRoom), a		    ; No enemies in the	room by	default
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    222
 		    jp	    nc,	SetBanks1_2_3		    ; Ladders or elevator rooms
 
@@ -6173,7 +6173,7 @@ SetupEnemyRoom4:
 		    djnz    SetupEnemyRoom4
 
 		    xor	    a
-		    ld	    (NoEnemiesRoom), a		    ; There is at least	one actor/enemy	in the room
+		    ld	    (+vars.NoEnemiesRoom), a		    ; There is at least	one actor/enemy	in the room
 
 		    jp	    SetBanks1_2_3
 
@@ -6186,8 +6186,8 @@ SetupEnemyRoom4:
 ;----------------------------------------------------------------------------
 
 HideEnemySprs:
-		    ld	    hl,	EnemySprAttRAM
-		    ld	    de,	 EnemySprAttRAM+1
+		    ld	    hl,	+vars.EnemySprAttRAM
+		    ld	    de,	 +vars.EnemySprAttRAM+1
 		    ld	    bc,	57h
 		    ld	    (hl), 0E0h
 		    ldir
@@ -6241,10 +6241,10 @@ loc_10168A:
 
 AddEnemy:
 		    ld	    a, c
-		    ld	    (TempData),	a		    ; Actor ID
-		    ld	    (TempData2), de		    ; Actor XY
+		    ld	    (+vars.TempData),	a		    ; Actor ID
+		    ld	    (+vars.TempData2), de		    ; Actor XY
 
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
 
 		    ld	    b, 10h			    ; Max. number of enemies
 		    xor	    a
@@ -6275,14 +6275,14 @@ AddEnemy3:
 
 
 AddEnemy4:
-		    ld	    (TempData3), hl		    ; MetaTiles, Enemy
+		    ld	    (+vars.TempData3), hl		    ; MetaTiles, Enemy
 
 		    push    hl
 		    pop	    ix
 
 		    call    SetBanks_4_5_6
 
-		    ld	    a, (TempData)		    ; Actor ID
+		    ld	    a, (+vars.TempData)		    ; Actor ID
 		    ld	    hl,	NumSprEnemies-1
 		    call    ADD_HL_A
 
@@ -6295,7 +6295,7 @@ AddEnemy4:
 		    jr	    z, SetupActor
 
 		    ld	    de,	0
-		    ld	    hl,	EnemySprAttRAM
+		    ld	    hl,	+vars.EnemySprAttRAM
 		    ld	    b, 22			    ; Max. sprite layers reserved for enemies
 
 AddEnemy5:
@@ -6334,7 +6334,7 @@ AddEnemy6:
 SetSpritesFree:
 		    ld	    a, (hl)			    ; Sprite layer
 
-		    ld	    de,	EnemySprAttRAM
+		    ld	    de,	+vars.EnemySprAttRAM
 		    add	    a, a
 		    add	    a, a			    ; 4	bytes per sprite attributes
 		    call    ADD_DE_A
@@ -6356,15 +6356,15 @@ SetSpritesFree:
 ;----------------------------------------------------------------------------
 
 SetupActor:
-		    ld	    hl,	(TempData3)		    ; Pointer to actor in EnemyList
-		    ld	    a, (TempData)		    ; Actor ID
+		    ld	    hl,	(+vars.TempData3)		    ; Pointer to actor in EnemyList
+		    ld	    a, (+vars.TempData)		    ; Actor ID
 
 		    ld	    (hl), a			    ; Actor ID
 		    xor	    a
 		    inc	    l
 		    ld	    (hl), a			    ; Status = 0
 
-		    ld	    de,	(TempData2)		    ; DE = Actor XY
+		    ld	    de,	(+vars.TempData2)		    ; DE = Actor XY
 		    inc	    l
 		    ld	    (hl), a			    ; Y	dec.
 		    inc	    l
@@ -6388,7 +6388,7 @@ SetupActor:
 		    ld	    de,	idxActorSprCols-2
 		    call    SetActorSprCols
 
-		    ld	    a, (TempData)		    ; Actor ID
+		    ld	    a, (+vars.TempData)		    ; Actor ID
 		    ld	    de,	idxActorLife-1
 		    call    ADD_DE_A
 
@@ -6502,7 +6502,7 @@ SetActorSprCols:
 		    ld	    a, (ix+ACTOR.ID)		    ; Actor ID
 		    call    GetPointerDE2A
 
-		    ld	    hl,	(TempData3)		    ; Pointer to actor structure
+		    ld	    hl,	(+vars.TempData3)		    ; Pointer to actor structure
 		    set	    5, l			    ; +#20 = Number of sprites
 
 		    ld	    b, (hl)			    ; B	= Number of sprites used by the	actor
@@ -6533,7 +6533,7 @@ SetActorSprCols2:
 SetSpriteLayer:
 		    push    hl
 
-		    ld	    hl,	(TempData3)		    ; Pointer to actor structure
+		    ld	    hl,	(+vars.TempData3)		    ; Pointer to actor structure
 		    ld	    a, e			    ; Sprite index
 		    add	    a, a
 		    add	    a, a
@@ -6557,11 +6557,11 @@ SetSpriteLayer:
 ;----------------------------------------------------------------------------
 
 ChkRespawnEnemy:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    ret	    z				    ; Not in alert
 
-		    ld	    hl,	AlertRespawnTimer
+		    ld	    hl,	+vars.AlertRespawnTimer
 		    ld	    a, (hl)
 		    or	    a
 		    ret	    z				    ; No more respawning
@@ -6569,14 +6569,14 @@ ChkRespawnEnemy:
 		    dec	    (hl)			    ; Decrement	respawn	delay
 		    ret	    nz				    ; Do not respawn in	this iteration
 
-		    ld	    hl,	TickCounter
+		    ld	    hl,	+vars.TickCounter
 		    ld	    a, r
 		    xor	    (hl)
 		    and	    0Fh
 		    add	    a, 14h
-		    ld	    (AlertRespawnTimer), a	    ; Next respawn time
+		    ld	    (+vars.AlertRespawnTimer), a	    ; Next respawn time
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    188				    ; From this	room on, there is no respawning
 		    ret	    nc
 
@@ -6607,7 +6607,7 @@ ChkRespawnEnemy2:
 
 		    inc	    hl				    ; Pointer to respawn location 1
 
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    rra
 		    jr	    nc,	ChkRespawnEnemy3
 
@@ -6633,19 +6633,19 @@ ChkRespawnEnemy3:
 ;---------------------------------------------------------------------------
 
 ChkAlarmEnd:
-		    ld	    a, (TransmiTaken)
+		    ld	    a, (+vars.TransmiTaken)
 		    or	    a
 		    ret	    nz				    ; When carrying the	transmitter the	alarm never ends
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    ret	    z				    ; Not in alert
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    0F0h			    ; Elevators?
 		    jr	    nc,	StopAlert		    ; Entering in an elevator ends the alert
 
-		    ld	    hl,	AlertRespawnTimer
+		    ld	    hl,	+vars.AlertRespawnTimer
 		    ld	    a, (hl)
 		    or	    a
 		    jr	    z, ChkAlarmEnd2		    ; No more respawning
@@ -6655,16 +6655,16 @@ ChkAlarmEnd:
 		    or	    a				    ; Any guard	left to	respawn?
 		    ret	    nz
 
-		    ld	    (AlertRespawnTimer), a	    ; Disable respawn
+		    ld	    (+vars.AlertRespawnTimer), a	    ; Disable respawn
 
-		    ld	    a, (Room)
-		    ld	    (RoomAlert), a		    ; Set current room in alert
+		    ld	    a, (+vars.Room)
+		    ld	    (+vars.RoomAlert), a		    ; Set current room in alert
 		    ret
 
 
 ChkAlarmEnd2:
-		    ld	    a, (Room)
-		    ld	    hl,	RoomAlert
+		    ld	    a, (+vars.Room)
+		    ld	    hl,	+vars.RoomAlert
 		    cp	    (hl)
 		    jr	    nz,	StopAlert		    ; Current room is not in alert
 
@@ -6696,16 +6696,16 @@ ChkEnemyCount:
 		    ret	    nz				    ; Yes, do not stop the alert yet
 
 StopAlert:
-		    ld	    hl,	AlertMode
+		    ld	    hl,	+vars.AlertMode
 		    ld	    (hl), 0
-		    ld	    de,	AlertMode+1
+		    ld	    de,	+vars.AlertMode+1
 		    ldi
 		    ldi
 		    ldi
 		    ldi
 		    ldi					    ; Clear alert data
 
-		    ld	    a, (ControlConfig)		    ; Bit6: 1=Enable music/Player control
+		    ld	    a, (+vars.ControlConfig)		    ; Bit6: 1=Enable music/Player control
 		    bit	    6, a
 		    ret	    z				    ; Music disabled
 
@@ -6715,7 +6715,7 @@ StopAlert:
 
 ; (!?) Not used
 		    ld	    a, 1
-		    ld	    (AlertRespawnTimer), a
+		    ld	    (+vars.AlertRespawnTimer), a
 
 ;----------------------------------------------------------------------------
 ;
@@ -6724,7 +6724,7 @@ StopAlert:
 ;----------------------------------------------------------------------------
 
 TransformAlertGuard:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    188				    ; Left room	from fake Madnar (basement building 2)
 		    ret	    nc
 
@@ -6812,7 +6812,7 @@ InitGuard:
 
 		    ld	    b, 0			    ; Non sleepy flag
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    26
 		    jr	    z, MarkAsSleepy
 
@@ -6827,7 +6827,7 @@ MarkAsSleepy:
 
 SetSleepyFlag:
 		    ld	    a, b
-		    ld	    (SleepyGuardFlag), a
+		    ld	    (+vars.SleepyGuardFlag), a
 
 		    ld	    a, r
 		    and	    1
@@ -6889,12 +6889,12 @@ InitGuardPath:
 
 InitGuardPath2:
 		    ld	    b, a			    ; B	= Amount of guards and cameras
-		    ld	    a, (NextRoomDirect)		    ; 4=Right, 3=Left, 2=Down, 1=Up
+		    ld	    a, (+vars.NextRoomDirect)		    ; 4=Right, 3=Left, 2=Down, 1=Up
 		    ld	    d, a
-		    ld	    a, (PreviousRoom)
+		    ld	    a, (+vars.PreviousRoom)
 		    ld	    e, a
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    dec	    a
 		    call    z, HideGuardRoom1
 
@@ -6926,7 +6926,7 @@ GetPathPoints:
 
 		    call    SetBanks_4_5_6
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    l, a
 		    ld	    h, 0
 		    ld	    de,	idxRoomPaths		    ; Index of paths
@@ -7193,7 +7193,7 @@ GetSentinelLookDirs:
 		    ld	    (ix+ACTOR.IDX_SAME_ID), a
 		    ld	    b, a			    ; This index is used to select the path data for this actor
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    l, a
 		    ld	    h, 0
 		    ld	    de,	idxRoomPaths
@@ -7244,9 +7244,9 @@ SetSentinelLookDir_:
 ;----------------------------------------------------------------------------
 
 GetPlayerXY:
-		    ld	    a, (PlayerY)		    ; D	= Player X, E =	Player Y
+		    ld	    a, (+vars.PlayerY)		    ; D	= Player X, E =	Player Y
 		    ld	    e, a
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    d, a
 		    ret
 
@@ -7410,7 +7410,7 @@ SetActorStatus:
 
 CountEnemyType:
 		    ld	    bc,	1000h			    ; B	= Max. number of actors, C = Actor counter
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
 		    ld	    de,	80h
 
 CountEnemyType2:
@@ -7580,7 +7580,7 @@ CoordToBuffTile:
 		    rr	    h
 		    ld	    l, h
 		    and	    3
-		    add	    a, RoomTileBuffer/256;	0E0h			    ; (!?) #e000
+		    add	    a, +vars.RoomTileBuffer/256;	0E0h			    ; (!?) #e000
 		    ld	    h, a
 		    ret
 
@@ -7615,16 +7615,16 @@ CalcShot2:
 		    ld	    d, (ix+ACTOR.X)		    ; DE = Source XY
 
 		    ld	    c, a
-		    ld	    a, (Dificulty)
+		    ld	    a, (+vars.Dificulty)
 		    add	    a, a
 		    add	    a, a
 		    add	    a, a
 		    add	    a, c
-		    ld	    (ShotSpeed), a
+		    ld	    (+vars.ShotSpeed), a
 
 		    call    CalcQuadrantDegree		    ; Calculate	the angle degree from source to	target.	Also vertical and horizontal directions
 
-		    ld	    a, (QuadranDegree)
+		    ld	    a, (+vars.QuadranDegree)
 		    ld	    e, a			    ; E	= Sin degree
 		    ld	    d, 0
 		    ld	    a, e			    ; (!?)
@@ -7642,28 +7642,28 @@ CalcShot2:
 		    ld	    e, a
 		    add	    hl,	de
 		    ld	    a, (hl)			    ; Cos
-		    ld	    (TmpShotCos), a
+		    ld	    (+vars.TmpShotCos), a
 
 		    call    SetBanks1_2_3
 
 		    ld	    e, c			    ; Sin
 		    call    CalShootSpeed		    ; Get Y axis speed
 
-		    ld	    a, (ShotDirectionV)
+		    ld	    a, (+vars.ShotDirectionV)
 		    and	    a				    ; Up or down?
 		    call    nz,	ChangeSignDE		    ; Change direction
 
-		    ld	    (TmpShootSpeedY), de
+		    ld	    (+vars.TmpShootSpeedY), de
 
-		    ld	    a, (TmpShotCos)
+		    ld	    a, (+vars.TmpShotCos)
 		    ld	    e, a			    ; Cos
 		    call    CalShootSpeed		    ; Get X axis speed
 
-		    ld	    a, (ShotDirectionH)
+		    ld	    a, (+vars.ShotDirectionH)
 		    and	    a				    ; Left or right?
 		    call    nz,	ChangeSignDE		    ; Change direction
 
-		    ld	    hl,	(TmpShootSpeedY)
+		    ld	    hl,	(+vars.TmpShootSpeedY)
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -7679,16 +7679,16 @@ CalcShot2:
 ;----------------------------------------------------------------------------
 
 CalcQuadrantDegree:
-		    ld	    a, (PlayerY)
-		    ld	    (TempData),	a
+		    ld	    a, (+vars.PlayerY)
+		    ld	    (+vars.TempData),	a
 
-		    ld	    a, (PlayerX)
-		    ld	    (TempData+1), a
+		    ld	    a, (+vars.PlayerX)
+		    ld	    (+vars.TempData+1), a
 
-		    ld	    hl,	ShotDirectionV
+		    ld	    hl,	+vars.ShotDirectionV
 		    ld	    (hl), 0			    ; Down
 
-		    ld	    a, (TempData)		    ; Target Y
+		    ld	    a, (+vars.TempData)		    ; Target Y
 		    sub	    e				    ; Source Y
 		    jr	    nc,	CalcQuadrantDegree2
 
@@ -7704,7 +7704,7 @@ CalcQuadrantDegree2:
 		    and	    111000b
 		    ld	    e, a			    ; E	bit5-3 = Distance Y in 32 pixels blocks
 
-		    ld	    a, (TempData+1)		    ; Target X
+		    ld	    a, (+vars.TempData+1)		    ; Target X
 		    sub	    d				    ; Source X
 		    jr	    nc,	CalcQuadrantDegree3
 
@@ -7725,7 +7725,7 @@ CalcQuadrantDegree3:
 		    call    SetBanks_4_5_6
 
 		    ld	    a, (hl)
-		    ld	    (QuadranDegree), a
+		    ld	    (+vars.QuadranDegree), a
 
 		    jp	    SetBanks1_2_3
 
@@ -7743,7 +7743,7 @@ CalcQuadrantDegree3:
 ;----------------------------------------------------------------------------
 
 CalShootSpeed:
-		    ld	    a, (ShotSpeed)
+		    ld	    a, (+vars.ShotSpeed)
 		    ld	    h, a
 		    call    Multiply8			    ;  Multiply	H * E
 
@@ -7809,23 +7809,23 @@ SetText:
 		    ld	    c, 0			    ; Text can be skipped
 
 SetText2:
-		    ld	    (TextId), a			    ; Text ID
+		    ld	    (+vars.TextId), a			    ; Text ID
 		    ld	    a, c
-		    ld	    (SkipTextMode), a		    ; 0	= Text can be skipped. Need to press a key to read next	text box
+		    ld	    (+vars.SkipTextMode), a		    ; 0	= Text can be skipped. Need to press a key to read next	text box
 							    ; 1	= Text can not be skipped. Need	to press a key to read next text box
 							    ; 2	= Text can not be skipped. Need	to wait	to read	next text box
 
-		    ld	    hl,	PrevGameMode
-		    ld	    de,	TextWindowStatus
+		    ld	    hl,	+vars.PrevGameMode
+		    ld	    de,	+vars.TextWindowStatus
 		    ld	    bc,	1Eh
 		    ld	    (hl), 0
 		    ldir				    ; Init print status
 
-		    ld	    a, (GameMode)		    ; Current game mode
-		    ld	    (PrevGameMode), a		    ; Save current game	mode
+		    ld	    a, (+vars.GameMode)		    ; Current game mode
+		    ld	    (+vars.PrevGameMode), a		    ; Save current game	mode
 
 		    ld	    a, GAME_MODE_TEXT_BOX
-		    ld	    (GameMode),	a		    ; Set show text game mode
+		    ld	    (+vars.GameMode),	a		    ; Set show text game mode
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -7835,11 +7835,11 @@ SetText2:
 ;----------------------------------------------------------------------------
 
 TextBoxLogic:
-		    ld	    a, (PrevGameMode)
+		    ld	    a, (+vars.PrevGameMode)
 		    cp	    GAME_MODE_RADIO		    ; Is the game in radio mode?
 		    jr	    nz,	TextBoxLogic2		    ; No, skip checking	F4 key
 
-		    ld	    a, (FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
+		    ld	    a, (+vars.FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
 		    and	    8				    ; F4 key pressed?
 		    jr	    z, TextBoxLogic2		    ; Do not exit radio	mode
 
@@ -7848,7 +7848,7 @@ TextBoxLogic:
 
 
 TextBoxLogic2:
-		    ld	    a, (TextWindowStatus)
+		    ld	    a, (+vars.TextWindowStatus)
 		    call    JumpIndex
 
 		    dw TW_Init
@@ -7878,7 +7878,7 @@ TW_Init:
 		    ld	    hl,	TextBoxEffectDat
 		    call    ADD_HL_2A
 
-		    ld	    de,	TextBoxEff_Cnt
+		    ld	    de,	+vars.TextBoxEff_Cnt
 		    ld	    bc,	8
 		    ldir				    ; Set text box animation data
 
@@ -7892,23 +7892,23 @@ TW_Init:
 
 		    call    GetTextBoxXYSize2
 
-		    ld	    (TextY), de
-		    ld	    (TextNY), bc
+		    ld	    (+vars.TextY), de
+		    ld	    (+vars.TextNY), bc
 		    inc	    hl
 		    ld	    e, (hl)
 		    inc	    hl
 		    ld	    d, (hl)
-		    ld	    (PromptXY),	de		    ; Intro char coordinates
+		    ld	    (+vars.PromptXY),	de		    ; Intro char coordinates
 
-		    ld	    a, (TextId)
+		    ld	    a, (+vars.TextId)
 		    cp	    2				    ; Text: Operation intrude N313...
 		    jr	    z, NextTextStatus		    ; No need to save the text box background
 
-		    ld	    a, (PrevGameMode)
+		    ld	    a, (+vars.PrevGameMode)
 		    cp	    GAME_MODE_RADIO
 		    jr	    z, NextTextStatus		    ; No need to save the text box background
 
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    cp	    CONTROL_INTRO
 		    jr	    z, NextTextStatus		    ; No need to save the text box background
 
@@ -7919,7 +7919,7 @@ TW_Init:
 		    call    VDP_Copy_Byte		    ; Save text	box background
 
 NextTextStatus:
-		    ld	    hl,	TextWindowStatus
+		    ld	    hl,	+vars.TextWindowStatus
 		    inc	    (hl)
 		    ret
 
@@ -7933,14 +7933,14 @@ TextBoxAppear:
 		    call    DrawTextBoxIn		    ; Text box appears effect
 		    ret	    nc				    ; Has not finished
 
-		    ld	    hl,	(TextPointer)
+		    ld	    hl,	(+vars.TextPointer)
 		    inc	    hl
-		    ld	    (TextPointer), hl		    ; Skip textbox type	byte
+		    ld	    (+vars.TextPointer), hl		    ; Skip textbox type	byte
 
 		    ld	    a, 4
-		    ld	    (TextWindowStatus),	a	    ; Set the status to	decode the text
+		    ld	    (+vars.TextWindowStatus),	a	    ; Set the status to	decode the text
 		    ld	    a, 1
-		    ld	    (PendingTextFlag), a	    ; There is text to show
+		    ld	    (+vars.PendingTextFlag), a	    ; There is text to show
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -7950,7 +7950,7 @@ TextBoxAppear:
 ;----------------------------------------------------------------------------
 
 TW_PrintChar:
-		    ld	    a, (SkipTextMode)		    ; 0	= Text can be skipped. Need to press a key to read next	text box
+		    ld	    a, (+vars.SkipTextMode)		    ; 0	= Text can be skipped. Need to press a key to read next	text box
 							    ; 1	= Text can not be skipped. Need	to press a key to read next text box
 							    ; 2	= Text can not be skipped. Need	to wait	to read	next text box
 		    dec	    a
@@ -7959,11 +7959,11 @@ TW_PrintChar:
 		    dec	    a
 		    jr	    z, TW_PrintChar2		    ; Do not check keys	to skip	the text
 
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    20h				    ; M/N
 		    jp	    nz,	SkipText
 
-		    ld	    a, (FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
+		    ld	    a, (+vars.FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
 		    and	    20h				    ; RET
 		    jp	    nz,	SkipText
 
@@ -7984,7 +7984,7 @@ TW_PrintChar2:
 		    jr      nz, TW_PrintChar3b
 	ENDIF
 
-		    ld	    a, (TextId)
+		    ld	    a, (+vars.TextId)
 		    cp	    45				    ; Text: Now	we intruduce staff (STAFF)
 		    ld	    c, 3			    ; Print delay mask (fast)
 		    jr	    nz,	TW_PrintChar3
@@ -7992,12 +7992,12 @@ TW_PrintChar2:
 		    ld	    c, 7			    ; Print delay mask (normal)
 
 TW_PrintChar3:
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    and	    c
 		    ret	    nz				    ; Wait
 TW_PrintChar3b:
-		    ld	    hl,	(pTexBuffer)		    ; Pointer to unpacked text
-		    ld	    de,	(TextCharXY)		    ; Next character location
+		    ld	    hl,	(+vars.pTexBuffer)		    ; Pointer to unpacked text
+		    ld	    de,	(+vars.TextCharXY)		    ; Next character location
 
 TW_PrintChar4:
 		    ld	    a, (hl)
@@ -8007,9 +8007,9 @@ TW_PrintChar4:
 		    inc	    a				    ; FE = New line
 		    jp	    z, TW_PrintNewLine
 
-		    ld	    a, (TextX)
+		    ld	    a, (+vars.TextX)
 		    ld	    b, a
-		    ld	    a, (TextNX)
+		    ld	    a, (+vars.TextNX)
 		    add	    a, b
 		    sub	    8
 		    cp	    d				    ; Is the character inside the text box?
@@ -8037,7 +8037,7 @@ TW_PrintChar6:
 		    and	    a				    ; Space?
 		    jr	    z, TW_PrintChar7		    ; Do not play print	SFX
 
-		    ld	    a, (EndingStatus)
+		    ld	    a, (+vars.EndingStatus)
 		    cp	    10				    ; Ending staff?
 		    ld	    a, 23h			    ; Print SFX
 		    call    nz,	SetSoundEntry		    ; There is no print	sfx in the staff
@@ -8047,8 +8047,8 @@ TW_PrintChar7:
 		    add	    a, b			    ; char width
 		    ld	    d, a			    ; Next char	X
 		    inc	    hl				    ; Pointer to next char
-		    ld	    (pTexBuffer), hl
-		    ld	    (TextCharXY), de
+		    ld	    (+vars.pTexBuffer), hl
+		    ld	    (+vars.TextCharXY), de
 	IF (JAPANESE)
 		    ld      a, (flagTxtItem)
 		    and     a
@@ -8056,7 +8056,7 @@ TW_PrintChar7:
 	ENDIF
 	
 ; Check	if Snake is talking
-		    ld	    a, (TextId)
+		    ld	    a, (+vars.TextId)
 		    cp	    10				    ; TEXT: This is Solid Snake... Your	reply, please
 		    jr	    z, DrawSnakeFrame
 
@@ -8069,7 +8069,7 @@ TW_PrintChar7:
 ;----------------------------------------------------------------------------
 
 DrawSnakeFrame:
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    and	    1Ch
 		    ld	    hl,	SnakePicture1
 		    jr	    z, DrawSnakeFrame2
@@ -8082,16 +8082,16 @@ DrawSnakeFrame1:
 		    ld	    hl,	SnakePicture0
 
 DrawSnakeFrame2:
-		    ld	    a, (PrevGameMode)
+		    ld	    a, (+vars.PrevGameMode)
 		    cp	    GAME_MODE_RADIO
 		    ret	    nz				    ; Not in radio mode. The portrait is not visible (!?)
 
-		    ld	    a, (EndingStatus)
+		    ld	    a, (+vars.EndingStatus)
 		    cp	    8				    ; Ending radio news
 		    ret	    nc
 
 		    ld	    a, 1
-		    ld	    (TilesetBank), a		    ; 0=First bank of 256 tiles, 1=Second bank
+		    ld	    (+vars.TilesetBank), a		    ; 0=First bank of 256 tiles, 1=Second bank
 		    ld	    de,	0D030h
 		    jp	    DrawTilesBlock
 
@@ -8103,7 +8103,7 @@ TW_TextEnd:
 		    call    DrawSnakeFrame1
 
 		    ld	    a, 60h
-		    ld	    (WaitTextCnt), a
+		    ld	    (+vars.WaitTextCnt), a
 		    jp	    NextTextStatus
 
 ;----------------------------------------------------------------------------
@@ -8114,12 +8114,12 @@ TW_PrintNewLine:
 		    inc	    hl
 
 TW_PrintNewLine2:
-		    ld	    a, (TextCharXY)
+		    ld	    a, (+vars.TextCharXY)
 		    add	    a, 12
-		    ld	    (TextCharXY), a		    ; Next text	line Y
+		    ld	    (+vars.TextCharXY), a		    ; Next text	line Y
 
 		    ld	    e, a			    ; Next char	Y
-		    ld	    a, (TextX)			    ; Text box X
+		    ld	    a, (+vars.TextX)			    ; Text box X
 		    ld	    d, a			    ; Next char	X
 		    jp	    TW_PrintChar4		    ; Print next char
 
@@ -8129,7 +8129,7 @@ TW_PrintNewLine2:
 
 SkipText:
 		    ld	    a, 1
-		    ld	    (SkipTextF), a
+		    ld	    (+vars.SkipTextF), a
 
 		    call    DrawSnakeFrame1
 		    call    NextTextStatus
@@ -8141,17 +8141,17 @@ SkipText:
 ;----------------------------------------------------------------------------
 
 TW_Wait:
-		    ld	    a, (SkipTextMode)		    ; 0	= Text can be skipped. Need to press a key to read next	text box
+		    ld	    a, (+vars.SkipTextMode)		    ; 0	= Text can be skipped. Need to press a key to read next	text box
 							    ; 1	= Text can not be skipped. Need	to press a key to read next text box
 							    ; 2	= Text can not be skipped. Need	to wait	to read	next text box
 		    cp	    2
 		    jr	    z, TW_Wait2			    ; Wait. Do not check the keys that skip the	text
 
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    20h				    ; M/N
 		    jr	    nz,	EraseWinText
 
-		    ld	    a, (FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
+		    ld	    a, (+vars.FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
 		    and	    20h				    ; RET?
 		    jp	    nz,	EraseWinText
 
@@ -8166,32 +8166,32 @@ TW_Wait:
 TW_Wait1:
 	ENDIF
 	
-		    ld	    a, (SkipTextMode)		    ; 0	= Text can be skipped. Need to press a key to read next	text box
+		    ld	    a, (+vars.SkipTextMode)		    ; 0	= Text can be skipped. Need to press a key to read next	text box
 							    ; 1	= Text can not be skipped. Need	to press a key to read next text box
 							    ; 2	= Text can not be skipped. Need	to wait	to read	next text box
 		    dec	    a
 		    jr	    z, TW_Wait2
 
-		    ld	    a, (TextId)
+		    ld	    a, (+vars.TextId)
 		    cp	    10				    ; TEXT: This is Solid Snake... Your	reply, please
 		    jr	    z, TW_Wait2
 
-		    ld	    a, (PendingTextFlag)
+		    ld	    a, (+vars.PendingTextFlag)
 		    and	    a
 		    ret	    z				    ; There are	no more	texts
 
-		    ld	    a, (TextBoxType)		    ; High nibble = Show prompt	icon, low nibble = Window type
+		    ld	    a, (+vars.TextBoxType)		    ; High nibble = Show prompt	icon, low nibble = Window type
 		    and	    0F0h			    ; Show prompt icon?
 		    jr	    nz,	DrawEnterIcon
 
 TW_Wait2:
-		    ld	    hl,	WaitTextCnt
+		    ld	    hl,	+vars.WaitTextCnt
 		    dec	    (hl)
 		    ret	    nz
 
 EraseWinText:
-		    ld	    hl,	(TextY)
-		    ld	    bc,	(TextNY)
+		    ld	    hl,	(+vars.TextY)
+		    ld	    bc,	(+vars.TextNY)
 		    xor	    a
 		    ld	    d, a
 		    call    FillRect
@@ -8205,7 +8205,7 @@ EraseWinText:
 ;----------------------------------------------------------------------------
 
 DrawEnterIcon:
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    bit	    4, a
 		    ld	    c, 0			    ; Erase char
 		    jr	    z, DrawEnterIcon2
@@ -8213,7 +8213,7 @@ DrawEnterIcon:
 		    inc	    c				    ; Draw char
 
 DrawEnterIcon2:
-		    ld	    de,	(PromptXY)		    ; Intro char coordinates
+		    ld	    de,	(+vars.PromptXY)		    ; Intro char coordinates
 		    ld	    a, 3Fh			    ; Enter icon character
 		    jp	    DrawChar
 
@@ -8237,28 +8237,28 @@ TW_GetTextPage1:
 		    ld      (flagTxtItem), a
 	ENDIF
 	
-		    ld	    a, (PendingTextFlag)
+		    ld	    a, (+vars.PendingTextFlag)
 		    and	    a				    ; Is there more text?
 		    jp	    z, NextTextStatus
 
 		    call    DecodeText			    ; Decode the next chunk of text
 
-		    ld	    (PendingTextFlag), a	    ; Store if there is	more text to show
+		    ld	    (+vars.PendingTextFlag), a	    ; Store if there is	more text to show
 
 		    inc	    hl
-		    ld	    (TextPointer), hl		    ; Pointer to next chunk of text to decode
+		    ld	    (+vars.TextPointer), hl		    ; Pointer to next chunk of text to decode
 
 		    ld	    a, 2
-		    ld	    (TextWindowStatus),	a
+		    ld	    (+vars.TextWindowStatus),	a
 
 		    ld	    a, 0FFh
 		    ld	    (de), a			    ; End of text token	in text	buffer
 
-		    ld	    hl,	TextBuffer
-		    ld	    (pTexBuffer), hl
+		    ld	    hl,	+vars.TextBuffer
+		    ld	    (+vars.pTexBuffer), hl
 
-		    ld	    de,	(TextY)
-		    ld	    (TextCharXY), de
+		    ld	    de,	(+vars.TextY)
+		    ld	    (+vars.TextCharXY), de
 		    ret
 
 
@@ -8271,15 +8271,15 @@ TW_GetTextPage1:
 TextBox_End:
 		    call    GetTextBoxXYSize		    ; Get text box location and	size
 
-		    ld	    a, (TextId)
+		    ld	    a, (+vars.TextId)
 		    cp	    2				    ; TEXT: Operation intrude N313...
 		    jr	    z, EraseTextBox
 
-		    ld	    a, (PrevGameMode)
+		    ld	    a, (+vars.PrevGameMode)
 		    cp	    GAME_MODE_RADIO
 		    jr	    z, EraseTextBox
 
-		    ld	    a, (EndingStatus)
+		    ld	    a, (+vars.EndingStatus)
 		    and	    a				    ; Ending? No need to restore the background
 		    jr	    nz,	EraseTextBox
 
@@ -8299,23 +8299,23 @@ EraseTextBox:
 		    call    FillRect			    ; Erase text box
 
 TextBoxExit:
-		    ld	    a, (PrevGameMode)
-		    ld	    (GameMode),	a		    ; Restore the previous game	mode
+		    ld	    a, (+vars.PrevGameMode)
+		    ld	    (+vars.GameMode),	a		    ; Restore the previous game	mode
 
-		    ld	    a, (SkipTextF)
+		    ld	    a, (+vars.SkipTextF)
 		    and	    a
 		    ret	    nz				    ; This text	is being skipped. Do not mark the next messages	as read, so the	player do not miss it accidentaly
 
-		    ld	    hl,	JeniRocketF
-		    ld	    a, (TextId)
+		    ld	    hl,	+vars.JeniRocketF
+		    ld	    a, (+vars.TextId)
 		    cp	    117				    ; THIS IS JENNIFER... WILL ARRANGE A ROCKET	LAUNCHER.
 		    jr	    z, TextBoxExit2
 
-		    ld	    hl,	JeniOpenDoorF		    ; Flag to open the door to the compass room
+		    ld	    hl,	+vars.JeniOpenDoorF		    ; Flag to open the door to the compass room
 		    cp	    118				    ; THIS IS JENNIFER... WILL OPEN THE	DOOR.
 		    jr	    z, TextBoxExit2
 
-		    ld	    hl,	SchneiderCaptured
+		    ld	    hl,	+vars.SchneiderCaptured
 		    cp	    138				    ; THIS IS MR. SCHNEIDER... I HAVE DISCOVERED WHO THE BOSS OF OUTER HEAVEN IS.
 		    ret	    nz
 
@@ -8336,7 +8336,7 @@ TextBoxExit2:
 ;----------------------------------------------------------------------------
 
 GetTextBoxXYSize:
-		    ld	    a, (TextBoxType)		    ; High nibble = Show prompt	icon, low nibble = Window type
+		    ld	    a, (+vars.TextBoxType)		    ; High nibble = Show prompt	icon, low nibble = Window type
 							    ; Window types:
 							    ; 0	- 1 line 7 characters wide 'RELIEVE' (7)
 							    ; 1	- 3 lines 19 characters	wide (57)
@@ -8398,44 +8398,44 @@ InitPlayerVars:
 		    call    SetSnakePal			    ; Set Solid	Snake palette
 
 		    ld	    a, 18h
-		    ld	    (Life), a			    ; LogoCnt
-		    ld	    (MaxLife), a		    ; Default life
+		    ld	    (+vars.Life), a			    ; LogoCnt
+		    ld	    (+vars.MaxLife), a		    ; Default life
 
 		    xor	    a
-		    ld	    (Class), a			    ; Rank
-		    ld	    (PlayerFrameNum), a
-		    ld	    (PlayerAnimation), a	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
-		    ld	    (PlayerControlMod),	a	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    (+vars.Class), a			    ; Rank
+		    ld	    (+vars.PlayerFrameNum), a
+		    ld	    (+vars.PlayerAnimation), a	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    (+vars.PlayerControlMod),	a	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    inc	    a
-		    ld	    (StopPlayerFlag), a		    ; Stop the player
+		    ld	    (+vars.StopPlayerFlag), a		    ; Stop the player
 		    inc	    a
-		    ld	    (PlayerDirection), a	    ; Down
+		    ld	    (+vars.PlayerDirection), a	    ; Down
 		    inc	    a
-		    ld	    (SnakeSprId), a		    ; Stand down
+		    ld	    (+vars.SnakeSprId), a		    ; Stand down
 		    ld	    hl,	200h
-		    ld	    (PlayerMovSpeed), hl
+		    ld	    (+vars.PlayerMovSpeed), hl
 
-		    ld	    a, (ControlConfig)		    ; Bit6: 1=Enable music/Player control
+		    ld	    a, (+vars.ControlConfig)		    ; Bit6: 1=Enable music/Player control
 		    bit	    6, a			    ; Demo mode?
 		    ret	    z				    ; Yes
 
 		    ld	    a, 4
-		    ld	    (PlayerAnimation), a	    ; Player in	deep water
+		    ld	    (+vars.PlayerAnimation), a	    ; Player in	deep water
 		    rlca
-		    ld	    (PlayerControlMod),	a	    ; 8	= Intro	scene control
+		    ld	    (+vars.PlayerControlMod),	a	    ; 8	= Intro	scene control
 
 		    ld	    a, 25h			    ; Sprite water shadow
-		    ld	    (SnakeSprId), a
+		    ld	    (+vars.SnakeSprId), a
 
 		    ld	    hl,	0B800h
-		    ld	    (PlayerYdec), hl
+		    ld	    (+vars.PlayerYdec), hl
 		    ld	    h, 0C0h
-		    ld	    (PlayerXdec), hl		    ; Intro start location
+		    ld	    (+vars.PlayerXdec), hl		    ; Intro start location
 
 		    ld	    hl,	100h
-		    ld	    (PlayerMovSpeed), hl
+		    ld	    (+vars.PlayerMovSpeed), hl
 		    ld	    a, 40h
-		    ld	    (IntroSceneCnt), a
+		    ld	    (+vars.IntroSceneCnt), a
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -8445,7 +8445,7 @@ InitPlayerVars:
 ;----------------------------------------------------------------------------
 
 PlayerControlLogic:
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    call    JumpIndex
 
 		    dw NormalCtrl
@@ -8465,20 +8465,20 @@ PlayerControlLogic:
 ;----------------------------------------------------------------------------
 
 NormalCtrl:
-		    ld	    a, (PlayerShotsList)
+		    ld	    a, (+vars.PlayerShotsList)
 		    cp	    7
 		    ret	    z				    ; Too many shots. Ignore player controls.
 
 		    call    GetPlayerDir		    ; Check the	direction of the player	depending on which controls are	pressed
 		    call    ChkWater			    ; Check if the player is in	water
 
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    cp	    CONTROL_DEAD
 		    jp	    z, AnimatePlayer		    ; Do not check controls and	update the sprite
 
 		    call    ChkRoofAirFlow		    ; Checks if	the player is in the air flow on the roof, and wearing the bomb	suit
 
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    cp	    CONTROL_AIR_FLOW
 		    jp	    z, AnimatePlayer		    ; He is in the air flow. Just update the sprite
 
@@ -8486,7 +8486,7 @@ NormalCtrl:
 		    call    ChkControlPlayer		    ; Update player speed depending on the pressed controls
 		    call    ChkPlayerColl		    ; Check player/punch collisions with tiles
 
-		    ld	    a, (PlayerAnimation)	    ; Current player animation
+		    ld	    a, (+vars.PlayerAnimation)	    ; Current player animation
 		    dec	    a				    ; Punch
 		    jr	    z, SetAnimation
 
@@ -8496,7 +8496,7 @@ NormalCtrl:
 		    sub	    2				    ; Deep water
 		    jr	    z, SetAnimation
 
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_BOX		    ; Cardboard	box
 		    ld	    a, 7
 		    jr	    z, NormalCtrl2
@@ -8504,7 +8504,7 @@ NormalCtrl:
 		    xor	    a				    ; Switch to	normal mode
 
 NormalCtrl2:
-		    ld	    (PlayerAnimation), a	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    (+vars.PlayerAnimation), a	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 
 SetAnimation:
 		    call    AnimatePlayer
@@ -8541,7 +8541,7 @@ Dead:
 ElevatorCtrl:
 		    call    ChkCtrlElevator		    ; Check if the player moves	the elevator
 
-		    ld	    a, (GameMode)		    ; Game mode	can be changed in the previous call
+		    ld	    a, (+vars.GameMode)		    ; Game mode	can be changed in the previous call
 		    cp	    GAME_MODE_ELEVATOR
 		    jp	    z, SetSprIdle		    ; Set Snake	idle sprite
 
@@ -8550,7 +8550,7 @@ ElevatorCtrl:
 		    call    ChkPlayerColl		    ; Check collision with tiles
 
 		    xor	    a
-		    ld	    (PlayerAnimation), a	    ; Walk animation
+		    ld	    (+vars.PlayerAnimation), a	    ; Walk animation
 		    call    AnimatePlayer		    ; Update player sprite
 		    jp	    ChkLimitXElevator		    ; Update player's position and check elevator room X boundaries
 
@@ -8563,19 +8563,19 @@ ElevatorCtrl:
 
 ParachuteLogic:
 		    ld	    hl,	100h			    ; Move to the right
-		    ld	    (PlayerSpeedY), hl
+		    ld	    (+vars.PlayerSpeedY), hl
 
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    bit	    4, a
 		    jr	    z, ParachuteLogic2
 
 		    ld	    h, -1			    ; To the left
 
 ParachuteLogic2:
-		    ld	    (PlayerSpeedX), hl
+		    ld	    (+vars.PlayerSpeedX), hl
 
 		    ld	    a, 3
-		    ld	    (PlayerAnimation), a	    ; Parachute	animation
+		    ld	    (+vars.PlayerAnimation), a	    ; Parachute	animation
 		    jp	    SetAnimation
 
 ;----------------------------------------------------------------------------
@@ -8585,7 +8585,7 @@ ParachuteLogic2:
 ;----------------------------------------------------------------------------
 
 AirFlowLogic:
-		    ld	    hl,	PlayerY
+		    ld	    hl,	+vars.PlayerY
 		    ld	    a, (hl)
 		    cp	    30h
 		    jr	    c, ExitAirFlow
@@ -8598,7 +8598,7 @@ AirFlowLogic:
 
 ExitAirFlow:
 		    xor	    a
-		    ld	    (PlayerControlMod),	a	    ; Walk mode
+		    ld	    (+vars.PlayerControlMod),	a	    ; Walk mode
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -8613,12 +8613,12 @@ LaddersWalk:
 		    call    ChkPlayerColl		    ; Check collisions with tiles
 		    call    ChkStartClimb		    ; Check if the player stars	climbing a ladder
 
-		    ld	    a, (PlayerControlMod)	    ; The previous call	can change the control mode
+		    ld	    a, (+vars.PlayerControlMod)	    ; The previous call	can change the control mode
 		    cp	    CONTROL_LADDER_CLIMB	    ; On a ladder?
 		    ret	    z
 
 		    xor	    a
-		    ld	    (PlayerAnimation), a	    ; Set walk animation
+		    ld	    (+vars.PlayerAnimation), a	    ; Set walk animation
 		    jp	    SetAnimation
 
 ;----------------------------------------------------------------------------
@@ -8633,12 +8633,12 @@ LaddersClimb:
 		    call    ChkPlayerColl		    ; Check collisions
 		    call    ChkExitLadders		    ; Check if the player gets off the ladder
 
-		    ld	    a, (PlayerControlMod)	    ; The previous call	can change the control mode
+		    ld	    a, (+vars.PlayerControlMod)	    ; The previous call	can change the control mode
 		    cp	    CONTROL_LADDER_WALK
 		    ret	    z				    ; The player is not	on the ladders
 
 		    ld	    a, 5
-		    ld	    (PlayerAnimation), a	    ; Set climbing animation
+		    ld	    (+vars.PlayerAnimation), a	    ; Set climbing animation
 		    call    AnimatePlayer
 		    jp	    ChkLadderLimits		    ; Check ladders boundaries.	Trigger	the ending if the player exits Outher Heaven
 
@@ -8653,7 +8653,7 @@ IntroScene:
 		    call    IntroSceneLogic		    ; Intro demo logic
 		    call    SetBanks1_2_3
 
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    and	    a
 		    ret	    nz				    ; The demo has not finished	yet
 
@@ -8703,20 +8703,20 @@ GetPlayerDir:
 		    ld	    c, 0Fh			    ; Controls mask: directions	only
 
 GetPlayerDir2:
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    c
 		    jr	    nz,	GetPlayerDir3		    ; A	new direction has been pressed
 
-		    ld	    hl,	DirectionMask		    ; Bitmask of the last pressed direction control
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    hl,	+vars.DirectionMask		    ; Bitmask of the last pressed direction control
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    c				    ; Controls mask
 		    ld	    b, a
 		    and	    (hl)			    ; Same direction that was pressed?
 		    ld	    a, b
 		    jr	    nz,	GetPlayerDir5		    ; Yes, it is still pressed
 
-		    ld	    hl,	DirectionMaskOld	    ; Bitmask of the previous pressed direction	control
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    hl,	+vars.DirectionMaskOld	    ; Bitmask of the previous pressed direction	control
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    c
 		    and	    (hl)
 		    ld	    a, b
@@ -8728,10 +8728,10 @@ GetPlayerDir2:
 
 
 GetPlayerDir3:
-		    ld	    a, (DirectionMask)		    ; Bitmask of the last pressed direction control
-		    ld	    (DirectionMaskOld),	a	    ; Bitmask of the previous pressed direction	control
+		    ld	    a, (+vars.DirectionMask)		    ; Bitmask of the last pressed direction control
+		    ld	    (+vars.DirectionMaskOld),	a	    ; Bitmask of the previous pressed direction	control
 
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    c				    ; Controls mask
 		    ld	    c, a
 		    and	    1				    ; Up
@@ -8749,13 +8749,13 @@ GetPlayerDir3:
 		    and	    8				    ; Right
 
 GetPlayerDir4:
-		    ld	    (DirectionMask), a		    ; Bitmask of the last pressed direction control
+		    ld	    (+vars.DirectionMask), a		    ; Bitmask of the last pressed direction control
 
 GetPlayerDir5:
 		    ld	    hl,	IdsDirection
 		    call    ADD_HL_A
 		    ld	    a, (hl)
-		    ld	    (PlayerDirectionNew), a	    ; 1=Up, 2=Down, 3=Left, 4=Right
+		    ld	    (+vars.PlayerDirectionNew), a	    ; 1=Up, 2=Down, 3=Left, 4=Right
 		    ret
 
 
@@ -8790,9 +8790,9 @@ IdsDirection:	    db 0
 
 ControlPlayerV:
 		    xor	    a
-		    ld	    (InAirFlow), a		    ; 1	= Snake	is being pushed	by the air floor in the	roof
+		    ld	    (+vars.InAirFlow), a		    ; 1	= Snake	is being pushed	by the air floor in the	roof
 
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    3				    ; Mask up and down
 		    jr	    nz,	ControlPlayer		    ; Up or down pressed
 
@@ -8807,9 +8807,9 @@ ControlPlayerV:
 
 ControlPlayerH:
 		    xor	    a
-		    ld	    (InAirFlow), a		    ; 1	= Snake	is being pushed	by the air floor in the	roof
+		    ld	    (+vars.InAirFlow), a		    ; 1	= Snake	is being pushed	by the air floor in the	roof
 
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    0Ch				    ; Mask left	and right
 		    jr	    nz,	ControlPlayer		    ; Left or right pressed
 
@@ -8823,40 +8823,40 @@ ControlPlayerH:
 ;----------------------------------------------------------------------------
 
 ChkControlPlayer:
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    cp	    CONTROL_PUNCH		    ; Is punching?
 		    ret	    z				    ; Can't be controlled while punching
 
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    0Fh				    ; Any direction pressed?
 		    jr	    nz,	ControlPlayer		    ; Yes
 
 SetStopPlayer:
 		    inc	    a
-		    ld	    (StopPlayerFlag), a		    ; The player is not	moving
+		    ld	    (+vars.StopPlayerFlag), a		    ; The player is not	moving
 		    jr	    ControlPlayer2
 
 
 ControlPlayer:
 		    xor	    a
-		    ld	    (StopPlayerFlag), a		    ; The player is moving
+		    ld	    (+vars.StopPlayerFlag), a		    ; The player is moving
 
-		    ld	    a, (PlayerDirectionNew)	    ; 1=Up, 2=Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirectionNew)	    ; 1=Up, 2=Down, 3=Left, 4=Right
 		    and	    a				    ; A	new direction was selected?
 		    jr	    z, ControlPlayer2		    ; No
 
-		    ld	    (PlayerDirection), a	    ; Set player direction
+		    ld	    (+vars.PlayerDirection), a	    ; Set player direction
 
 ControlPlayer2:
-		    ld	    hl,	(PlayerMovSpeed)
+		    ld	    hl,	(+vars.PlayerMovSpeed)
 		    ld	    e, l
 		    ld	    d, h			    ; Same speed X and Y
 
-		    ld	    a, (StopPlayerFlag)		    ; 1=The player is not moving
+		    ld	    a, (+vars.StopPlayerFlag)		    ; 1=The player is not moving
 		    and	    a				    ; Should the player	stop moving?
 		    jr	    nz,	StopPlayer		    ; Yes
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    dec	    a
 		    jr	    z, PlayerMovUp
 
@@ -8913,15 +8913,15 @@ PlayerMovRight:
 ;----------------------------------------------------------------------------
 
 UpdatePlayerSpd:
-		    ld	    (PlayerSpeedY), hl
-		    ld	    (PlayerSpeedX), de
+		    ld	    (+vars.PlayerSpeedY), hl
+		    ld	    (+vars.PlayerSpeedX), de
 
-		    ld	    a, (InAirFlow)		    ; 1	= Snake	is being pushed	by the air floor in the	roof
+		    ld	    a, (+vars.InAirFlow)		    ; 1	= Snake	is being pushed	by the air floor in the	roof
 		    and	    a
 		    ret	    z				    ; Not in air flow
 
 		    ld	    hl,	0
-		    ld	    (PlayerSpeedY), hl		    ; Discard Y	speed when in air flow
+		    ld	    (+vars.PlayerSpeedY), hl		    ; Discard Y	speed when in air flow
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -8932,11 +8932,11 @@ UpdatePlayerSpd:
 ;----------------------------------------------------------------------------
 
 chkPunch:
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    20h				    ; M	or fire?
 		    ret	    z				    ; Punch button not pressed
 
-		    ld	    a, (PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    a, (+vars.PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 		    cp	    2				    ; In water?
 		    ret	    z				    ; Can not punch in water
 
@@ -8947,18 +8947,18 @@ chkPunch:
 		    ret	    z				    ; Can't punch inside the box
 
 		    ld	    a, 8
-		    ld	    (PunchCnt),	a
+		    ld	    (+vars.PunchCnt),	a
 
 		    ld	    a, 1
-		    ld	    (PlayerAnimation), a	    ; Set punch	animation
-		    ld	    (PlayerControlMod),	a	    ; Set punch	control	mode
+		    ld	    (+vars.PlayerAnimation), a	    ; Set punch	animation
+		    ld	    (+vars.PlayerControlMod),	a	    ; Set punch	control	mode
 
 ResetPlayerSpd:
 		    ld	    hl,	0
 
 SetPlayerSpeed:
-		    ld	    (PlayerSpeedY), hl
-		    ld	    (PlayerSpeedX), hl
+		    ld	    (+vars.PlayerSpeedY), hl
+		    ld	    (+vars.PlayerSpeedX), hl
 		    ret
 
 
@@ -8970,22 +8970,22 @@ SetPlayerSpeed:
 ;----------------------------------------------------------------------------
 
 ChkPlayerColl:
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    dec	    a				    ; Punching?
 		    jr	    z, ChkPunchColl
 
-		    ld	    hl,	(PlayerYdec)
-		    ld	    de,	(PlayerSpeedY)
+		    ld	    hl,	(+vars.PlayerYdec)
+		    ld	    de,	(+vars.PlayerSpeedY)
 		    add	    hl,	de
 		    ld	    a, h			    ; Next player Y location
 
-		    ld	    hl,	(PlayerXdec)
-		    ld	    de,	(PlayerSpeedX)
+		    ld	    hl,	(+vars.PlayerXdec)
+		    ld	    de,	(+vars.PlayerSpeedX)
 		    add	    hl,	de
 		    ld	    l, a			    ; Next player X
 
 		    ld	    b, 0			    ; Size/shape
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    ld	    c, a
 
 		    push    bc
@@ -8996,7 +8996,7 @@ ChkPlayerColl:
 
 		    jr	    c, ResetPlayerSpd		    ; Collision
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    78				    ; Ditch/water channel entrance room
 		    ret	    nz
 
@@ -9015,7 +9015,7 @@ ChkPlayerColl:
 ;----------------------------------------------------------------------------
 
 ChkPunchColl:
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    dec	    a
 		    ld	    bc,	-200h			    ; BC = Y offset up
 		    ld	    d, c
@@ -9035,15 +9035,15 @@ ChkPunchColl:
 		    ld	    d, 2			    ; DE = X offset right
 
 ChkPunchColl2:
-		    ld	    hl,	(PlayerYdec)
+		    ld	    hl,	(+vars.PlayerYdec)
 		    add	    hl,	bc
 		    ld	    a, h
 
-		    ld	    hl,	(PlayerXdec)
+		    ld	    hl,	(+vars.PlayerXdec)
 		    add	    hl,	de			    ; H	= X tile to check
 		    ld	    l, a			    ; L	= Y tile
 		    ld	    b, 0
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    ld	    c, a
 		    call    ChkTileCollision_
 
@@ -9060,13 +9060,13 @@ ChkPunchColl2:
 ;----------------------------------------------------------------------------
 
 PunchLogic2:
-		    ld	    hl,	PunchCnt
+		    ld	    hl,	+vars.PunchCnt
 		    dec	    (hl)
 		    ret	    nz				    ; Not finished
 
 		    xor	    a
-		    ld	    (PlayerAnimation), a	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
-		    ld	    (PlayerControlMod),	a	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    (+vars.PlayerAnimation), a	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    (+vars.PlayerControlMod),	a	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    ret
 
 
@@ -9080,12 +9080,12 @@ PunchLogic2:
 ;----------------------------------------------------------------------------
 
 ChkCtrlElevator:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    78h
 		    ret	    nc				    ; Player not inside	elevator cabin
 
 		    ld	    c, 3			    ; Up/Down control mask
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    243				    ; Room < 243
 		    jr	    c, ChkCtrlElevator2		    ; Can move up and down
 
@@ -9099,35 +9099,35 @@ ChkCtrlElevator:
 		    inc	    c				    ; Down control mask
 
 ChkCtrlElevator2:
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    c				    ; Control mask
 		    ret	    z				    ; Not valid	control
 
-		    ld	    hl,	ElevatorY
+		    ld	    hl,	+vars.ElevatorY
 		    rra					    ; Control UP?
 		    jr	    c, ChkCtrlElevator3
 
 		    ld	    c, 2			    ; Elevator down
-		    ld	    a, (ElevatorLimitDown)
+		    ld	    a, (+vars.ElevatorLimitDown)
 		    jr	    ChkCtrlElevator4
 
 
 ChkCtrlElevator3:
 		    ld	    c, 1			    ; Elevator up
-		    ld	    a, (ElevatorLimitUp)
+		    ld	    a, (+vars.ElevatorLimitUp)
 
 ChkCtrlElevator4:
 		    cp	    (hl)			    ; Elevator Y
 		    ret	    z
 
 		    ld	    a, c
-		    ld	    (ElevatorDir), a		    ; 1=up, 2=down
+		    ld	    (+vars.ElevatorDir), a		    ; 1=up, 2=down
 
-		    ld	    hl,	ElevatorStatus
+		    ld	    hl,	+vars.ElevatorStatus
 		    ld	    (hl), 0
 
 		    ld	    a, GAME_MODE_ELEVATOR
-		    ld	    (GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    (+vars.GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 		    ret
 
 
@@ -9139,7 +9139,7 @@ ChkCtrlElevator4:
 ;----------------------------------------------------------------------------
 
 ChkWater:
-		    ld	    a, (Room)			    ; Current room number
+		    ld	    a, (+vars.Room)			    ; Current room number
 		    ld	    hl,	RoomsWater		    ; List of rooms with water
 		    ld	    b, 10			    ; Number of	rooms with water
 
@@ -9150,12 +9150,12 @@ ChkWater2:
 		    inc	    hl
 		    djnz    ChkWater2
 
-		    ld	    a, (PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    a, (+vars.PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 		    cp	    7				    ; Player in	cardboard box mode?
 		    ret	    z				    ; No
 
 		    xor	    a
-		    ld	    (PlayerAnimation), a	    ; Set walking mode
+		    ld	    (+vars.PlayerAnimation), a	    ; Set walking mode
 		    ret
 
 
@@ -9198,7 +9198,7 @@ ChkWaterTiles3:
 		    cp	    6Dh				    ; Bricks tile
 		    jr	    z, SetInWaterMode
 
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_BOX		    ; Box
 		    ld	    a, 7			    ; Box animation mode
 		    jr	    z, SetInWaterMode2
@@ -9216,7 +9216,7 @@ ChkWaterTiles3:
 ;----------------------------------------------------------------------------
 
 ChkDeepShadow:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    hl,	RoomsWater
 		    ld	    b, 6
 
@@ -9236,21 +9236,21 @@ SetInWaterMode:
 		    ld	    a, 2			    ; In water mode
 
 SetInWaterMode2:
-		    ld	    hl,	PlayerAnimation		    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    hl,	+vars.PlayerAnimation		    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 		    cp	    (hl)
-		    ld	    (PlayerAnimation), a	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    (+vars.PlayerAnimation), a	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 		    jr	    z, SetInWaterMode3
 
 		    xor	    a
-		    ld	    (PlayerAnimWaitCnt), a
-		    ld	    (PlayerFrameNum), a
+		    ld	    (+vars.PlayerAnimWaitCnt), a
+		    ld	    (+vars.PlayerFrameNum), a
 
 SetInWaterMode3:
 		    ld	    a, (hl)
 		    cp	    4				    ; Is player	in deep	water?
 		    ret	    nz
 
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_OXYGEN		    ; Oxygen tank selected?
 		    ret	    z				    ; No problem, he is	using the oxygen tank
 
@@ -9283,42 +9283,42 @@ RoomsWater:	    db 70
 
 ChkRoofAirFlow:
 		    xor	    a
-		    ld	    (InAirFlow), a		    ; Not in the air flow by default
+		    ld	    (+vars.InAirFlow), a		    ; Not in the air flow by default
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    53				    ; Roof elevator
 		    ret	    nz				    ; The player is not	in the room of the air flow
 
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_BOMB_SUIT		    ; Bomb blast suit
 		    ret	    z				    ; He is wearing the	bomb suit
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    cp	    50h
 		    ret	    c
 
 		    cp	    60h
 		    ret	    nc
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    48h
 		    ret	    c
 
 		    cp	    0C0h
 		    ret	    nc				    ; Not in the air flow area
 
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    2				    ; Holding down?
 		    jr	    z, ChkRoofAirFlow2
 
 		    ld	    a, 1
-		    ld	    (InAirFlow), a		    ; 1	= Snake	is being pushed	by the air floor in the	roof
+		    ld	    (+vars.InAirFlow), a		    ; 1	= Snake	is being pushed	by the air floor in the	roof
 		    ret
 
 
 ChkRoofAirFlow2:
 		    ld	    a, CONTROL_AIR_FLOW
-		    ld	    (PlayerControlMod),	a	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    (+vars.PlayerControlMod),	a	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 
 		    ld	    a, 11h			    ; Sfx Snake	pushed back by the air
 		    jp	    SetSoundEntryChk
@@ -9335,29 +9335,29 @@ ChkStartClimb:
 		    cp	    8				    ; Ladder left tile
 		    ret	    nz				    ; Not on a ladder
 
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    rra					    ; Up
 		    ret	    nc				    ; Not pressing up
 
 		    ld	    a, 99h
-		    ld	    (PlayerY), a
+		    ld	    (+vars.PlayerY), a
 
 		    ld	    a, CONTROL_LADDER_CLIMB	    ; Climb ladder mode
-		    ld	    (PlayerControlMod),	a	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    (+vars.PlayerControlMod),	a	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 
 		    ld	    a, 5
-		    ld	    (PlayerAnimation), a	    ; Climb ladder animation
+		    ld	    (+vars.PlayerAnimation), a	    ; Climb ladder animation
 
 		    xor	    a
 		    ld	    l, a
-		    ld	    (DirectionMaskOld),	a	    ; Bitmask of the previous pressed direction	control
-		    ld	    (PlayerAnimWaitCnt), a
-		    ld	    (PlayerFrameNum), a
+		    ld	    (+vars.DirectionMaskOld),	a	    ; Bitmask of the previous pressed direction	control
+		    ld	    (+vars.PlayerAnimWaitCnt), a
+		    ld	    (+vars.PlayerFrameNum), a
 		    inc	    a
 		    ld	    h, a
-		    ld	    (PlayerDirection), a	    ; Up
-		    ld	    (DirectionMask), a		    ; Up pressed
-		    ld	    (PlayerMovSpeed), hl
+		    ld	    (+vars.PlayerDirection), a	    ; Up
+		    ld	    (+vars.DirectionMask), a		    ; Up pressed
+		    ld	    (+vars.PlayerMovSpeed), hl
 		    jr	    SetPlayerSpr_0
 
 ;----------------------------------------------------------------------------
@@ -9367,15 +9367,15 @@ ChkStartClimb:
 ;----------------------------------------------------------------------------
 
 ChkExitLadders:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    224				    ; First ladder room
 		    ret	    nz				    ; Only in this room	the player can get off the ladder
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    cp	    99h				    ; Floor level (climbing)
 		    ret	    nz				    ; Not in the start of the ladder
 
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    1100b			    ; Left or right pressed?
 		    ret	    z				    ; No, he is	not getting off	the ladder
 
@@ -9387,24 +9387,24 @@ ChkExitLadders:
 
 ChkExitLadders2:
 		    ld	    a, c
-		    ld	    (PlayerDirection), a	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    (+vars.PlayerDirection), a	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    ld	    a, b
-		    ld	    (DirectionMask), a		    ; Bitmask of the last pressed direction control
+		    ld	    (+vars.DirectionMask), a		    ; Bitmask of the last pressed direction control
 
 		    ld	    a, 9Eh
-		    ld	    (PlayerY), a		    ; Floor level (walking)
+		    ld	    (+vars.PlayerY), a		    ; Floor level (walking)
 
 		    ld	    a, CONTROL_LADDER_WALK
-		    ld	    (PlayerControlMod),	a	    ; Walk in ladder room mode
+		    ld	    (+vars.PlayerControlMod),	a	    ; Walk in ladder room mode
 
 		    ld	    hl,	200h
-		    ld	    (PlayerMovSpeed), hl
+		    ld	    (+vars.PlayerMovSpeed), hl
 
 		    xor	    a
-		    ld	    (PlayerAnimation), a	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
-		    ld	    (DirectionMaskOld),	a	    ; Bitmask of the previous pressed direction	control
-		    ld	    (PlayerAnimWaitCnt), a
-		    ld	    (PlayerFrameNum), a
+		    ld	    (+vars.PlayerAnimation), a	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    (+vars.DirectionMaskOld),	a	    ; Bitmask of the previous pressed direction	control
+		    ld	    (+vars.PlayerAnimWaitCnt), a
+		    ld	    (+vars.PlayerFrameNum), a
 
 SetPlayerSpr_0:
 		    jp	    AnimatePlayer
@@ -9452,7 +9452,7 @@ ChkLimitXElevator:
 		    jr	    nc,	ChkLimitXElevator2
 
 		    ld	    h, 104
-		    ld	    (PlayerXdec), hl		    ; The player can't move further
+		    ld	    (+vars.PlayerXdec), hl		    ; The player can't move further
 		    ret
 
 
@@ -9473,7 +9473,7 @@ ChkLimitXElevator2:
 ChkLadderLimits:
 		    call    MovePlayerY
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    226				    ; Last ladder room
 		    jr	    nz,	ChkLadderDownlimit
 
@@ -9493,7 +9493,7 @@ ChkLadderDownlimit:
 		    jr	    c, ChkNextLadderRoom
 
 		    ld	    h, 99h
-		    ld	    (PlayerYdec), hl
+		    ld	    (+vars.PlayerYdec), hl
 		    ret
 
 
@@ -9519,10 +9519,10 @@ ChkNextLadderRoom:
 
 ExitRoom:
 		    ld	    a, c
-		    ld	    (NextRoomDirect), a		    ; 4=Right, 3=Left, 2=Down, 1=Up
+		    ld	    (+vars.NextRoomDirect), a		    ; 4=Right, 3=Left, 2=Down, 1=Up
 
 		    ld	    a, GAME_MODE_NEXT_ROOM
-		    ld	    (GameMode),	a		    ; Set change room mode
+		    ld	    (+vars.GameMode),	a		    ; Set change room mode
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -9534,7 +9534,7 @@ ExitRoom:
 
 SetLeavedOuterH:
 		    ld	    a, 1
-		    ld	    (LeavedOuterHeaven), a
+		    ld	    (+vars.LeavedOuterHeaven), a
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -9547,11 +9547,11 @@ SetLeavedOuterH:
 ;----------------------------------------------------------------------------
 
 MovePlayerX:
-		    ld	    de,	(PlayerSpeedX)
+		    ld	    de,	(+vars.PlayerSpeedX)
 
-		    ld	    hl,	(PlayerXdec)
+		    ld	    hl,	(+vars.PlayerXdec)
 		    add	    hl,	de			    ; Add speed	to current position
-		    ld	    (PlayerXdec), hl
+		    ld	    (+vars.PlayerXdec), hl
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -9564,11 +9564,11 @@ MovePlayerX:
 ;----------------------------------------------------------------------------
 
 MovePlayerY:
-		    ld	    de,	(PlayerSpeedY)
+		    ld	    de,	(+vars.PlayerSpeedY)
 
-		    ld	    hl,	(PlayerYdec)
+		    ld	    hl,	(+vars.PlayerYdec)
 		    add	    hl,	de			    ; Add speed	to current position
-		    ld	    (PlayerYdec), hl
+		    ld	    (+vars.PlayerYdec), hl
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -9579,20 +9579,20 @@ MovePlayerY:
 ;----------------------------------------------------------------------------
 
 DowngradeRank:
-		    ld	    a, (RescuedArray+0Dh)	    ; Jeniffer's brother rescued status
+		    ld	    a, (+vars.RescuedArray+0Dh)	    ; Jeniffer's brother rescued status
 
-		    ld	    hl,	RescuedArray
-		    ld	    de,	 RescuedArray+1
+		    ld	    hl,	+vars.RescuedArray
+		    ld	    de,	 +vars.RescuedArray+1
 		    ld	    bc,	17			    ; There are	23 prisoners. The first	6 are not restored
 		    ld	    (hl), b
 		    ldir				    ; Reset last 17 prisoners rescued status
 
-		    ld	    (RescuedArray+0Dh),	a	    ; Restore Jennifer's brother rescued status
+		    ld	    (+vars.RescuedArray+0Dh),	a	    ; Restore Jennifer's brother rescued status
 
 		    xor	    a
-		    ld	    (RescuedCnt), a		    ; Reset rescued prisoners
+		    ld	    (+vars.RescuedCnt), a		    ; Reset rescued prisoners
 
-		    ld	    hl,	Class			    ; Logo end flag
+		    ld	    hl,	+vars.Class			    ; Logo end flag
 		    ld	    a, (hl)
 		    and	    a				    ; Rank/class = 0?
 		    ret	    z				    ; Yes
@@ -9602,22 +9602,22 @@ DowngradeRank:
 		    ld	    a, 27h			    ; SFX decrement rank
 		    call    SetSoundEntryChk
 
-		    ld	    a, (Life)			    ; LogoCnt
+		    ld	    a, (+vars.Life)			    ; LogoCnt
 		    push    af
 		    call    UpdateLevels		    ; Update life max. value, and ammon/rations	limits.
 		    pop	    af
 
 		    ld	    c, a
-		    ld	    a, (MaxLife)
+		    ld	    a, (+vars.MaxLife)
 		    cp	    c				    ; Current life greater than	new limit?
 		    jr	    nc,	DowngradeRank2
 
-		    ld	    a, (MaxLife)
+		    ld	    a, (+vars.MaxLife)
 		    ld	    c, a			    ; Set life at max. value
 
 DowngradeRank2:
 		    ld	    a, c
-		    ld	    (Life), a			    ; Life
+		    ld	    (+vars.Life), a			    ; +vars.Life
 
 		    call    LimitAmmo			    ; Keeps the	amount of ammo and rations in the limits
 
@@ -9632,7 +9632,7 @@ DowngradeRank2:
 ;----------------------------------------------------------------------------
 
 IncRescued:
-		    ld	    hl,	RescuedCnt		    ; Rescued prisoners	count (0-4)
+		    ld	    hl,	+vars.RescuedCnt		    ; Rescued prisoners	count (0-4)
 		    inc	    (hl)
 		    ld	    a, (hl)
 		    cp	    5				    ; Has rescued 5 prisoners?
@@ -9641,7 +9641,7 @@ IncRescued:
 		    ld	    (hl), 0			    ; Reset rescued counter
 
 IncClassLv:
-		    ld	    hl,	Class			    ; Logo end flag
+		    ld	    hl,	+vars.Class			    ; Logo end flag
 		    ld	    a, (hl)
 		    cp	    3				    ; Max. class
 		    ret	    z				    ; Already in the maximum rank
@@ -9672,8 +9672,8 @@ UpdateLevels:
 		    ld	    a, 24			    ; Life level 1
 
 UpdateLevels2:
-		    ld	    (MaxLife), a
-		    ld	    (Life), a			    ; Set life to max value
+		    ld	    (+vars.MaxLife), a
+		    ld	    (+vars.Life), a			    ; Set life to max value
 		    call    DrawLife			    ; Draw life	text and bar
 		    jp	    SetMaxAmmoVals		    ; Updates the limit	of items and ammo depending on the rank
 
@@ -9685,7 +9685,7 @@ UpdateLevels2:
 ;----------------------------------------------------------------------------
 
 AnimatePlayer:
-		    ld	    a, (PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    a, (+vars.PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 		    call    JumpIndex
 
 		    dw SetSprWalk
@@ -9706,30 +9706,30 @@ AnimatePlayer:
 ;----------------------------------------------------------------------------
 
 SetSprWalk:
-		    ld	    a, (StopPlayerFlag)		    ; 1=The player is not moving
+		    ld	    a, (+vars.StopPlayerFlag)		    ; 1=The player is not moving
 		    and	    a				    ; Is the player moving?
 		    jr	    z, SetSprWalk2		    ; Yes
 
 SetSprIdle:
 		    xor	    a
-		    ld	    (PlayerAnimWaitCnt), a
-		    ld	    (PlayerFrameNum), a
+		    ld	    (+vars.PlayerAnimWaitCnt), a
+		    ld	    (+vars.PlayerFrameNum), a
 		    jr	    SetSprWalk4
 
 
 SetSprWalk2:
-		    ld	    hl,	PlayerAnimWaitCnt
+		    ld	    hl,	+vars.PlayerAnimWaitCnt
 		    inc	    (hl)
 		    ld	    a, (hl)
 		    cp	    6				    ; The animation is updated each 6 iterations
 		    jr	    nz,	SetSprWalk3
 
 		    ld	    (hl), 0			    ; Reset animation wait counter
-		    ld	    hl,	PlayerFrameNum
+		    ld	    hl,	+vars.PlayerFrameNum
 		    inc	    (hl)			    ; Increment	animation frame
 
 SetSprWalk3:
-		    ld	    hl,	PlayerFrameNum
+		    ld	    hl,	+vars.PlayerFrameNum
 		    ld	    a, (hl)
 		    cp	    3				    ; Three frames animation
 		    jr	    nz,	SetSprWalk4
@@ -9737,14 +9737,14 @@ SetSprWalk3:
 		    ld	    (hl), 1
 
 SetSprWalk4:
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    dec	    a
 		    ld	    c, a
 		    add	    a, a
 		    add	    a, c
 		    ld	    c, a			    ; C= Direction x 3 frames
 
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    and	    a				    ; Is Snake wearing a weapon?
 		    jr	    z, SetSprWalk5		    ; No weapon
 
@@ -9759,7 +9759,7 @@ SetSprWalk4:
 		    ld	    c, a
 
 SetSprWalk5:
-		    ld	    a, (PlayerFrameNum)
+		    ld	    a, (+vars.PlayerFrameNum)
 		    add	    a, c
 		    jp	    SetPlayerSprId
 
@@ -9770,7 +9770,7 @@ SetSprWalk5:
 ;----------------------------------------------------------------------------
 
 SetSprPunch:
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    dec	    a
 		    add	    a, 24			    ; Spr Snake	punching up + dir
 		    jp	    SetPlayerSprId
@@ -9782,11 +9782,11 @@ SetSprPunch:
 ;----------------------------------------------------------------------------
 
 SetSprWater:
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    dec	    a
 		    ld	    c, a
 
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    and	    a				    ; Is wearing a weapon?
 		    ld	    a, 28			    ; Spr Snake	water up
 		    jr	    z, SetSprWater2
@@ -9797,7 +9797,7 @@ SetSprWater2:
 		    add	    a, c
 		    ld	    c, a
 
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    and	    8
 		    ld	    a, 17			    ; 32 + 17 =	49 -> Spr Snake	water up with weapon (!?)
 							    ; Points to	the same sprite	data. More animations originally?
@@ -9825,7 +9825,7 @@ SetSprParachute:
 ;----------------------------------------------------------------------------
 
 SetSprDeepWater:
-		    ld	    hl,	PlayerAnimWaitCnt
+		    ld	    hl,	+vars.PlayerAnimWaitCnt
 		    inc	    (hl)
 		    ld	    a, (hl)
 		    cp	    4
@@ -9833,7 +9833,7 @@ SetSprDeepWater:
 
 		    ld	    (hl), 0			    ; Reset animation wait counter
 
-		    ld	    hl,	PlayerFrameNum
+		    ld	    hl,	+vars.PlayerFrameNum
 		    inc	    (hl)			    ; Next animation frame
 
 		    ld	    a, (hl)
@@ -9849,17 +9849,17 @@ SetSprDeepWater:
 ;----------------------------------------------------------------------------
 
 SetSprLadder:
-		    ld	    a, (StopPlayerFlag)		    ; 1=The player is not moving
+		    ld	    a, (+vars.StopPlayerFlag)		    ; 1=The player is not moving
 		    and	    a
 		    jr	    z, SetSprLadder2		    ; Is moving
 
 		    xor	    a
-		    ld	    (PlayerAnimWaitCnt), a
+		    ld	    (+vars.PlayerAnimWaitCnt), a
 		    jr	    SetSprLadder3
 
 
 SetSprLadder2:
-		    ld	    hl,	PlayerAnimWaitCnt
+		    ld	    hl,	+vars.PlayerAnimWaitCnt
 		    inc	    (hl)
 		    ld	    a, (hl)
 		    cp	    6
@@ -9867,11 +9867,11 @@ SetSprLadder2:
 
 		    ld	    (hl), 0			    ; Reset animation wait counter
 
-		    ld	    hl,	PlayerFrameNum
+		    ld	    hl,	+vars.PlayerFrameNum
 		    inc	    (hl)			    ; Next animation frame
 
 SetSprLadder3:
-		    ld	    a, (PlayerFrameNum)
+		    ld	    a, (+vars.PlayerFrameNum)
 		    and	    1				    ; Two frames animation
 		    ld	    c, 39			    ; Spr climb	animation frame	1
 		    add	    a, c
@@ -9884,7 +9884,7 @@ SetSprLadder3:
 ;----------------------------------------------------------------------------
 
 SetSprDead:
-		    ld	    a, (DeadTimer)
+		    ld	    a, (+vars.DeadTimer)
 		    cp	    40h
 		    ld	    c, 43			    ; Spr Snake	dead
 		    jr	    c, SetSprDead2
@@ -9911,12 +9911,12 @@ SetSprDead2:
 ;----------------------------------------------------------------------------
 
 SetSprBox:
-		    ld	    a, (StopPlayerFlag)		    ; 1=The player is not moving
+		    ld	    a, (+vars.StopPlayerFlag)		    ; 1=The player is not moving
 		    and	    a
 		    ld	    a, 42			    ; Spr cardboard box
 		    jr	    nz,	SetPlayerSprId
 
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    and	    8
 		    ld	    a, 42
 		    jr	    z, SetPlayerSprId
@@ -9924,7 +9924,7 @@ SetSprBox:
 		    ld	    a, 44			    ; Spr cardboard box	frame 2
 
 SetPlayerSprId:
-		    ld	    (SnakeSprId), a
+		    ld	    (+vars.SnakeSprId), a
 		    ret
 
 
@@ -9935,41 +9935,41 @@ SetPlayerSprId:
 ;----------------------------------------------------------------------------
 
 SetGrenaTargetSpr:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    204				    ; Brick wall (parachute)
 		    ret	    z				    ; Don't show the target sprite in this room (using the parachute)
 
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    cp	    GRENADE_LAUNCHER
 		    ret	    nz				    ; Grenade launcher not selected
 
-		    ld	    a, (PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    a, (+vars.PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 		    cp	    7				    ; Cardboard	box mode?
 		    jr	    z, HideGrenadTargtSpr	    ; Hide grenade target sprite
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    224				    ; Ladders or elevator rooms?
 		    jr	    nc,	HideGrenadTargtSpr	    ; Hide grenade target sprite
 
 ; Set sprite color
 		    ld	    b, 16			    ; Sprite NY
 		    ld	    a, 0Eh			    ; White color
-		    ld	    hl,	GrenadTargetCol
+		    ld	    hl,	+vars.GrenadTargetCol
 
 SetGrenaTargetSpr2:
 		    ld	    (hl), a
 		    inc	    hl
 		    djnz    SetGrenaTargetSpr2
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    ld	    l, a
 		    ld	    c, a
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    h, a
 		    ld	    b, a
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    dec	    a
 		    ld	    de,	TargetXYOffsets
 		    add	    a, a
@@ -9983,12 +9983,12 @@ SetGrenaTargetSpr2:
 		    ld	    a, (de)
 		    add	    a, h
 		    ld	    h, a			    ; H	= Player X + offset X
-		    ld	    (GrenaTargetAtt), hl
+		    ld	    (+vars.GrenaTargetAtt), hl
 
 		    ld	    a, 18h			    ; Sprite pattern
-		    ld	    (GrenaTargetAtt+2),	a
+		    ld	    (+vars.GrenaTargetAtt+2),	a
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    dec	    a
 		    jr	    z, ChkGrenTargBoundsU
 
@@ -10027,7 +10027,7 @@ ChkGrenTargBounds:
 
 HideGrenadTargtSpr:
 		    ld	    a, 225			    ; Hide grenade target sprite
-		    ld	    (GrenaTargetAtt), a
+		    ld	    (+vars.GrenaTargetAtt), a
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -10056,10 +10056,10 @@ TargetXYOffsets:    dw 0F9ACh
 ;----------------------------------------------------------------------------
 
 GameStatusLogic:
-		    ld	    hl,	TickCounter
+		    ld	    hl,	+vars.TickCounter
 		    inc	    (hl)
 
-		    ld	    bc,	(GameStatus)
+		    ld	    bc,	(+vars.GameStatus)
 		    ld	    a, c
 		    cp	    3				    ; Has the game started?
 		    jr	    nc,	GameStatusLogic2
@@ -10096,7 +10096,7 @@ GS_KonamiLogo:
 		    call    DrawKonamiLogo		    ; Draw Konami logo logic
 		    call    SetBanks1_2_3
 
-		    ld	    a, (Class)			    ; Logo end flag
+		    ld	    a, (+vars.Class)			    ; Logo end flag
 		    or	    a				    ; Has finished drawing the logo?
 		    ret	    z				    ; Not yet
 
@@ -10117,7 +10117,7 @@ GS_LoadIntroGfx:
 
 		    call    ChkEnableMusicDemo		    ; Checks if	F5 is pressed to toggle	music in demo mode
 
-		    ld	    hl,	WaitCounter
+		    ld	    hl,	+vars.WaitCounter
 		    dec	    (hl)
 		    ret	    nz				    ; Wait a bit more
 
@@ -10143,7 +10143,7 @@ GS_IntroMenu:
 		    call    MenuLogoLogic		    ; Metal Gear logo logic (scroll, sfx)
 		    call    SetBanks1_2_3
 
-		    ld	    a, (MenuStatus)
+		    ld	    a, (+vars.MenuStatus)
 		    cp	    4				    ; Status to	draw the menu and play the sfx
 		    ret	    nz				    ; Still moving the logo
 
@@ -10175,15 +10175,15 @@ GS_InitKonamiLogo:
 ChkEnableMusicDemo:
 		    call    ReadFKeys
 
-		    ld	    hl,	FKeysHoldMenu		    ; 0	0 RET F5 F4 F3 F2 F1
+		    ld	    hl,	+vars.FKeysHoldMenu		    ; 0	0 RET F5 F4 F3 F2 F1
 		    call    StoreControls
 
 		    bit	    4, a			    ; F5 trigger?
 		    ret	    z
 
-		    ld	    a, (MusicInDemoMode)	    ; Flag to enable or	disable	music in demo mode
+		    ld	    a, (+vars.MusicInDemoMode)	    ; Flag to enable or	disable	music in demo mode
 		    cpl
-		    ld	    (MusicInDemoMode), a	    ; Flag to enable or	disable	music in demo mode
+		    ld	    (+vars.MusicInDemoMode), a	    ; Flag to enable or	disable	music in demo mode
 		    ret
 
 
@@ -10196,7 +10196,7 @@ ChkEnableMusicDemo:
 GS_WaitMenu:
 		    call    ChkEnableMusicDemo		    ; Checks if	F5 is pressed to toggle	music in demo mode
 
-		    ld	    hl,	WaitCounter
+		    ld	    hl,	+vars.WaitCounter
 		    dec	    (hl)			    ; Decrement	wait time
 		    ret	    nz
 
@@ -10219,7 +10219,7 @@ GS_DemoPlay:
 
 		    call    SetBanks1_2_3
 
-		    ld	    a, (PlayingFlag)
+		    ld	    a, (+vars.PlayingFlag)
 		    or	    a
 		    ret	    nz				    ; The demo/tutorial	has not	finished yet
 
@@ -10228,10 +10228,10 @@ ResetGameStat:
 		    xor	    a				    ; Konami logo status
 
 SetGameStatus:
-		    ld	    (GameStatus), a
+		    ld	    (+vars.GameStatus), a
 
 		    ld	    a, 20h
-		    ld	    (WaitCounter), a
+		    ld	    (+vars.WaitCounter), a
 		    jr	    ResetSubstatus
 
 
@@ -10253,10 +10253,10 @@ InitDemoMode:
 		    ld	    a, 20h
 
 NextSubstatusT:
-		    ld	    (WaitCounter), a
+		    ld	    (+vars.WaitCounter), a
 
 NextSubstatus:
-		    ld	    hl,	GameSubstatus
+		    ld	    hl,	+vars.GameSubstatus
 		    inc	    (hl)
 		    ret
 
@@ -10270,7 +10270,7 @@ NextSubstatus:
 GS_PlayStart:
 		    djnz    GS_PlayStart2
 
-		    ld	    hl,	WaitCounter
+		    ld	    hl,	+vars.WaitCounter
 		    dec	    (hl)			    ; Has finished the flashing	effect?
 		    jr	    z, NextSubstatus
 
@@ -10303,20 +10303,20 @@ GS_PlayStart3:
 GS_StartGame:
 		    call    ClearScreen			    ; Clear screen and sprites
 		    call    InitGame			    ; Initialize game: Reset doors' status, set start room, set Theme of Tara music, init. player variables...
-		    ld	    hl,	PlayingFlag
+		    ld	    hl,	+vars.PlayingFlag
 		    ld	    (hl), 1
 
 NextStatusT:
 		    ld	    a, 20h
 
 NextGameStatus:
-		    ld	    (WaitCounter), a
-		    ld	    hl,	GameStatus
+		    ld	    (+vars.WaitCounter), a
+		    ld	    hl,	+vars.GameStatus
 		    inc	    (hl)
 
 ResetSubstatus:
 		    xor	    a
-		    ld	    (GameSubstatus), a
+		    ld	    (+vars.GameSubstatus), a
 		    ret
 
 
@@ -10329,20 +10329,20 @@ ResetSubstatus:
 
 GS_Playing:
 		    xor	    a
-		    ld	    (RestoreSoundData),	a
+		    ld	    (+vars.RestoreSoundData),	a
 
 		    call    GameLogic			    ; ;
 
-		    ld	    a, (Pause_1_F5_2)
+		    ld	    a, (+vars.Pause_1_F5_2)
 		    dec	    a				    ; F1 pressed?
 		    jp	    z, SetPauseMode
 
-		    ld	    a, (LeavedOuterHeaven)
+		    ld	    a, (+vars.LeavedOuterHeaven)
 		    and	    a				    ; Has Snake	escaped	from Outer Heaven?
 		    ld	    a, 8			    ; Ending status
 		    jp	    nz,	SetGameStatus
 
-		    ld	    a, (PlayingFlag)
+		    ld	    a, (+vars.PlayingFlag)
 		    or	    a
 		    ret	    nz
 
@@ -10359,14 +10359,14 @@ SetPauseMode:
 		    call    PrintPause
 
 		    xor	    a
-		    ld	    hl,	PasswordBuffer
-		    ld	    de,	 PasswordBuffer+1
+		    ld	    hl,	+vars.PasswordBuffer
+		    ld	    de,	 +vars.PasswordBuffer+1
 		    ld	    (hl), a
 		    ld	    bc,	1Dh
 		    ldir				    ; Clear password's buffer
 
 		    inc	    a
-		    ld	    (RestoreSoundData),	a
+		    ld	    (+vars.RestoreSoundData),	a
 
 		    ld	    a, 4Dh
 		    call    SetSoundEntryChk		    ; Pause SFX
@@ -10410,22 +10410,22 @@ PrintPause:
 GS_GameOver:
 		    djnz    PrintGameOver
 
-		    ld	    a, (RestoreGameFlag)
+		    ld	    a, (+vars.RestoreGameFlag)
 		    and	    a
 		    call    z, ChkContinueKey		    ; Check if F5 is pressed
 
-		    ld	    a, (SoundWorkArea+2)
+		    ld	    a, (+vars.SoundWorkArea+2)
 		    or	    a
 		    ret	    nz				    ; Game over	music has not finished yet
 
 ChkGoBackGame:
-		    ld	    a, (RestoreGameFlag)
+		    ld	    a, (+vars.RestoreGameFlag)
 		    and	    a
 		    ld	    a, 4
 		    jp	    nz,	SetGameStatus
 
 RebootGame:
-		    ld	    hl,	ControlConfig		    ; Bit6: 1=Enable music/Player control
+		    ld	    hl,	+vars.ControlConfig		    ; Bit6: 1=Enable music/Player control
 		    ld	    a, (hl)
 		    and	    10111111b
 		    ld	    (hl), a
@@ -10435,7 +10435,7 @@ RebootGame:
 ChkContinueKey:
 		    call    UpdateControls
 
-		    ld	    a, (FKeysHold)		    ; 0	0 RET F5 F4 F3 F2 F1
+		    ld	    a, (+vars.FKeysHold)		    ; 0	0 RET F5 F4 F3 F2 F1
 		    bit	    4, a			    ; F5?
 		    ret	    z
 
@@ -10443,9 +10443,9 @@ ChkContinueKey:
 		    call    EraseTextXY			    ; Erase CONTINUE F5
 
 		    xor	    a
-		    ld	    (SaveLoadMode), a		    ; 1=Load mode, 2=Save mode
+		    ld	    (+vars.SaveLoadMode), a		    ; 1=Load mode, 2=Save mode
 		    inc	    a
-		    ld	    (RestoreGameFlag), a
+		    ld	    (+vars.RestoreGameFlag), a
 		    ret
 
 
@@ -10462,7 +10462,7 @@ PrintGameOver:
 		    call    PrintTextXY			    ; Print GAME OVER /	CONTINUE F5
 
 		    xor	    a
-		    ld	    (RestoreGameFlag), a
+		    ld	    (+vars.RestoreGameFlag), a
 
 		    jp	    NextSubstatus
 
@@ -10474,7 +10474,7 @@ PrintGameOver:
 ;----------------------------------------------------------------------------
 
 GS_Pause:
-		    ld	    a, (SaveLoadMode)		    ; 1=Load mode, 2=Save mode
+		    ld	    a, (+vars.SaveLoadMode)		    ; 1=Load mode, 2=Save mode
 		    or	    a
 		    jr	    z, PauseMode
 
@@ -10486,17 +10486,17 @@ GS_Pause:
 		    call    LoadSaveLogic
 		    call    SetBanks1_2_3
 
-		    ld	    a, (RestoreSavedGame)	    ; ;Set after loading tape data
+		    ld	    a, (+vars.RestoreSavedGame)	    ; ;Set after loading tape data
 		    or	    a
 		    ret	    z
 
 		    xor	    a
-		    ld	    (Pause_1_F5_2), a
-		    ld	    (DoNotAddEnemies), a
-		    ld	    (SaveLoadMode), a		    ; 1=Load mode, 2=Save mode
+		    ld	    (+vars.Pause_1_F5_2), a
+		    ld	    (+vars.DoNotAddEnemies), a
+		    ld	    (+vars.SaveLoadMode), a		    ; 1=Load mode, 2=Save mode
 		    inc	    a
-		    ld	    (RestoreSoundData),	a
-		    ld	    (RestoreGameFlag), a
+		    ld	    (+vars.RestoreSoundData),	a
+		    ld	    (+vars.RestoreGameFlag), a
 		    jp	    ChkGoBackGame
 
 
@@ -10510,7 +10510,7 @@ GS_Pause:
 PauseMode:
 		    call    UpdateControls
 
-		    ld	    a, (FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
+		    ld	    a, (+vars.FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
 		    rra					    ; F1 pressed?
 		    jr	    c, ExitPauseMode
 
@@ -10535,10 +10535,10 @@ PauseMode:
 
 SetLoadSaveMode:
 		    ld	    a, b
-		    ld	    (SaveLoadMode), a		    ; 1=Load mode, 2=Save mode
+		    ld	    (+vars.SaveLoadMode), a		    ; 1=Load mode, 2=Save mode
 
 		    xor	    a
-		    ld	    (SaveLoadStat), a
+		    ld	    (+vars.SaveLoadStat), a
 		    jp	    ClearSprAttr
 
 
@@ -10555,9 +10555,9 @@ ExitPauseMode:
 		    call    SetBanks1_2_3
 
 		    xor	    a
-		    ld	    (Pause_1_F5_2), a
+		    ld	    (+vars.Pause_1_F5_2), a
 		    inc	    a
-		    ld	    (RestoreSoundData),	a
+		    ld	    (+vars.RestoreSoundData),	a
 
 		    ld	    de,	6C58h
 		    ld	    hl,	0D898h
@@ -10587,7 +10587,7 @@ GS_Ending:
 
 		    call    SetBanks1_2_3
 
-		    ld	    hl,	EndingStatus
+		    ld	    hl,	+vars.EndingStatus
 		    ld	    a, (hl)
 		    sub	    0Eh
 		    ret	    nz				    ; The ending has not ended yet
@@ -10617,15 +10617,15 @@ GS_Ending2:
 ChkAnykeyStart:
 		    call    ReadControls
 
-		    ld	    hl,	ControlsHold_
+		    ld	    hl,	+vars.ControlsHold_
 		    call    StoreControls
 		    or	    a
 		    ret	    z				    ; Any key pressed
 
-		    ld	    hl,	WaitCounter
+		    ld	    hl,	+vars.WaitCounter
 		    ld	    (hl), 0
 
-		    ld	    hl,	GameStatus
+		    ld	    hl,	+vars.GameStatus
 		    ld	    b, (hl)
 		    djnz    GoToMenu			    ; Game status != 1 (menu)
 
@@ -10633,7 +10633,7 @@ ChkAnykeyStart:
 		    ret	    z				    ; No
 
 		    ld	    a, 40h
-		    ld	    (ControlConfig), a		    ; Bit6: 1=Enable music/Player control
+		    ld	    (+vars.ControlConfig), a		    ; Bit6: 1=Enable music/Player control
 
 		    ld	    (hl), 3			    ; Game status 3: START GAME
 		    inc	    hl
@@ -10656,7 +10656,7 @@ GoToMenu:
 		    call    LoadIntroGfx		    ; Load menu	graphics
 
 		    ld	    a, 4
-		    ld	    (MenuStatus), a		    ; Status to	draw the menu and play SFX
+		    ld	    (+vars.MenuStatus), a		    ; Status to	draw the menu and play SFX
 		    call    MenuLogoLogic		    ; Draw the Metal Gear logo in a go
 
 		    jp	    SetBanks1_2_3
@@ -10673,11 +10673,11 @@ GoToMenu:
 ;----------------------------------------------------------------------------
 
 RadioLogic:
-		    ld	    a, (FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
+		    ld	    a, (+vars.FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
 		    and	    8				    ; F4 key pressed?
 		    jp	    nz,	ExitRadio
 
-		    ld	    a, (EquipRadioStatus)	    ; Equip and	radio status
+		    ld	    a, (+vars.EquipRadioStatus)	    ; Equip and	radio status
 		    call    JumpIndex
 
 		    dw DrawRadio
@@ -10699,9 +10699,9 @@ DrawRadio:
 		    call    SetRadioPal			    ; Set radio	palette
 
 		    ld	    a, 2
-		    ld	    (RadioCallFlag), a		    ; Stop incoming call
+		    ld	    (+vars.RadioCallFlag), a		    ; Stop incoming call
 		    dec	    a
-		    ld	    (TilesetBank), a		    ; 0=First bank of 256 tiles, 1=Second bank
+		    ld	    (+vars.TilesetBank), a		    ; 0=First bank of 256 tiles, 1=Second bank
 
 		    ld	    de,	3018h
 		    ld	    hl,	RadioTilesMap
@@ -10711,8 +10711,8 @@ DrawRadio:
 		    ld	    hl,	SnakeTilesMap
 		    call    DrawTilesBlock		    ; Draw Snake portrait
 
-		    ld	    hl,	RadioCmd		    ; 1=Send
-		    ld	    de,	RadioLedCnt
+		    ld	    hl,	+vars.RadioCmd		    ; 1=Send
+		    ld	    de,	+vars.RadioLedCnt
 		    ld	    bc,	10h
 		    ld	    (hl), 0
 		    ldir				    ; Erase radio variables
@@ -10722,7 +10722,7 @@ DrawRadio:
 		    call    RenderHUD			    ; Render HUD
 		    call    NextRadioStat
 
-		    ld	    a, (EndingStatus)
+		    ld	    a, (+vars.EndingStatus)
 		    and	    a				    ; Ending mode?
 		    ld	    a, 50h			    ; SFX: Radio noise
 		    call    z, SetSoundEntryChk
@@ -10740,11 +10740,11 @@ DrawRadio:
 ;----------------------------------------------------------------------------
 
 RadioIdle:
-		    ld	    a, (RadioCmd)		    ; 1=Send
+		    ld	    a, (+vars.RadioCmd)		    ; 1=Send
 		    and	    a
 		    jr	    z, RadioIdle2
 
-		    ld	    a, (EndingStatus)
+		    ld	    a, (+vars.EndingStatus)
 		    and	    a				    ; Ending mode?
 		    ld	    a, 50h			    ; SFX: Radio noise
 		    call    z, SetSoundEntryChk
@@ -10754,18 +10754,18 @@ RadioIdle2:
 		    ld	    hl,	txtSend
 		    call    ErasePrintTxt		    ; Erase SEND and print RECV
 
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    1				    ; Up pressed?
 		    jr	    nz,	SetRadioSend
 
-		    ld	    (RadioCmd),	a		    ; 1=Send
+		    ld	    (+vars.RadioCmd),	a		    ; 1=Send
 		    call    ChgRadioFreq		    ; Check frequency change
 		    jp	    ChkRadioReceiv		    ; Check if there is	someone	available in the selected frequency
 
 
 SetRadioSend:
-		    ld	    (RadioCmd),	a		    ; 1=Send
-		    ld	    (ReplyRequested), a
+		    ld	    (+vars.RadioCmd),	a		    ; 1=Send
+		    ld	    (+vars.ReplyRequested), a
 
 		    ld	    de,	txtSend
 		    ld	    hl,	txtRecv
@@ -10785,13 +10785,13 @@ SetRadioSend:
 ;----------------------------------------------------------------------------
 
 RadioSignalUp:
-		    ld	    hl,	RadioLedDelay		    ; Delay before the first/next led turns on
+		    ld	    hl,	+vars.RadioLedDelay		    ; Delay before the first/next led turns on
 		    dec	    (hl)
 		    ret	    nz				    ; Wait
 
 		    ld	    (hl), 2			    ; Delay value
 
-		    ld	    hl,	RadioLedCnt
+		    ld	    hl,	+vars.RadioLedCnt
 		    inc	    (hl)			    ; Increment	number of leds on
 
 		    push    hl
@@ -10803,7 +10803,7 @@ RadioSignalUp:
 		    ret	    nz				    ; Not all leds on
 
 NextRadioStat:
-		    ld	    hl,	EquipRadioStatus	    ; Equip and	radio status
+		    ld	    hl,	+vars.EquipRadioStatus	    ; Equip and	radio status
 		    inc	    (hl)
 		    ret
 
@@ -10814,13 +10814,13 @@ NextRadioStat:
 ;----------------------------------------------------------------------------
 
 SetupRadioReply:
-		    ld	    hl,	EquipRadioStatus	    ; Equip and	radio status
+		    ld	    hl,	+vars.EquipRadioStatus	    ; Equip and	radio status
 		    ld	    (hl), 4			    ; Radio signal off mode. The game will continue in this mode after showing the selected text
 
 		    ld	    a, 5Ch
 		    call    SetSoundEntryChk		    ; Silence
 
-		    ld	    hl,	(ReplyRadioPerson)
+		    ld	    hl,	(+vars.ReplyRadioPerson)
 		    inc	    hl
 		    inc	    hl
 		    inc	    hl
@@ -10836,15 +10836,15 @@ SetupRadioReply:
 
 RadioSignalOFF:
 		    xor	    a
-		    ld	    (ReplyRequested), a
-		    ld	    (RadioLedCnt), a
+		    ld	    (+vars.ReplyRequested), a
+		    ld	    (+vars.RadioLedCnt), a
 		    inc	    a
-		    ld	    (AutoReplyDone), a		    ; Flag to indicate that autoreply has been done.
+		    ld	    (+vars.AutoReplyDone), a		    ; Flag to indicate that autoreply has been done.
 
-		    ld	    hl,	EquipRadioStatus	    ; Equip and	radio status
+		    ld	    hl,	+vars.EquipRadioStatus	    ; Equip and	radio status
 		    ld	    (hl), a			    ; Set radio	idle status
 
-		    ld	    a, (EndingStatus)
+		    ld	    a, (+vars.EndingStatus)
 		    and	    a
 		    ld	    a, 50h			    ; SFX radio	noise
 		    call    z, SetSoundEntryChk
@@ -10904,15 +10904,15 @@ ErasePrintTxt:
 ;----------------------------------------------------------------------------
 
 ChgRadioFreq:
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    1100b			    ; Left or right pressed?
 		    jr	    nz,	ChgRadioFreq2
 
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    1100b			    ; Left or right hold?
 		    ret	    z				    ; No
 
-		    ld	    hl,	ControlHoldWait
+		    ld	    hl,	+vars.ControlHoldWait
 		    dec	    (hl)			    ; Decrement	delay
 		    ret	    nz				    ; Do not change the	frequency in this iteration
 
@@ -10921,11 +10921,11 @@ ChgRadioFreq:
 
 
 ChgRadioFreq2:
-		    ld	    hl,	AutoReplyDone		    ; Flag to indicate that autoreply has been done.
+		    ld	    hl,	+vars.AutoReplyDone		    ; Flag to indicate that autoreply has been done.
 		    ld	    (hl), 0			    ; Erase autoreply flag. If the right freq. is selected again an incoming call will be received
 		    inc	    hl
 		    ld	    (hl), 0
-		    ld	    hl,	ControlHoldWait
+		    ld	    hl,	+vars.ControlHoldWait
 		    ld	    (hl), 8
 
 ChgRadioFreq3:
@@ -10934,7 +10934,7 @@ ChgRadioFreq3:
 		    rra
 		    jr	    c, DecrementFreq		    ; Left
 
-		    ld	    hl,	RadioFreq
+		    ld	    hl,	+vars.RadioFreq
 		    ld	    a, (hl)
 		    cp	    99h				    ; Max. frequency
 		    ret	    z
@@ -10946,7 +10946,7 @@ ChgRadioFreq3:
 
 
 DecrementFreq:
-		    ld	    hl,	RadioFreq
+		    ld	    hl,	+vars.RadioFreq
 		    ld	    a, (hl)
 		    and	    a
 		    ret	    z				    ; Frequency	= 0
@@ -10968,15 +10968,15 @@ DecrementFreq:
 ChkRadioReceiv:
 		    call    DrawRadioFreq
 
-		    ld	    a, (NumRadioPersons)
+		    ld	    a, (+vars.NumRadioPersons)
 		    and	    a
 		    ret	    z				    ; There is anybody available in the	radio
 
 		    ld	    b, a			    ; Number of	persons/frequencies available
 
-		    ld	    a, (RadioFreq)
+		    ld	    a, (+vars.RadioFreq)
 		    ld	    c, a			    ; C	= Selected frequency
-		    ld	    hl,	RadioPersonsDat		    ; 0=Frequency, 1=dummy, 2=bit0:autoreply 1:autotune, 3=Text	id
+		    ld	    hl,	+vars.RadioPersonsDat		    ; 0=Frequency, 1=dummy, 2=bit0:autoreply 1:autotune, 3=Text	id
 
 ChkRadioReceiv2:
 		    ld	    a, c
@@ -10999,7 +10999,7 @@ ChkRadioReceiv4:
 		    and	    1				    ; Wait call	or auto	reply? You get an incoming call	as soon	the right frequency is selected
 		    jr	    z, RadioAutoReply		    ; Auto reply
 
-		    ld	    a, (ReplyRequested)
+		    ld	    a, (+vars.ReplyRequested)
 		    and	    a				    ; Did Snake	send a reply request?
 		    jr	    z, ChkRadioReceiv3		    ; No, ignore this frequency	and try	another	(if available)
 
@@ -11013,7 +11013,7 @@ ChkRadioReceiv4:
 ;----------------------------------------------------------------------------
 
 RadioAutoReply:
-		    ld	    a, (AutoReplyDone)		    ; Flag to indicate that autoreply has been done.
+		    ld	    a, (+vars.AutoReplyDone)		    ; Flag to indicate that autoreply has been done.
 		    and	    a
 		    ret	    nz				    ; Ignores autoreply	feature	until the fequency changes
 
@@ -11023,13 +11023,13 @@ RadioAutoReply2:
 		    pop	    hl
 		    ret	    c				    ; No reply
 
-		    ld	    (ReplyRadioPerson),	hl
+		    ld	    (+vars.ReplyRadioPerson),	hl
 
-		    ld	    hl,	EquipRadioStatus	    ; Equip and	radio status
+		    ld	    hl,	+vars.EquipRadioStatus	    ; Equip and	radio status
 		    ld	    (hl), 2			    ; Radio signal up status
 
 		    ld	    a, 10h
-		    ld	    (RadioLedDelay), a		    ; Delay before the first/next led turns on
+		    ld	    (+vars.RadioLedDelay), a		    ; Delay before the first/next led turns on
 		    ret
 
 
@@ -11046,11 +11046,11 @@ ChkRadioReply:
 		    inc	    hl
 		    ld	    c, (hl)			    ; Text ID
 
-		    ld	    a, (MapZone)		    ; Values of	5 or more need the antenna
+		    ld	    a, (+vars.MapZone)		    ; Values of	5 or more need the antenna
 		    cp	    5
 		    jr	    c, ChkReplyBigBoss		    ; Does not need the	antenna
 
-		    ld	    a, (AntennaTaken)
+		    ld	    a, (+vars.AntennaTaken)
 		    and	    a
 		    jr	    z, NoRadioReply		    ; Needs the	antenna
 
@@ -11069,7 +11069,7 @@ ChkReplyBigBoss:
 		    jr	    nz,	ChkReplyBigBoss3
 
 ChkReplyBigBoss2:
-		    ld	    a, (SwitchOffMSXF)		    ; 1	= Big Boss will	order to switch	off your MSX
+		    ld	    a, (+vars.SwitchOffMSXF)		    ; 1	= Big Boss will	order to switch	off your MSX
 		    and	    a				    ; Is the flag enabled?
 		    jr	    z, ChkReplyBigBoss3
 
@@ -11093,11 +11093,11 @@ ChkReplyBigBoss3:
 		    jr	    nz,	ChkReplySchneider
 
 ChkReplyBigBoss4:
-		    ld	    a, (TransmiTaken)
+		    ld	    a, (+vars.TransmiTaken)
 		    and	    a				    ; Is the transmisor/bug in the equipment?
 		    jr	    z, ChkReplySchneider
 
-		    ld	    a, (MapZone)		    ; Values of	5 or more need the antenna
+		    ld	    a, (+vars.MapZone)		    ; Values of	5 or more need the antenna
 		    cp	    4
 		    jp	    z, ChkReplySchneider
 
@@ -11121,7 +11121,7 @@ ChkReplySchneider:
 		    jr	    nz,	ChkReplyJeniffer
 
 ChkReplySchneider2:
-		    ld	    a, (SchneiderCaptured)
+		    ld	    a, (+vars.SchneiderCaptured)
 		    and	    a				    ; Is Schneider captured?
 		    jr	    z, RadioReplyOk
 
@@ -11137,11 +11137,11 @@ ChkReplyJeniffer:
 		    cp	    FREQ_JENIFFER		    ; Jeniffer
 		    jr	    nz,	ChkReplyMadnar
 
-		    ld	    a, (Class)			    ; Rank level
+		    ld	    a, (+vars.Class)			    ; Rank level
 		    cp	    3
 		    jr	    nz,	NoRadioReply		    ; Not enough rank
 
-		    ld	    a, (JennifBrotherDead)
+		    ld	    a, (+vars.JennifBrotherDead)
 		    and	    a				    ; Jeniffer will not	answer anymore if her brother is dead
 		    jr	    nz,	NoRadioReply
 
@@ -11158,7 +11158,7 @@ ChkReplyMadnar:
 		    cp	    15				    ; LISTEN! SOLID SNAKE... I'LL NEVER DIE...* I'LL GET YOU. ONE DAY.* SEE YOU AGAIN...
 		    jr	    nz,	RadioReplyOk		    ; (!?) Why is this text checked? It	is not a radio reply.
 
-		    ld	    a, (MadnarMoved)
+		    ld	    a, (+vars.MadnarMoved)
 		    and	    a				    ; Was Madnar moved to building 2?
 		    jr	    nz,	NoRadioReply
 
@@ -11180,14 +11180,14 @@ NoRadioReply:
 DrawRadioFreq:
 		    ld	    c, 1
 		    ld	    de,	9821h			    ; Frequency	XY
-		    ld	    a, (RadioFreq)
+		    ld	    a, (+vars.RadioFreq)
 		    rra
 		    rra
 		    rra
 		    rra
 		    call    PrintDigit
 
-		    ld	    a, (RadioFreq)
+		    ld	    a, (+vars.RadioFreq)
 
 ;----------------------------------------------------------------------------
 ;
@@ -11270,7 +11270,7 @@ txtSend:	    dw 3838h
 
 DrawRadioLeds:
 		    ld	    de,	4020h
-		    ld	    a, (RadioLedCnt)
+		    ld	    a, (+vars.RadioLedCnt)
 		    srl	    a
 		    and	    a
 		    jr	    z, DrawRadioLeds2
@@ -11280,7 +11280,7 @@ DrawRadioLeds:
 		    call    DrawRadioLeds4
 
 DrawRadioLeds2:
-		    ld	    a, (RadioLedCnt)
+		    ld	    a, (+vars.RadioLedCnt)
 		    rra
 		    jr	    nc,	DrawRadioLeds3
 
@@ -11289,13 +11289,13 @@ DrawRadioLeds2:
 		    call    DrawRadioLeds4
 
 DrawRadioLeds3:
-		    ld	    a, (RadioLedCnt)
+		    ld	    a, (+vars.RadioLedCnt)
 		    cp	    11
 		    ret	    nc
 
 		    and	    1
 		    ld	    c, a
-		    ld	    a, (RadioLedCnt)
+		    ld	    a, (+vars.RadioLedCnt)
 		    srl	    a
 		    add	    a, c
 		    ld	    c, a
@@ -11342,7 +11342,7 @@ DrawRadioLeds4:
 
 ExitRadio:
 		    ld	    a, 1
-		    ld	    (RestoreSoundData),	a
+		    ld	    (+vars.RestoreSoundData),	a
 		    call    SetSnakePal
 		    jp	    RenderScreen		    ; Set game mode and	render screen
 
@@ -11353,11 +11353,11 @@ ExitRadio:
 ;----------------------------------------------------------------------------
 
 MenuWeapon:
-		    ld	    a, (FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
+		    ld	    a, (+vars.FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
 		    and	    2				    ; F2 key pressed?
 		    jp	    nz,	RenderScreen		    ; Yes, return to game
 
-		    ld	    a, (EquipRadioStatus)	    ; Equip and	radio status
+		    ld	    a, (+vars.EquipRadioStatus)	    ; Equip and	radio status
 		    dec	    a				    ; Was the weapon menu rendered?
 		    jp	    z, CtrlMenuWeapon		    ; Yes, run the menu	logic
 
@@ -11366,7 +11366,7 @@ MenuWeapon:
 		    call    ClearPage0			    ; Clear page 0
 		    call    SetMenuWeaponPal		    ; Set weapons menu palette
 
-		    ld	    hl,	EquipRadioStatus	    ; Equip and	radio status
+		    ld	    hl,	+vars.EquipRadioStatus	    ; Equip and	radio status
 		    inc	    (hl)
 
 		    call    CompactWeapons		    ; Remove empty spaces
@@ -11385,20 +11385,20 @@ MenuWeapon:
 ;----------------------------------------------------------------------------
 
 CtrlMenuWeapon:
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    0Fh				    ; Any direction pressed?
 		    jr	    nz,	CtrlMenuWeapon2		    ; Yes
 
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    0Fh				    ; Any direction hold?
 		    ret	    z				    ; No
 
-		    ld	    hl,	ControlHoldWait
+		    ld	    hl,	+vars.ControlHoldWait
 		    dec	    (hl)			    ; Decrement	repeat delay
 		    ret	    nz				    ; Wait before moving the cursor again
 
 CtrlMenuWeapon2:
-		    ld	    hl,	ControlHoldWait
+		    ld	    hl,	+vars.ControlHoldWait
 		    ld	    (hl), 8			    ; Set repeat delay time
 
 		    rra
@@ -11412,7 +11412,7 @@ CtrlMenuWeapon2:
 
 ; Right	pressed
 
-		    ld	    a, (SelectIdx)
+		    ld	    a, (+vars.SelectIdx)
 		    cp	    4
 		    ret	    nc				    ; Not possible to move to the right	from that weapon
 
@@ -11422,7 +11422,7 @@ CtrlMenuWeapon2:
 
 
 CtrlMenuWeaponUp:
-		    ld	    a, (SelectIdx)
+		    ld	    a, (+vars.SelectIdx)
 		    cp	    1
 		    ret	    z				    ; Not possible to move up from top of left column
 
@@ -11435,7 +11435,7 @@ CtrlMenuWeaponUp:
 
 
 CtrlMenuWeaponDown:
-		    ld	    a, (SelectIdx)
+		    ld	    a, (+vars.SelectIdx)
 		    cp	    4
 		    ret	    z				    ; Not possible to move down	from bottom of left column
 
@@ -11448,7 +11448,7 @@ CtrlMenuWeaponDown:
 
 
 CtrlMenuWeaponLeft:
-		    ld	    a, (SelectIdx)
+		    ld	    a, (+vars.SelectIdx)
 		    cp	    5
 		    ret	    c				    ; Not possible to move left	from left column
 
@@ -11462,11 +11462,11 @@ MenuWeaponMove:
 		    call    EraseArrow			    ; Erase cursor/arrow
 
 		    ld	    a, c
-		    ld	    (SelectIdx), a
+		    ld	    (+vars.SelectIdx), a
 		    call    CalcCursorXYWeapon
 		    call    DrawArrow			    ; Draw cursor/arrow	in the new location
 
-		    ld	    a, (EquipRemoved)		    ; The equipment and	weapons	have been removed by the enemy (captured)
+		    ld	    a, (+vars.EquipRemoved)		    ; The equipment and	weapons	have been removed by the enemy (captured)
 		    and	    a				    ; Has Snake	his weapons?
 		    jr	    z, SelectWeapon		    ; Yes, select the weapon
 
@@ -11483,15 +11483,15 @@ SelectWeapon_:
 ;----------------------------------------------------------------------------
 
 SelectWeapon:
-		    ld	    a, (SelectIdx)
+		    ld	    a, (+vars.SelectIdx)
 		    call    DEC_A_HL_4xA
-		    ld	    de,	Weapons
+		    ld	    de,	+vars.Weapons
 		    add	    hl,	de
 		    ld	    a, (hl)
 
 SelectWeapon2:
-		    ld	    (SelectedWeapon), a
-		    ld	    (WeaponInUse), a
+		    ld	    (+vars.SelectedWeapon), a
+		    ld	    (+vars.WeaponInUse), a
 		    jp	    DrawWeaponHUD
 
 ;----------------------------------------------------------------------------
@@ -11502,13 +11502,13 @@ SelectWeapon2:
 
 RenderScreen:
 		    xor	    a
-		    ld	    (GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    (+vars.GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 
 		    call    DisableScreen		    ; Disable screen rendering
 		    call    ClearSprAttr		    ; Hide sprites
 		    call    LoadSprProjectile		    ; Load sprites used	by the selected	weapon
 
-		    ld	    hl,	SprShootsAtt
+		    ld	    hl,	+vars.SprShootsAtt
 		    ld	    b, 18h
 		    ld	    a, 0E0h
 
@@ -11517,20 +11517,20 @@ RenderScreen2:
 		    inc	    hl
 		    djnz    RenderScreen2		    ; Hide shots
 
-		    ld	    hl,	PlayerShotsList
-		    ld	    de,	PlayerShot1Stat
+		    ld	    hl,	+vars.PlayerShotsList
+		    ld	    de,	+vars.PlayerShot1Stat
 		    ld	    bc,	17Fh
 		    ld	    (hl), 0
 		    ldir				    ; Remove shots actors
 
 		    xor	    a
-		    ld	    (LaserRoomCnt), a		    ; Laser position counter
+		    ld	    (+vars.LaserRoomCnt), a		    ; Laser position counter
 		    call    RenderRoom			    ; Render the room
 		    call    SetRoomPal			    ; Set the palette used in the room
 		    call    SetSprPal			    ; Set the palette used by the sprites
 		    call    DrawDoors			    ; Render the doors
 
-		    ld	    a, (IntroSceneStatus)
+		    ld	    a, (+vars.IntroSceneStatus)
 		    cp	    0Ch
 		    jr	    c, RenderScreen3
 
@@ -11563,9 +11563,9 @@ RenderScreen3:
 ;----------------------------------------------------------------------------
 
 GetWeaponCursor:
-		    ld	    hl,	SelectedWeapon		    ; Pointer to selected weapon
+		    ld	    hl,	+vars.SelectedWeapon		    ; Pointer to selected weapon
 		    ld	    b, 7			    ; Number of	weapons
-		    ld	    de,	Weapons			    ; Pointer to weapons data in equipment
+		    ld	    de,	+vars.Weapons			    ; Pointer to weapons data in equipment
 
 GetMenuCursor:
 		    ld	    c, 1
@@ -11587,7 +11587,7 @@ GetMenuCursor2:
 
 SetSelectedIdx:
 		    ld	    a, c
-		    ld	    (SelectIdx), a
+		    ld	    (+vars.SelectIdx), a
 		    ret
 
 
@@ -11625,7 +11625,7 @@ DrawArrow:
 		    ld	    a, 3Ch			    ; Right arrow char
 
 DrawArrow2:
-		    ld	    de,	(MenuCursorXY)
+		    ld	    de,	(+vars.MenuCursorXY)
 		    jp	    DrawChar
 
 
@@ -11637,7 +11637,7 @@ DrawArrow2:
 ;----------------------------------------------------------------------------
 
 CopyPalToRAM:
-		    ld	    de,	CurrentPal		    ; Color number, color data1, color data 2... #FF end
+		    ld	    de,	+vars.CurrentPal		    ; Color number, color data1, color data 2... #FF end
 		    ld	    hl,	0F680h			    ; VRAM address where the palette is	stored
 		    ld	    bc,	1000h
 
@@ -11672,12 +11672,12 @@ CopyPalToRAM2:
 FadeOutLogic:
 		    call    FadeOutColors
 
-		    ld	    hl,	CurrentPal		    ; Color number, color data1, color data 2... #FF end
+		    ld	    hl,	+vars.CurrentPal		    ; Color number, color data1, color data 2... #FF end
 		    call    SetPalette			    ; Set current palette
 
 ; Check	if all colors are black
 
-		    ld	    hl,	 CurrentPal+1		    ; Color number, color data1, color data 2... #FF end
+		    ld	    hl,	 +vars.CurrentPal+1		    ; Color number, color data1, color data 2... #FF end
 		    ld	    b, 16			    ; Number of	colors
 
 		    xor	    a
@@ -11704,11 +11704,11 @@ FadeOutLogic2:
 ;----------------------------------------------------------------------------
 
 FadeOutColors:
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    and	    3
 		    ret	    nz				    ; Skip this	iteration
 
-		    ld	    hl,	 CurrentPal+1		    ; Color number, color data1, color data 2... #FF end
+		    ld	    hl,	 +vars.CurrentPal+1		    ; Color number, color data1, color data 2... #FF end
 		    ld	    b, 10h
 
 FadeOutColors2:
@@ -11761,45 +11761,45 @@ InitGame:
 		    call    EraseSprAttRAM		    ; Clear sprite attributes RAM buffer
 
 		    xor	    a
-		    ld	    (GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    (+vars.GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 
-		    ld	    a, (RestoreGameFlag)
+		    ld	    a, (+vars.RestoreGameFlag)
 		    and	    a				    ; Comes from continue or pause?
 		    jp	    nz,	InitGame3		    ; Restore game status/check	point
 
 		    call    SetDefaultDoorLock		    ; Set to default the open/closed status of the doors
 
 		    xor	    a
-		    ld	    (IdDoorEnter), a
+		    ld	    (+vars.IdDoorEnter), a
 
 		    ld	    a, SELECTED_CIGARETTES
-		    ld	    (Equipment), a		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
-		    ld	    (SelectedItem), a
+		    ld	    (+vars.Equipment), a		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
+		    ld	    (+vars.SelectedItem), a
 		    ld	    a, 1
-		    ld	    (CigarsTaken), a
-		    ld	    (CigarsUnits), a		    ; Add cigarretes to	inventory and select them
+		    ld	    (+vars.CigarsTaken), a
+		    ld	    (+vars.CigarsUnits), a		    ; Add cigarretes to	inventory and select them
 
-		    ld	    a, (ControlConfig)		    ; Bit6: 1=Enable music/Player control
+		    ld	    a, (+vars.ControlConfig)		    ; Bit6: 1=Enable music/Player control
 		    bit	    6, a			    ; demo mode?
 		    jr	    z, InitGame2		    ; Do not modify the	current	room number
 
 		    ld	    a, 121			    ; First room
-		    ld	    (Room), a
-		    ld	    (PreviousRoom), a
+		    ld	    (+vars.Room), a
+		    ld	    (+vars.PreviousRoom), a
 
 InitGame2:
 		    ld	    a, 0FFh
-		    ld	    (CurrentTileSet), a		    ; Force to reload the tileset
+		    ld	    (+vars.CurrentTileSet), a		    ; Force to reload the tileset
 
 		    ld	    a, FREQ_BIGBOSS		    ; Big boss freq.
-		    ld	    (RadioFreq), a
+		    ld	    (+vars.RadioFreq), a
 
 		    ld	    a, 28h
-		    ld	    (PrisonWall1Life), a	    ; Snake prison wall	energy
-		    ld	    (PrisonWall2Life), a	    ; GreyFox prison wall energy
+		    ld	    (+vars.PrisonWall1Life), a	    ; Snake prison wall	energy
+		    ld	    (+vars.PrisonWall2Life), a	    ; GreyFox prison wall energy
 
 		    ld	    a, 2Ch			    ; Theme of Tara
-		    ld	    (AreaMusic), a
+		    ld	    (+vars.AreaMusic), a
 		    ld	    a, 29h			    ; Intro Theme of Tara
 		    call    SetSoundEntryChk
 
@@ -11823,7 +11823,7 @@ InitGame3:
 
 InitGame4:
 		    xor	    a
-		    ld	    (AreaMusic), a
+		    ld	    (+vars.AreaMusic), a
 		    call    SetAreaMusic2		    ; Set area music
 
 InitGame5:
@@ -11840,8 +11840,8 @@ InitGame5:
 ;----------------------------------------------------------------------------
 
 NextRoomLogic:
-		    ld	    hl,	PasswordBuffer
-		    ld	    de,	 PasswordBuffer+1
+		    ld	    hl,	+vars.PasswordBuffer
+		    ld	    de,	 +vars.PasswordBuffer+1
 		    ld	    (hl), 0
 		    ld	    bc,	1Dh
 		    ldir				    ; Erase password buffer
@@ -11850,11 +11850,11 @@ NextRoomLogic:
 		    call    SetRadioArea		    ; Set radio	signal level/area
 		    call    UpdateRadio			    ; Setup radio frequencies and characters available
 
-		    ld	    a, (GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    a, (+vars.GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 		    cp	    GAME_MODE_DEAD		    ; is Snake dead?
 		    jr	    z, InitRoom
 
-		    ld	    a, (ControlConfig)		    ; Bit6: 1=Enable music/Player control
+		    ld	    a, (+vars.ControlConfig)		    ; Bit6: 1=Enable music/Player control
 		    bit	    6, a
 		    call    nz,	SetAreaMusic2		    ; Set area music
 
@@ -11876,25 +11876,25 @@ InitRoom2:
 		    call    SetBanks1_2_3
 
 		    xor	    a
-		    ld	    (byte_C150), a		    ; Unused?
-		    ld	    (IdDoorEnter), a		    ; Reset door ID
-		    ld	    (PowerSwitchOn), a		    ; Power switch status 1=On,	0=Off/destroyed
-		    ld	    (SpawnedItems), a		    ; Reset spawned items
-		    ld	    (LorryMovTextF), a		    ; Reset lorry moving text flag
-		    ld	    (OpenBigBossDoor), a	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
+		    ld	    (+vars.byte_C150), a		    ; Unused?
+		    ld	    (+vars.IdDoorEnter), a		    ; Reset door ID
+		    ld	    (+vars.PowerSwitchOn), a		    ; Power switch status 1=On,	0=Off/destroyed
+		    ld	    (+vars.SpawnedItems), a		    ; Reset spawned items
+		    ld	    (+vars.LorryMovTextF), a		    ; Reset lorry moving text flag
+		    ld	    (+vars.OpenBigBossDoor), a	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
 
-		    ld	    hl,	PlayerShotsList
-		    ld	    de,	PlayerShot1Stat
+		    ld	    hl,	+vars.PlayerShotsList
+		    ld	    de,	+vars.PlayerShot1Stat
 		    ld	    bc,	17Fh
 		    ld	    (hl), a
 		    ldir				    ; Clear player shots data
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    240				    ; Elevator room?
 		    jr	    nc,	InitRoom3		    ; Yes
 
-		    ld	    hl,	SprShootsAtt
-		    ld	    de,	 SprShootsAtt+1
+		    ld	    hl,	+vars.SprShootsAtt
+		    ld	    de,	 +vars.SprShootsAtt+1
 		    ld	    bc,	17h
 		    ld	    (hl), 0E0h
 		    ldir				    ; Hide shoots sprites
@@ -11916,11 +11916,11 @@ InitRoom3:
 		    call    SetSprPal			    ; Update the palette used by the sprites
 		    call    RenderHUD			    ; Render HUD
 
-		    ld	    a, (SaveLoadMode)		    ; 1=Load mode, 2=Save mode
+		    ld	    a, (+vars.SaveLoadMode)		    ; 1=Load mode, 2=Save mode
 		    or	    a
 		    jr	    nz,	InitRoom4
 
-		    ld	    a, (DoNotAddEnemies)
+		    ld	    a, (+vars.DoNotAddEnemies)
 		    or	    a
 		    call    z, SetupEnemyRoom		    ; Add the enemies/actors in	current	room
 
@@ -11929,7 +11929,7 @@ InitRoom4:
 		    call    DrawLaserBeams		    ; Draw laser beams,	if availables, when wearing goggles
 		    call    SetBanks1_2_3
 
-		    ld	    a, (SaveLoadMode)		    ; 1=Load mode, 2=Save mode
+		    ld	    a, (+vars.SaveLoadMode)		    ; 1=Load mode, 2=Save mode
 		    or	    a
 		    jr	    z, InitRoom5
 
@@ -11946,15 +11946,15 @@ InitRoom4:
 InitRoom5:
 		    call    EnableScreen		    ; Enable screen rendering
 
-		    ld	    a, (ControlConfig)		    ; Bit6: 1=Enable music/Player control
+		    ld	    a, (+vars.ControlConfig)		    ; Bit6: 1=Enable music/Player control
 		    bit	    6, a			    ; Demo mode?
 		    jr	    nz,	InitRoom6		    ; No
 
 		    ld	    a, 6
-		    ld	    (BankInA0Fixed), a
+		    ld	    (+vars.BankInA0Fixed), a
 
 InitRoom6:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    0F0h			    ; Elevator rooms?
 		    jr	    c, InitRoom7		    ; No
 
@@ -11966,7 +11966,7 @@ InitRoom6:
 
 
 InitRoom7:
-		    ld	    a, (SaveLoadMode)		    ; 1=Load mode, 2=Save mode
+		    ld	    a, (+vars.SaveLoadMode)		    ; 1=Load mode, 2=Save mode
 		    or	    a				    ; Returning	from LOAD/SAVE?
 		    jp	    z, SetBanks1_2_3
 
@@ -11982,8 +11982,8 @@ InitRoom7:
 		    call    UpdateSpritesShuf		    ; Update and shuffle sprites. Force	a full sprite prefresh
 
 		    xor	    a
-		    ld	    (SaveLoadMode), a		    ; 1=Load mode, 2=Save mode
-		    ld	    (DoNotAddEnemies), a
+		    ld	    (+vars.SaveLoadMode), a		    ; 1=Load mode, 2=Save mode
+		    ld	    (+vars.DoNotAddEnemies), a
 		    jp	    SetBanks1_2_3
 
 
@@ -11995,7 +11995,7 @@ InitRoom7:
 ;---------------------------------------------------------------------------
 
 TextBoxPatch:
-		    ld	    a, (MetalGear_KO)		    ; Metal Gear destroyed. Self destruction activated
+		    ld	    a, (+vars.MetalGear_KO)		    ; Metal Gear destroyed. Self destruction activated
 		    dec	    a
 		    jr	    z, GameLogic4
 
@@ -12013,7 +12013,7 @@ TextBoxPatch:
 ;---------------------------------------------------------------------------
 
 GameLogic:
-		    ld	    a, (GameMode)		    ; ;
+		    ld	    a, (+vars.GameMode)		    ; ;
 		    and	    a				    ; Normal mode? (Controlling	Snake)
 		    jr	    z, GameLogic3
 
@@ -12024,7 +12024,7 @@ GameLogic:
 		    jr	    c, GameLogic5
 
 GameLogic3:
-		    ld	    a, (IntroSceneStatus)
+		    ld	    a, (+vars.IntroSceneStatus)
 		    cp	    5
 		    jr	    c, GameLogic4
 
@@ -12037,7 +12037,7 @@ GameLogic4:
 		    call    SetBanks1_2_3
 
 GameLogic5:
-		    ld	    a, (GameMode)		    ; ;
+		    ld	    a, (+vars.GameMode)		    ; ;
 		    cp	    GAME_MODE_BINOCULARS	    ; Binocular	mode
 		    jr	    z, SkipPlayerSpr
 
@@ -12045,7 +12045,7 @@ GameLogic5:
 
 		    call    DrawClass			    ; Draw class stars and text
 
-		    ld	    a, (GameMode)		    ; ;
+		    ld	    a, (+vars.GameMode)		    ; ;
 		    cp	    GAME_MODE_WEAPONS		    ; Weapons menu?
 		    jr	    z, LoadSnakeSprs		    ; Skip drawing/erasing CALL	sign or	countdown timer
 
@@ -12062,7 +12062,7 @@ LoadSnakeSprs:
 		    call    SetPlayerShotSpr		    ; Update player's shots sprites
 
 SkipPlayerSpr:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    0F0h
 		    jr	    nc,	GameModeLogic		    ; No enemies in elevators
 
@@ -12071,7 +12071,7 @@ SkipPlayerSpr:
 
 GameModeLogic:
 		    call    UpdateControls
-		    ld	    a, (GameMode)		    ; Current game mode
+		    ld	    a, (+vars.GameMode)		    ; Current game mode
 		    call    JumpIndex
 
 		    dw Playing
@@ -12104,26 +12104,26 @@ GameModeLogic:
 ;---------------------------------------------------------------------------
 
 Playing:
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    cp	    8				    ; Intro scene mode?
 		    jr	    z, PlayModeLogic		    ; Do not check F1-F5 in intro scene
 
 
 ; It is	not possible to	pause the game,	use the	radio or select	an item/weapon in the ladders rooms or while falling in	parachute
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    224				    ; Exit ladders
 		    jr	    nc,	PlayModeLogic		    ; Can't pause or use inventory
 
 		    cp	    204				    ; Wall bricks parachute
 		    jr	    z, PlayModeLogic		    ; Can't pause or use inventory
 
-		    ld	    a, (FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
+		    ld	    a, (+vars.FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
 		    rra					    ; F1
 		    jr	    nc,	ChkFuncKeys
 
 		    ld	    a, 1
-		    ld	    (Pause_1_F5_2), a		    ; Pause flag
+		    ld	    (+vars.Pause_1_F5_2), a		    ; Pause flag
 		    ret
 
 
@@ -12144,14 +12144,14 @@ ChkFuncKeys:
 		    jr	    nc,	PlayModeLogic
 
 		    ld	    a, 2
-		    ld	    (Pause_1_F5_2), a		    ; (!?) Is it used anywere?
+		    ld	    (+vars.Pause_1_F5_2), a		    ; (!?) Is it used anywere?
 		    ret
 
 
 PlayModeLogic:
 		    call    ChkAlarmEnd			    ; Check if the alert mode ends
 
-		    ld	    hl,	DamageDelayTimer
+		    ld	    hl,	+vars.DamageDelayTimer
 		    ld	    a, (hl)
 		    and	    a
 		    jr	    z, PlayModeLogic2
@@ -12162,19 +12162,19 @@ PlayModeLogic2:
 		    call    ChkIncomingCall		    ; Incoming call life cicle
 		    call    DecNukeTimer		    ; Self destruction logic
 
-		    ld	    a, (GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    a, (+vars.GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 		    cp	    GAME_MODE_DEAD		    ; Dead?
 		    jp	    z, RefreshSprites		    ; Update the sprites (copy attributes and colors from RAM to VRAM)
 
 ; The player can't move while Metal Gear is exploding
 
-		    ld	    a, (EnemyList)		    ; Get the fist enemy ID in the list
+		    ld	    a, (+vars.EnemyList)		    ; Get the fist enemy ID in the list
 		    ld	    c, a
 		    and	    7Fh
 		    cp	    ID_METAL_GEAR
 		    jr	    nz,	PlayModeLogic3		    ; Metal Gear is not	in the room
 
-		    ld	    a, (EnemyList+0Dh)		    ; Metal Gear life
+		    ld	    a, (+vars.EnemyList+0Dh)		    ; Metal Gear life
 		    and	    a
 		    jr	    z, PlayModeLogic4		    ; All bombs	were set correctly
 
@@ -12190,15 +12190,15 @@ PlayModeLogic4:
 		    call    EnemiesLogic		    ; Logic of enemies
 		    call    CommonLogic			    ; ChkPlayerShots, ChkTouchEnemies, ChkOnBridge, ChkElectricFloor, ChkGasRooms, ChkDoors, ChkPickItems
 
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_BOX		    ; Cardboard	box
 		    call    z, SetGrenaTargetSpr	    ; Hide grenade target sprite when using the	cardboard box
 
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    and	    3Fh
 		    jp	    nz,	RefreshSprites		    ; Skip continuously	checking if the	player is poisoned
 
-		    ld	    a, (Poisoned)
+		    ld	    a, (+vars.Poisoned)
 		    and	    a				    ; Is poisoned?
 		    jr	    z, RefreshSprites		    ; Update the sprites (copy attributes and colors from RAM to VRAM)
 
@@ -12254,11 +12254,11 @@ OpenDoorLogic:
 ;---------------------------------------------------------------------------
 
 BinocularMode:
-		    ld	    a, (BinoculStatus)
+		    ld	    a, (+vars.BinoculStatus)
 		    dec	    a
 		    jr	    nz,	BinocularMode2		    ; Watching an adjacent room. It is not possible to exit binoculars mode
 
-		    ld	    a, (FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
+		    ld	    a, (+vars.FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
 		    and	    4				    ; F3 key?
 		    ld	    c, GAME_MODE_EQUIPMENT
 		    jp	    nz,	ExitBinocularMode
@@ -12274,7 +12274,7 @@ BinocularMode2:
 ;---------------------------------------------------------------------------
 
 DeadLogic:
-		    ld	    hl,	DeadTimer
+		    ld	    hl,	+vars.DeadTimer
 		    dec	    (hl)
 		    jr	    z, DeadLogicEnd
 
@@ -12285,7 +12285,7 @@ DeadLogic:
 
 DeadLogicEnd:
 		    xor	    a
-		    ld	    (PlayingFlag), a		    ; Exit "playing" mode
+		    ld	    (+vars.PlayingFlag), a		    ; Exit "playing" mode
 		    ret
 
 ;---------------------------------------------------------------------------
@@ -12295,18 +12295,18 @@ DeadLogicEnd:
 ;---------------------------------------------------------------------------
 
 MessageLogic:
-		    ld	    a, (TextId)
+		    ld	    a, (+vars.TextId)
 		    cp	    150				    ; EMERGENCY!! EMERGENCY!! THE SELF-DESTRUCTION SWITCH OF OUTER HEAVEN HAS BEEN ACTIVATED.*
 		    jp	    nz,	TextBoxLogic
 
 ; Update both sprites buffers to clear the sprites before showing the self destruction message
 
-		    ld	    a, (MetalGear_KO)		    ; Metal Gear destroyed. Self destruction activated
+		    ld	    a, (+vars.MetalGear_KO)		    ; Metal Gear destroyed. Self destruction activated
 		    cp	    3
 		    jp	    z, TextBoxLogic
 
 		    inc	    a
-		    ld	    (MetalGear_KO), a		    ; Metal Gear destroyed. Self destruction activated
+		    ld	    (+vars.MetalGear_KO), a		    ; Metal Gear destroyed. Self destruction activated
 		    jr	    RefreshSprites		    ; Update the sprites (copy attributes and colors from RAM to VRAM)
 
 ;---------------------------------------------------------------------------
@@ -12343,7 +12343,7 @@ EventMadnarMoved:
 ;---------------------------------------------------------------------------
 
 RefreshSprites:
-		    ld	    a, (Room)			    ; Update the sprites (copy attributes and colors from RAM to VRAM)
+		    ld	    a, (+vars.Room)			    ; Update the sprites (copy attributes and colors from RAM to VRAM)
 		    cp	    45				    ; Bridge
 		    jr	    z, RefreshSprites2
 
@@ -12401,22 +12401,22 @@ SetBanks1_2_3_g:
 
 ExitBinocularMode:
 		    push    bc
-		    ld	    hl,	EnemyListCopy		    ; Used when	entering binoculars mode
-		    ld	    de,	EnemyList		    ; Array of enemies in the room
+		    ld	    hl,	+vars.EnemyListCopy		    ; Used when	entering binoculars mode
+		    ld	    de,	+vars.EnemyList		    ; Array of enemies in the room
 		    ld	    bc,	800h
 		    ldir				    ; Restore the enemies in the room
 
-		    ld	    a, (PowerSwitchOnCopy)
-		    ld	    (PowerSwitchOn), a		    ; Restore power switch status
+		    ld	    a, (+vars.PowerSwitchOnCopy)
+		    ld	    (+vars.PowerSwitchOn), a		    ; Restore power switch status
 
-		    ld	    hl,	(RadioCallFlagCopy)
-		    ld	    (RadioCallFlag), hl		    ; Restore incoming call status
+		    ld	    hl,	(+vars.RadioCallFlagCopy)
+		    ld	    (+vars.RadioCallFlag), hl		    ; Restore incoming call status
 
-		    ld	    a, (AlertModeCopy2)
-		    ld	    (AlertModeCopy), a		    ; Restore alert mode
+		    ld	    a, (+vars.AlertModeCopy2)
+		    ld	    (+vars.AlertModeCopy), a		    ; Restore alert mode
 
-		    ld	    hl,	 SprAttRAM+0Eh
-		    ld	    de,	 SprAttRAM+0Fh
+		    ld	    hl,	 +vars.SprAttRAM+0Eh
+		    ld	    de,	 +vars.SprAttRAM+0Fh
 		    ld	    bc,	57h
 		    ld	    (hl), 0E0h
 		    ldir				    ; Hide target sprites (attributes in RAM)
@@ -12424,23 +12424,23 @@ ExitBinocularMode:
 		    pop	    bc				    ; C	= Game mode to restore (always 3 = equipment menu)
 
 SwitchGameMode:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    0F0h			    ; Elevators
 		    ret	    nc
 
 		    ld	    a, c
-		    ld	    (GameMode),	a		    ; Set the new game mode (equipment)
+		    ld	    (+vars.GameMode),	a		    ; Set the new game mode (equipment)
 		    cp	    GAME_MODE_RADIO		    ; (!?) It is not possible to exit from binoculars mode to radio mode
 		    jr	    nz,	SwitchGameMode2
 
 		    ld	    a, 1
-		    ld	    (RestoreSoundData),	a
+		    ld	    (+vars.RestoreSoundData),	a
 		    ld	    a, 59h
 		    call    SetSoundEntryChk		    ; Mute sound
 
 SwitchGameMode2:
 		    xor	    a
-		    ld	    (EquipRadioStatus),	a	    ; Equip and	radio status
+		    ld	    (+vars.EquipRadioStatus),	a	    ; Equip and	radio status
 		    ret
 
 ;---------------------------------------------------------------------------
@@ -12454,12 +12454,12 @@ SwitchGameMode2:
 ;---------------------------------------------------------------------------
 
 BinocularLogic:
-		    ld	    a, (BinoculStatus)
+		    ld	    a, (+vars.BinoculStatus)
 		    ld	    b, a
 		    djnz    BinocularUp
 
 ; Check	controls
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    0Fh				    ; Up, down,	left, right
 		    ret	    z				    ; No direction pressed
 
@@ -12479,7 +12479,7 @@ BinocularLogic:
 
 MoveBinoculars:
 		    ld	    a, 80h
-		    ld	    (TimerBinocular), a		    ; Set the time that	an adjacent room is shown
+		    ld	    (+vars.TimerBinocular), a		    ; Set the time that	an adjacent room is shown
 		    ld	    a, c
 		    dec	    a
 		    jr	    MoveBinoculars2
@@ -12508,14 +12508,14 @@ BinocularRight:
 		    ld	    a, 3			    ; Left
 
 BinocularShowRoom:
-		    ld	    hl,	TimerBinocular
+		    ld	    hl,	+vars.TimerBinocular
 		    dec	    (hl)
 		    ret	    nz				    ; Continue showing the room
 
 		    ld	    c, 1			    ; Return player's room
 
 MoveBinoculars2:
-		    ld	    (NextRoomDirect), a		    ; Set which	direction the binoculars are looking at
+		    ld	    (+vars.NextRoomDirect), a		    ; Set which	direction the binoculars are looking at
 
 		    push    bc
 		    call    GetNextRoomNum
@@ -12524,13 +12524,13 @@ MoveBinoculars2:
 		    ret	    z				    ; FF = Room	no available
 
 		    dec	    a
-		    ld	    (Room), a			    ; Room number to show
+		    ld	    (+vars.Room), a			    ; +vars.Room number to show
 
 		    ld	    a, c
-		    ld	    (BinocularDir), a
+		    ld	    (+vars.BinocularDir), a
 
 		    xor	    a
-		    ld	    (BinoculStatus), a		    ; Status to	draw the examined room
+		    ld	    (+vars.BinoculStatus), a		    ; Status to	draw the examined room
 		    ret
 
 
@@ -12555,26 +12555,26 @@ DrawBinocRoom:
 		    call    RenderRoom			    ; Render the room
 		    call    DrawDoors			    ; Render the doors
 
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
-		    ld	    de,	 EnemyList+1		    ; Array of enemies in the room
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
+		    ld	    de,	 +vars.EnemyList+1		    ; Array of enemies in the room
 		    ld	    (hl), 0
 		    ld	    bc,	7FFh
 		    ldir				    ; Erase enemies structures/actors data
 
-		    ld	    hl,	EnemySprAttRAM
-		    ld	    de,	 EnemySprAttRAM+1
+		    ld	    hl,	+vars.EnemySprAttRAM
+		    ld	    de,	 +vars.EnemySprAttRAM+1
 		    ld	    (hl), 0E0h
 		    ld	    bc,	57h
 		    ldir				    ; Erase enemies sprites attributes
 
 		    call    SetupEnemyRoom		    ; Add the enemies structures/actors	in the room
 
-		    ld	    a, (BinocularDir)
+		    ld	    a, (+vars.BinocularDir)
 		    dec	    a				    ; Is the player's room?
 		    jr	    nz,	DrawBinocRoom2
 
-		    ld	    hl,	EnemySprAttRAM
-		    ld	    de,	 EnemySprAttRAM+1
+		    ld	    hl,	+vars.EnemySprAttRAM
+		    ld	    de,	 +vars.EnemySprAttRAM+1
 		    ld	    (hl), 0E0h
 		    ld	    bc,	57h
 		    ldir				    ; Remove sprites from player's room
@@ -12583,8 +12583,8 @@ DrawBinocRoom2:
 		    ld	    hl,	txtTelescope
 		    call    PrintTextXY			    ; Print TELESCOPE MODE
 
-		    ld	    a, (BinocularDir)
-		    ld	    (BinoculStatus), a		    ; Status to	return to player's room after examining the room
+		    ld	    a, (+vars.BinocularDir)
+		    ld	    (+vars.BinoculStatus), a		    ; Status to	return to player's room after examining the room
 		    dec	    a
 		    ld	    hl,	ArrowsChars
 		    call    ADD_HL_A
@@ -12613,7 +12613,7 @@ EnemiesLogic:
 		    call    ChkEraseAlertSign		    ; Logic to erase the alert sign
 		    call    ChkRespawnEnemy		    ; Logic to respawn enemies in alert	mode
 
-		    ld	    ix,	EnemyList		    ; Array of enemies in the room
+		    ld	    ix,	+vars.EnemyList		    ; Array of enemies in the room
 		    ld	    b, 16			    ; Max. number of enemies
 
 EnemiesLogicLoop:
@@ -12747,7 +12747,7 @@ RunEnemyLogic:
 ;---------------------------------------------------------------------------
 
 ChkEraseAlertSign:
-		    ld	    hl,	AlertIconTimer
+		    ld	    hl,	+vars.AlertIconTimer
 		    ld	    a, (hl)
 		    or	    a
 		    ret	    z				    ; Alert sign not visible
@@ -12755,19 +12755,19 @@ ChkEraseAlertSign:
 		    dec	    (hl)			    ; Decrement	timer
 		    ret	    nz
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    b, a
-		    ld	    a, (RoomAlertTrigged)	    ; This is the room where the alert was triggered
+		    ld	    a, (+vars.RoomAlertTrigged)	    ; This is the room where the alert was triggered
 		    cp	    b
 		    ret	    nz				    ; The alert	was triggered in a different room. No need to erase the	sign
 
-		    ld	    hl,	AlertSignNotOnScreen	    ; 1	= No need to erase the alert sign. The alert was triggered by a	camera
+		    ld	    hl,	+vars.AlertSignNotOnScreen	    ; 1	= No need to erase the alert sign. The alert was triggered by a	camera
 		    ld	    a, (hl)
 		    ld	    (hl), 0
 		    or	    a
 		    ret	    nz				    ; There is no alert	sign on	screen,	so no need to erase it
 
-		    ld	    hl,	XY_AlertIcon
+		    ld	    hl,	+vars.XY_AlertIcon
 		    ld	    e, (hl)
 		    inc	    hl
 		    ld	    d, (hl)			    ; DE = DX, DY
@@ -12930,9 +12930,9 @@ DismissActor:
 		    jr	    nz,	DismissActor3
 
 		    ld	    a, 1
-		    ld	    (OpenBigBossDoor), a	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
+		    ld	    (+vars.OpenBigBossDoor), a	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
 
-		    ld	    hl,	BigBossStat		    ; 0=Dead, 1=Confession dialog
+		    ld	    hl,	+vars.BigBossStat		    ; 0=Dead, 1=Confession dialog
 		    set	    0, (hl)			    ; Big Boss is dead
 		    jp	    RemoveActorMusic
 
@@ -12947,7 +12947,7 @@ DismissActor3:
 		    cp	    ID_ARNOLD |	080h		    ; Arnold ID	+ bit 7	on
 		    jr	    nz,	DismissActor4
 
-		    ld	    hl,	ArnoldsCnt
+		    ld	    hl,	+vars.ArnoldsCnt
 		    dec	    (hl)			    ; Decrement	number of Arnolds
 		    jr	    nz,	DismissActor4		    ; One Arnold left
 
@@ -12983,7 +12983,7 @@ DismissActor5:
 		    jr	    nz,	DismissActor6
 
 		    ld	    a, 1
-		    ld	    (FireTrooper_KO), a		    ; Fire Tropped dead	flag
+		    ld	    (+vars.FireTrooper_KO), a		    ; Fire Tropped dead	flag
 		    jr	    RemoveActorMusic
 
 
@@ -12998,7 +12998,7 @@ DismissActor6:
 		    cp	    ID_SHOT_GUNNER | 080h	    ; #21 = Shot gunner
 		    jr	    nz,	DismissActor7
 
-		    ld	    hl,	ShotGunnerStat		    ; Bit1=Shot	Gunner speech, 0=Dead
+		    ld	    hl,	+vars.ShotGunnerStat		    ; Bit1=Shot	Gunner speech, 0=Dead
 		    set	    0, (hl)
 		    jr	    RemoveActorMusic
 
@@ -13014,7 +13014,7 @@ DismissActor7:
 		    cp	    ID_MACH_GUN_KID | 080h	    ; Machine Gun Kid
 		    jr	    nz,	DismissActor8
 
-		    ld	    hl,	MachGunStatus		    ; Bit0 = Dead, 1 = Speech done
+		    ld	    hl,	+vars.MachGunStatus		    ; Bit0 = Dead, 1 = Speech done
 		    set	    0, (hl)
 		    jr	    RemoveActorMusic
 
@@ -13030,7 +13030,7 @@ DismissActor8:
 		    cp	    ID_GUARD_SILENCER |	080h	    ; Guards that drop the supressor
 		    jr	    nz,	DismissActor9
 
-		    ld	    hl,	GuardSilencerCnt	    ; Four soldiers (supressor room)
+		    ld	    hl,	+vars.GuardSilencerCnt	    ; Four soldiers (supressor room)
 		    dec	    (hl)
 		    jr	    nz,	DismissActor9
 
@@ -13093,7 +13093,7 @@ RemoveActor_:
 		    ex	    de,	hl
 
 RemoveActor2_:
-		    ld	    hl,	EnemySprAttRAM
+		    ld	    hl,	+vars.EnemySprAttRAM
 		    ld	    a, (de)			    ; Spr. layer
 		    add	    a, a
 		    add	    a, a			    ; 4	bytes per sprite attributes
@@ -13163,7 +13163,7 @@ RestoreBackMine:
 ;----------------------------------------------------------------------------
 
 UpdateEnemySprStr:
-		    ld	    ix,	EnemyList		    ; Array of enemies in the room
+		    ld	    ix,	+vars.EnemyList		    ; Array of enemies in the room
 		    ld	    b, 16			    ; Maximum number of	enemies	on a room
 
 UpdateEnemySpr2:
@@ -13212,7 +13212,7 @@ KillActor:
 		    jr	    nz,	KillActor2
 
 DecRespawnGuards:
-		    ld	    hl,	NumRespawnGuards
+		    ld	    hl,	+vars.NumRespawnGuards
 		    dec	    (hl)
 		    bit	    7, (hl)			    ; Counter overflow?	-1
 		    jr	    z, KillActor2
@@ -13274,7 +13274,7 @@ IdsKillLogic:	    db	  0,   1, 15h, 50h, 61h, 10h, 11h,   0,	66h, 14h, 44h,	 1, 
 ;----------------------------------------------------------------------------
 
 KillPrisoner:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    193				    ; Coward Duck and Jennifer's brother room
 		    jr	    nz,	KillPrisoner2
 
@@ -13283,8 +13283,8 @@ KillPrisoner:
 		    jr	    nz,	KillPrisoner2
 
 		    ld	    a, 1
-		    ld	    (JennifBrotherDead), a	    ; Mark Jeniffer's brother as dead
-		    ld	    (RescuedArray+0Dh),	a	    ; Also as "rescued"
+		    ld	    (+vars.JennifBrotherDead), a	    ; Mark Jeniffer's brother as dead
+		    ld	    (+vars.RescuedArray+0Dh),	a	    ; Also as "rescued"
 
 KillPrisoner2:
 		    ld	    a, (ix+ACTOR.ANIM_CNT)
@@ -13299,7 +13299,7 @@ KillEnemy:
 		    sub	    ID_BIG_BOSS
 		    jr	    nz,	JpDismissActor
 
-		    ld	    (DoorOpenArray+6Ah), a	    ; Open ladders' door
+		    ld	    (+vars.DoorOpenArray+6Ah), a	    ; Open ladders' door
 
 JpDismissActor:
 		    jp	    DismissActor
@@ -13389,13 +13389,13 @@ BossDefeatedLogic:
 		    jr	    nz,	BossDefeatedLogic2
 
 		    inc	    a
-		    ld	    (DestructionTimerOn), a	    ; Enable destruction countdown
+		    ld	    (+vars.DestructionTimerOn), a	    ; Enable destruction countdown
 
 		    ld	    hl,	3000h
-		    ld	    (DestructTimer), hl		    ; Countdown	time
+		    ld	    (+vars.DestructTimer), hl		    ; Countdown	time
 
 		    ld	    a, l
-		    ld	    (DoorOpenArray+62h), a	    ; Open door	to Big Boss room
+		    ld	    (+vars.DoorOpenArray+62h), a	    ; Open door	to Big Boss room
 
 		    ld	    a, 53h			    ; SFX Metal	Gear destroyed
 		    call    SetSoundEntry
@@ -13425,7 +13425,7 @@ BossDefeatedLogic2:
 		    jr	    nz,	BossDefeatedLogic3
 
 		    ld	    a, 1
-		    ld	    (OpenBigBossDoor), a	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
+		    ld	    (+vars.OpenBigBossDoor), a	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
 
 BossDefeatedLogic3:
 		    ld	    (ix+ACTOR.SpriteId), c
@@ -13510,7 +13510,7 @@ DestroyMetalG2:
 		    jr	    nz,	ShowEmergencyText
 
 		    ld	    a, 1
-		    ld	    (OpenBigBossDoor), a	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
+		    ld	    (+vars.OpenBigBossDoor), a	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
 		    ret
 
 
@@ -13602,10 +13602,10 @@ EraseBitmapActor:
 		    ret	    nz
 
 		    xor	    a
-		    ld	    (PowerSwitchOn), a		    ; Mark the power switch as destroyed
+		    ld	    (+vars.PowerSwitchOn), a		    ; Mark the power switch as destroyed
 		    ld	    (ix+ACTOR.ID),	a		    ; Disable actor/free structure
 
-		    ld	    hl,	PowerSwitchY
+		    ld	    hl,	+vars.PowerSwitchY
 		    ld	    a, (ix+ACTOR.Y)
 		    sub	    8
 		    ld	    (hl), a
@@ -13618,7 +13618,7 @@ EraseBitmapActor:
 		    call    DismissActor		    ; Disable the actor	(again)	and free his sprites
 
 ErasePowerSw:
-		    ld	    hl,	PowerSwitchY
+		    ld	    hl,	+vars.PowerSwitchY
 		    ld	    e, (hl)
 		    inc	    hl
 		    ld	    d, (hl)
@@ -13626,7 +13626,7 @@ ErasePowerSw:
 		    or	    d
 		    ret	    z				    ; Invalid coordinates. Powers Switch unavailable
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    40				    ; Roof electrified floor
 		    ld	    hl,	PowSwOffGfxX
 		    jr	    z, ErasePowerSw2
@@ -13646,12 +13646,12 @@ ErasePowerSw2:
 ;----------------------------------------------------------------------------
 
 ChkDrawDestroyPS:
-		    ld	    hl,	PowerSwitchY
+		    ld	    hl,	+vars.PowerSwitchY
 		    ld	    a, (hl)
 		    or	    a
 		    ret	    z				    ; Power switch not available
 
-		    ld	    a, (PowerSwitchOn)		    ; Power switch status 1=On,	0=Off/destroyed
+		    ld	    a, (+vars.PowerSwitchOn)		    ; Power switch status 1=On,	0=Off/destroyed
 		    or	    a
 		    ret	    nz				    ; Power switch not destroyed
 

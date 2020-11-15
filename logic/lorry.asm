@@ -5,16 +5,16 @@
 ;---------------------------------------------------------------------------
 
 ChkLorryMov:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    bc,	6
 		    ld	    hl,	MovingLorries
 		    cpir
 		    ret	    nz
 
 		    ld	    a, 90h
-		    ld	    (EventCnt),	a
+		    ld	    (+vars.EventCnt),	a
 		    ld	    a, GAME_MODE_LORRY
-		    ld	    (GameMode),	a		    ; Set lorry	mode
+		    ld	    (+vars.GameMode),	a		    ; Set lorry	mode
 		    ret
 
 ;----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ MovingLorries:	    db	199, 217, 219, 213, 215, 173
 ;---------------------------------------------------------------------------
 
 LorryMoving:
-		    ld	    hl,	EventCnt
+		    ld	    hl,	+vars.EventCnt
 		    dec	    (hl)
 		    jr	    z, LorryEnd
 
@@ -42,12 +42,12 @@ LorryMoving2:
 		    cp	    8Eh
 		    jr	    nz,	LorryMovFX
 
-		    ld	    a, (LorryMovTextF)
+		    ld	    a, (+vars.LorryMovTextF)
 		    and	    a
 		    jr	    nz,	LorryMovFX
 
 		    inc	    a
-		    ld	    (LorryMovTextF), a
+		    ld	    (+vars.LorryMovTextF), a
 
 		    ld	    a, 91			    ; TEXT: I goodfed. The lorry started to move
 		    jp	    SetTextUnskip_
@@ -96,7 +96,7 @@ LorryEnd:
 		    ld	    a, 28h			    ; Stop lorry engine	sfx
 		    call    SetSoundEntry__
 		    xor	    a
-		    ld	    (GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    (+vars.GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 
 SetVertScroll:
 		    ld	    b, a

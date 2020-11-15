@@ -17,7 +17,7 @@ ChkTileCollision:
 		    ld	    h, (ix+ACTOR.X)		    ; HL = Actor XY
 
 ChkTileCollision_:
-		    ld	    (TempData),	hl		    ; Actor XY
+		    ld	    (+vars.TempData),	hl		    ; Actor XY
 		    ld	    a, b			    ; Actor size/shape
 		    add	    a, a
 		    add	    a, a			    ; Bx4
@@ -33,12 +33,12 @@ ChkTileCollision_:
 		    ld	    b, 2			    ; Checks two points	per direction
 
 ChkTileCollision2:
-		    ld	    a, (TempData)		    ; Actor Y
+		    ld	    a, (+vars.TempData)		    ; Actor Y
 		    add	    a, (hl)			    ; Offset Y
 		    ld	    e, a
 		    inc	    hl
 
-		    ld	    a, (TempData+1)		    ; Actor X
+		    ld	    a, (+vars.TempData+1)		    ; Actor X
 		    add	    a, (hl)			    ; Offset X
 		    inc	    hl
 		    push    hl
@@ -50,7 +50,7 @@ ChkTileCollision2:
 		    ld	    d, 0
 		    ld	    e, (hl)			    ; Get tile
 
-		    ld	    hl,	CollisionTiles		    ; Collision	property of the	tiles (bit 0 = 1 collision)
+		    ld	    hl,	+vars.CollisionTiles		    ; Collision	property of the	tiles (bit 0 = 1 collision)
 		    add	    hl,	de
 		    ld	    a, (hl)			    ; Get tile collision property
 		    rra
@@ -153,10 +153,10 @@ BoxColliderDat:	    db -5
 ;----------------------------------------------------------------------------
 
 GetTilePlayer:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    4
 		    ld	    h, a
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    ld	    l, a
 
 GetTileInXY:
@@ -197,7 +197,7 @@ BulletLogic2:
 		    ld	    e, a			    ; DE = tile	number
 		    push    hl
 
-		    ld	    hl,	CollisionTiles		    ; Collision	property of the	tiles (bit 0 = 1 collision)
+		    ld	    hl,	+vars.CollisionTiles		    ; Collision	property of the	tiles (bit 0 = 1 collision)
 		    add	    hl,	de
 		    ld	    a, (hl)			    ; Tile collision property
 		    rra					    ; Collision	property

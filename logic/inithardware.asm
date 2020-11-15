@@ -13,7 +13,7 @@
 
 InitHardware:
 		    ld	    a, 0BFh
-		    ld	    (PGS_MixerVal), a
+		    ld	    (+vars.PGS_MixerVal), a
 		    ld	    e, a
 		    ld	    a, 7
 		    call    WRTPSG			    ; Enable PSG channels (mixer)

@@ -9,7 +9,7 @@ InitPowerSwitch:
 
 		    ld	    a, 1			    ; Fade in mode
 		    ld	    (ix+POWER_SWITCH.BRIGHT_DELTA), a
-		    ld	    (PowerSwitchOn), a		    ; Power switch status 1=On,	0=Off/destroyed
+		    ld	    (+vars.PowerSwitchOn), a		    ; Power switch status 1=On,	0=Off/destroyed
 		    ret
 
 
@@ -43,7 +43,7 @@ PowerSwitchLogic:
 		    ld	    e, d
 		    ld	    d, a			    ; DE = RGB color value
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    b, 5
 		    cp	    116				    ; Electrified floor	before Metal Gear
 		    jr	    z, PowerSwitchLogic2

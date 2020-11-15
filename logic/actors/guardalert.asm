@@ -7,15 +7,15 @@
 InitGuardAlert:
 		    ld	    (ix+ALERT_GUARD.Status), 4	    ; Wait and check alert. Then go to status 0
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    jr	    nz,	InitGuardAlert4		    ; In alert mode
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    127				    ; Lorry card 1
 		    jr	    nz,	InitGuardAlert2
 
-		    ld	    a, (Guard1ExitedLorry)	    ; Is the guard outside the lorry?
+		    ld	    a, (+vars.Guard1ExitedLorry)	    ; Is the guard outside the lorry?
 		    jr	    ChkDismissGuard
 
 
@@ -23,14 +23,14 @@ InitGuardAlert2:
 		    sub	    131				    ; Second lorry in room 7 (there are	4 soldiers inside)
 		    jr	    nz,	InitGuardAlert3
 
-		    ld	    a, (Guard2ExitedLorry)
+		    ld	    a, (+vars.Guard2ExitedLorry)
 		    jr	    ChkDismissGuard
 
 
 InitGuardAlert3:
 		    dec	    a
 		    jr	    nz,	InitGuardAlert4
-		    ld	    a, (Guard3ExitedLorry)
+		    ld	    a, (+vars.Guard3ExitedLorry)
 
 ChkDismissGuard:
 		    or	    a
@@ -55,7 +55,7 @@ InitGuardAlert4:
 		    ld	    (ix+ALERT_GUARD.WalkAwayDir), a
 
 SetRespawnTime:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    hl,	0			    ; No respawning
 		    cp	    216
 		    jr	    z, SetRespawnTime3
@@ -78,7 +78,7 @@ SetRespawnTime2:
 		    ld	    l, a			    ; Random respawn time
 
 SetRespawnTime3:
-		    ld	    (AlertRespawnTimer), hl
+		    ld	    (+vars.AlertRespawnTimer), hl
 		    ret
 
 
@@ -329,7 +329,7 @@ GuardWaitChkAlert:
 
 		    ld	    (ix+ALERT_GUARD.Status), 0	    ; Chase the	player status
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    ret	    nz				    ; Already in alert
 
@@ -441,7 +441,7 @@ ChkNearPlayer:
 		    ret	    nz
 
 GetDistancePlayer:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    (ix+ACTOR.X)
 		    jp	    nc,	GetDistancePlayer2
 
@@ -449,7 +449,7 @@ GetDistancePlayer:
 
 GetDistancePlayer2:
 		    ld	    b, a
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    sub	    (ix+ACTOR.Y)
 		    jp	    nc,	GetDistancePlayer3
 
@@ -486,7 +486,7 @@ ChkGuardWater:
 		    dec	    a				    ; Is an exit? door,	lorry
 		    jp	    z, MoveAwayExit
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    70				    ; First water room.	Water room before Bulldozer
 		    ret	    c
 

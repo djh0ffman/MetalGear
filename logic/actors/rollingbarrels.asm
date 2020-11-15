@@ -113,12 +113,12 @@ ChangeBarrelDir:
 ;---------------------------------------------------------------------------
 
 InitRollingBarrel:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    (ix+ROLLING_BARREL.START_X), a  ; This value is checked but	not used
 
 		    ld	    de,	80h			    ; Speed X moving to	the right
 		    ld	    hl,	0			    ; Speed Y =	0
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    80h
 		    jr	    c, InitRollingBarrel2	    ; Is the rolling barrel in the right or in the left	part of	the room?
 

@@ -28,7 +28,7 @@ LoadFont:
 		    call    Load1bppGFX_		    ; Load yellow star tile
 
 		    ld	    hl,	colorsCALL
-		    ld	    de,	BufferColor		    ; Buffer used to store the colors' indexes for decoding 2/3bpp graphics
+		    ld	    de,	+vars.BufferColor		    ; Buffer used to store the colors' indexes for decoding 2/3bpp graphics
 		    ld	    bc,	4
 		    ldir
 

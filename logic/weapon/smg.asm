@@ -23,8 +23,8 @@ ResetSMGunCnt:
 ;----------------------------------------------------------------------------
 
 ChkSMGShot:
-		    ld	    hl,	SubMachGunTimer
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    hl,	+vars.SubMachGunTimer
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    10h				    ; Fire button hold?
 		    jr	    z, ResetSMGunCnt
 
@@ -50,7 +50,7 @@ chkSMGShot2:
 		    call    GetWeaponInvAdd		    ; Pointer to item in inventory
 
 		    inc	    hl
-		    ld	    (TempData),	hl
+		    ld	    (+vars.TempData),	hl
 
 		    ld	    a, (hl)			    ; Ammo amount (low byte)
 		    inc	    hl
@@ -63,25 +63,25 @@ chkSMGShot2:
 		    call    ReserveShotSpr		    ; Reserve the sprites needed for this shot
 		    ret	    nc				    ; Can't add more sprites
 
-		    ld	    hl,	(TempData)		    ; Pointer to ammo amount
+		    ld	    hl,	(+vars.TempData)		    ; Pointer to ammo amount
 		    ld	    c, 0			    ; Use type:	item is	not removed
 		    call    DecItemUnits		    ; Decrement	ammo
 
 		    ld	    (ix+PLAYER_SHOT.Timer), 10h	    ; Range counter
 		    ld	    (ix+PLAYER_SHOT.KILL_BY_CONTACT), 1	; Kills	by contact
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    ld	    (ix+PLAYER_SHOT.Ydec), 0
 		    ld	    (ix+PLAYER_SHOT.Ydec_Alt), 0
 		    ld	    (ix+PLAYER_SHOT.Y_Alt), a	    ; Same Y used by the player
 		    sub	    14
 		    ld	    (ix+PLAYER_SHOT.Y),	a
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    (ix+PLAYER_SHOT.Xdec), 0
 		    ld	    (ix+PLAYER_SHOT.X),	a
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    ld	    (ix+PLAYER_SHOT.Direction),	a
 		    dec	    a
 		    add	    a, a
@@ -91,7 +91,7 @@ chkSMGShot2:
 		    ld	    hl,	SMG_BulletSpeeds
 		    call    ADD_HL_2A			    ; HL = Pointer to burst of bullets speeds
 
-		    ld	    a, (BurstCnt)
+		    ld	    a, (+vars.BurstCnt)
 		    dec	    a
 		    add	    a, a
 		    call    ADD_HL_2A			    ; Each bullet in the burst has a different movement
@@ -111,7 +111,7 @@ chkSMGShot2:
 
 		    ld	    (ix+PLAYER_SHOT.SpriteID), 0
 
-		    ld	    a, (InvSupressor)
+		    ld	    a, (+vars.InvSupressor)
 		    and	    a
 		    ld	    a, 0Dh			    ; SFX: SMG shot
 		    jr	    z, SetSMG_Sfx

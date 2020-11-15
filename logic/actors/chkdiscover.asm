@@ -10,14 +10,14 @@ ChkActSeePlayer:
 		    ld	    l, (ix+ACTOR.Y)
 
 ChkSeePlayer:
-		    ld	    (TempData),	a		    ; Look direction
-		    ld	    (TempData+1), hl		    ; Actor XY (guard, cam...)
+		    ld	    (+vars.TempData),	a		    ; Look direction
+		    ld	    (+vars.TempData+1), hl		    ; Actor XY (guard, cam...)
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    ret	    nz				    ; In alert mode. They know where he	is
 
-		    ld	    a, (SnakeSprId)
+		    ld	    a, (+vars.SnakeSprId)
 		    ld	    b, 37			    ; Water shadow sprite ID
 		    cp	    b
 		    ret	    z				    ; Guards can not see Snake in deep water
@@ -26,19 +26,19 @@ ChkSeePlayer:
 		    cp	    b
 		    ret	    z				    ; Deep water
 
-		    ld	    a, (PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    a, (+vars.PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 		    cp	    7				    ; Is Snake inside the cardboard box?
 		    jr	    nz,	ChkSeePlayer2
 
 ; Check	if the cardboard box is	moving
 
-		    ld	    hl,	PlayerSpeedY
+		    ld	    hl,	+vars.PlayerSpeedY
 		    ld	    a, (hl)
 		    inc	    hl
 		    or	    (hl)			    ; Is it moving up or down?
 		    jr	    nz,	ChkSeePlayer2
 
-		    ld	    hl,	PlayerSpeedX
+		    ld	    hl,	+vars.PlayerSpeedX
 		    ld	    a, (hl)
 		    or	    (hl)			    ; (!?)
 		    inc	    hl
@@ -51,7 +51,7 @@ ChkSeePlayer2:
 		    bit	    7, a			    ; Is the player touching the enemy?
 		    jp	    nz,	GuardSetAlarm
 
-		    ld	    a, (TempData)		    ; Direction	of guard or camera
+		    ld	    a, (+vars.TempData)		    ; Direction	of guard or camera
 		    call    JumpIndex
 
 		    dw ChkLookUp
@@ -70,9 +70,9 @@ ChkSeePlayer2:
 ;----------------------------------------------------------------------------
 
 ChkPosAboveUnder:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    ld	    b, a
-		    ld	    a, (TempData+1)		    ; Enemy Y
+		    ld	    a, (+vars.TempData+1)		    ; Enemy Y
 		    sub	    b
 		    ret
 
@@ -84,9 +84,9 @@ ChkPosAboveUnder:
 ;----------------------------------------------------------------------------
 
 ChkPosLeftRight:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    b, a
-		    ld	    a, (TempData2)		    ; Enemy X
+		    ld	    a, (+vars.TempData2)		    ; Enemy X
 		    sub	    b
 		    ret
 
@@ -211,13 +211,13 @@ ChkLookRight2:
 
 ChkViewObstacles:
 		    ld	    b, a			    ; Number of	tiles (distance)
-		    ld	    hl,	(TempData+1)		    ; Enemy XY
+		    ld	    hl,	(+vars.TempData+1)		    ; Enemy XY
 		    call    CoordToBuffTile		    ; Get pointer to tile
 
 ChkViewObstacles2:
-		    ld	    (TempData2+1), hl		    ; Tile address in map
+		    ld	    (+vars.TempData2+1), hl		    ; Tile address in map
 
-		    ld	    a, (CurrentTileSet)
+		    ld	    a, (+vars.CurrentTileSet)
 		    or	    a				    ; Tileset 0	(Building)
 		    ld	    a, (hl)
 		    jr	    nz,	ChkViewObstacles3	    ; Get collision properties of the tile
@@ -268,7 +268,7 @@ ChkViewObstacles2:
 ChkViewObstacles3:
 		    ld	    e, a			    ; Tile number
 		    ld	    d, 0
-		    ld	    hl,	CollisionTiles		    ; Collision	property of the	tiles (bit 0 = 1 collision)
+		    ld	    hl,	+vars.CollisionTiles		    ; Collision	property of the	tiles (bit 0 = 1 collision)
 		    add	    hl,	de			    ; HL = Pointer to collision	property of the	tile
 
 		    ld	    a, (hl)
@@ -276,7 +276,7 @@ ChkViewObstacles3:
 		    ret	    nz				    ; There is an obstacle in the view
 
 CalcNextTileAddress:
-		    ld	    hl,	(TempData2+1)		    ; Enemy XY
+		    ld	    hl,	(+vars.TempData2+1)		    ; Enemy XY
 		    ld	    e, c			    ; C	= offset to next tile in the map
 		    rl	    c				    ; Negative value?
 		    ld	    c, e			    ; Restore offset
@@ -298,20 +298,20 @@ CalcNextTileAddress2:
 
 		    ld	    a, 1
 		    ld	    (ix+ACTOR.SEE_PLAYER_F), a	    ; This camera has seen/detected the	player
-		    ld	    (AlertSignNotOnScreen), a	    ; The alert	is triggered by	a camera, so there is no exclamations sign on screen
+		    ld	    (+vars.AlertSignNotOnScreen), a	    ; The alert	is triggered by	a camera, so there is no exclamations sign on screen
 
 		    ld	    a, 28h
-		    ld	    (AlertRespawnTimer), a	    ; The surveillance centre alert to other guards, so	they will respawn
+		    ld	    (+vars.AlertRespawnTimer), a	    ; The surveillance centre alert to other guards, so	they will respawn
 
 SetAlert:
 		    call    SetAlertMode
 
 SetAlertRoom:
-		    ld	    a, (Room)
-		    ld	    (RoomAlertTrigged),	a	    ; This is the room where the alert was triggered
+		    ld	    a, (+vars.Room)
+		    ld	    (+vars.RoomAlertTrigged),	a	    ; This is the room where the alert was triggered
 
 		    ld	    a, 10h
-		    ld	    (AlertIconTimer), a		    ; Set alert	sign timer
+		    ld	    (+vars.AlertIconTimer), a		    ; Set alert	sign timer
 		    ret
 
 
@@ -325,11 +325,11 @@ SetAlertRoom:
 
 
 GuardSetAlarm:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    ret	    nz				    ; Already in alert mode
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    b, a
 		    cp	    128				    ; Only the first 128 rooms have a predefined alert level
 		    ld	    a, 0			    ; The rest of the rooms have a low level alert (without guards respawning)
@@ -358,9 +358,9 @@ GuardSetAlarm2:
 		    rla					    ; Carry flag -> A
 
 GuardSetAlarm3:
-		    ld	    (RedAlertFlag), a
+		    ld	    (+vars.RedAlertFlag), a
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    b, a
 
 		    ld	    a, (ix+ACTOR.X)
@@ -386,7 +386,7 @@ GuardSetAlarm4:
 		    ld	    e, 0			    ; No, set the alert	icon Y to 0
 
 GuardSetAlarm5:
-		    ld	    hl,	XY_AlertIcon
+		    ld	    hl,	+vars.XY_AlertIcon
 		    ld	    (hl), e
 		    inc	    hl
 		    ld	    (hl), d			    ; Save alert icon coordinates
@@ -394,7 +394,7 @@ GuardSetAlarm5:
 		    ex	    de,	hl			    ; HL = SX, SY
 		    call    SaveAlertIconBacknd		    ; Save alert icon background
 
-		    ld	    a, (RedAlertFlag)
+		    ld	    a, (+vars.RedAlertFlag)
 		    or	    a				    ; High alert mode?
 
 		    ld	    hl,	80h			    ; Alert sign icon VRAM coordinates
@@ -406,7 +406,7 @@ GuardSetAlarm5:
 
 GuardSetAlarm6:
 		    ld	    a, b
-		    ld	    (AlertRespawnTimer), a	    ; Set guards respawn time
+		    ld	    (+vars.AlertRespawnTimer), a	    ; Set guards respawn time
 
 		    ld	    a, e			    ; (!?) Why checking	the Y boundaries again?	X boundaries should be checked.
 		    cp	    0BFh
@@ -414,7 +414,7 @@ GuardSetAlarm6:
 
 		    ld	    e, 0
 		    ld	    a, e
-		    ld	    (XY_AlertIcon), a		    ; Modify alert icon	Y
+		    ld	    (+vars.XY_AlertIcon), a		    ; Modify alert icon	Y
 
 GuardSetAlarm7:
 		    call    Draw16x16			    ; Draw the alert icon
@@ -446,9 +446,9 @@ RedAlertRooms:	    db	  1, 1Ch,   3,	 0,0A3h, 10h, 58h,   0,	  4,   1, 9Fh,	 0, 
 
 ChkViewVertical:
 		    ld	    hl,	810h			    ; H	= View width/2,	L = View width
-		    ld	    de,	(TempData+1)		    ; Enemy XY
+		    ld	    de,	(+vars.TempData+1)		    ; Enemy XY
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    h				    ; Width / 2
 		    cp	    d				    ; Enemy X
 		    ret	    nc
@@ -478,8 +478,8 @@ ChkViewHorizontal:
 		    ld	    hl,	60Ch			    ; H	= View width/2,	L = View width
 
 ChkViewHorizontal2:
-		    ld	    de,	(TempData+1)		    ; Enemy XY
-		    ld	    a, (PlayerY)
+		    ld	    de,	(+vars.TempData+1)		    ; Enemy XY
+		    ld	    a, (+vars.PlayerY)
 		    sub	    h				    ; Height / 2
 		    cp	    e				    ; Enemy Y
 		    ret	    nc
@@ -508,17 +508,17 @@ ListenShotsChkTouch:
 		    bit	    7, a			    ; Is the player touching the enemy?
 		    jr	    nz,	ChkDiscoverPlayer6
 
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    sub	    GRENADE_LAUNCHER
 		    jr	    nc,	ChkDiscoverPlayer2	    ; It is not	a handgun or SMG, so no	need to	check the supressor
 
-		    ld	    a, (InvSupressor)
+		    ld	    a, (+vars.InvSupressor)
 		    or	    a
 		    ret	    nz				    ; Using the	supressor
 
 ChkDiscoverPlayer2:
 		    xor	    a
-		    ld	    hl,	PlayerShotsList
+		    ld	    hl,	+vars.PlayerShotsList
 		    ld	    de,	40h			    ; Shot structure size
 		    ld	    b, 6			    ; Max. number of player shots
 

@@ -6,49 +6,49 @@
 ;----------------------------------------------------------------------------
 
 ChkMissileShot:
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    10h				    ; Fire button pressed?
 		    ret	    z
 
 		    ld	    a, MISSILE
 		    call    GetWeaponInvAdd		    ; Get pointer to missiles in inventory
 		    inc	    hl
-		    ld	    (TempData),	hl
+		    ld	    (+vars.TempData),	hl
 
 		    ld	    a, (hl)			    ; Number of	missiles (low byte)
 		    inc	    hl
 		    or	    (hl)			    ; Does the player have missiles?
 		    ret	    z				    ; No missiles left
 
-		    ld	    a, (PlayerShotsList)
+		    ld	    a, (+vars.PlayerShotsList)
 		    and	    a
 		    ret	    nz				    ; Only one missile each time
 
-		    ld	    ix,	PlayerShotsList
+		    ld	    ix,	+vars.PlayerShotsList
 		    call    ReserveShotSpr		    ; Reserve sprites needed for the missile
 		    ret	    nc				    ; Not enough free sprites
 
-		    ld	    hl,	(TempData)
+		    ld	    hl,	(+vars.TempData)
 		    ld	    c, 1			    ; Type: consumable item
 		    call    DecItemUnits		    ; Decrement	missiles
 
 		    ld	    (ix+PLAYER_SHOT.KILL_BY_CONTACT), 1	; The missile kills by contact
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    ld	    (ix+PLAYER_SHOT.Ydec), 0
 		    ld	    (ix+PLAYER_SHOT.Ydec_Alt), 0
 		    ld	    (ix+PLAYER_SHOT.Y_Alt), a	    ; Same Y used by the player
 		    sub	    10h
 		    ld	    (ix+PLAYER_SHOT.Y),	a	    ; Missile Y
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    (ix+PLAYER_SHOT.Xdec), 0
 		    ld	    (ix+PLAYER_SHOT.X),	a	    ; Missile X
 
 		    ld	    a, 14h			    ; SFX missile launched
 		    call    SetSoundEntryChk
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 
 SetMissileSpr:
 		    ld	    (ix+PLAYER_SHOT.Direction),	a   ; Missile direction
@@ -110,7 +110,7 @@ PlayerMissileLogic:
 ;----------------------------------------------------------------------------
 
 ControlMissile:
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    rra
 		    ld	    c, DIR_UP
 		    jr	    c, ControlMissile2		    ; Up

@@ -6,13 +6,13 @@
 ;----------------------------------------------------------------------------
 
 CompactWeapons:
-		    ld	    de,	Weapons
+		    ld	    de,	+vars.Weapons
 		    ld	    b, 6
 		    jr	    FindEmptySlot
 
 
 CompactEquipment:
-		    ld	    de,	Equipment		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
+		    ld	    de,	+vars.Equipment		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
 		    ld	    b, 24
 
 FindEmptySlot:

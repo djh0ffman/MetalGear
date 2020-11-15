@@ -5,15 +5,15 @@
 ;----------------------------------------------------------------------------
 
 ElevatorRoomLogic:
-		    ld	    a, (ElevatorStatus)
+		    ld	    a, (+vars.ElevatorStatus)
 		    ld	    b, a
 		    djnz    ElevatorNextRoom
 
 ; Floor	reached
 		    xor	    a
-		    ld	    (GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    (+vars.GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    0Ch				    ; Left/Right
 		    jr	    z, ElevatorLogic2
 
@@ -24,38 +24,38 @@ ElevatorRoomLogic:
 		    inc	    a				    ; Right
 
 ElevatorLogic2:
-		    ld	    (PlayerDirectionNew), a	    ; 1=Up, 2=Down, 3=Left, 4=Right
+		    ld	    (+vars.PlayerDirectionNew), a	    ; 1=Up, 2=Down, 3=Left, 4=Right
 		    ret
 
 
 ElevatorNextRoom:
 		    djnz    MoveElevator
 
-		    ld	    a, (ElevatorDir)		    ; 1=up, 2=down
-		    ld	    (NextRoomDirect), a		    ; 4=Right, 3=Left, 2=Down, 1=Up
+		    ld	    a, (+vars.ElevatorDir)		    ; 1=up, 2=down
+		    ld	    (+vars.NextRoomDirect), a		    ; 4=Right, 3=Left, 2=Down, 1=Up
 		    ld	    a, 1
-		    ld	    (GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    (+vars.GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 		    ret
 
 
 MoveElevator:
 		    call    GetDirLeftRight_
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    b, a
 
-		    ld	    a, (ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsHold)		    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    ld	    d, a
 
-		    ld	    a, (ElevatorDir)		    ; 1=up, 2=down
-		    ld	    hl,	ElevatorY
+		    ld	    a, (+vars.ElevatorDir)		    ; 1=up, 2=down
+		    ld	    hl,	+vars.ElevatorY
 		    dec	    a				    ; Moving up	or down?
 		    jr	    nz,	ElevatorDown
 
 ; moving up
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    dec	    a
-		    ld	    (PlayerY), a
+		    ld	    (+vars.PlayerY), a
 
 		    dec	    (hl)
 		    ld	    a, (hl)
@@ -63,7 +63,7 @@ MoveElevator:
 		    jr	    c, ElevatorExitRoom
 
 		    ld	    c, a			    ; C=Elevator Y
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    b, a
 
 		    cp	    248				    ; Long underground elevator	room
@@ -105,9 +105,9 @@ ChkStopFloor2:
 
 
 ElevatorDown:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    inc	    a
-		    ld	    (PlayerY), a
+		    ld	    (+vars.PlayerY), a
 
 		    inc	    (hl)
 		    ld	    a, (hl)
@@ -158,7 +158,7 @@ ElevatorNextStatus_:
 		    call    SetElevatorSpr
 
 ElevatorNextStatus:
-		    ld	    hl,	ElevatorStatus
+		    ld	    hl,	+vars.ElevatorStatus
 		    inc	    (hl)
 		    ret
 
@@ -177,17 +177,17 @@ ElevatorExitRoom:
 
 SetElevatorSpr:
 		    ld	    hl,	SprElevatorDat
-		    ld	    de,	SprElevatorAttr
+		    ld	    de,	+vars.SprElevatorAttr
 		    ld	    bc,	0CFFh
 
 SetElevatorSpr2:
-		    ld	    a, (ElevatorY)
+		    ld	    a, (+vars.ElevatorY)
 		    add	    a, (hl)
 		    ld	    (de), a			    ; Sprite Y
 		    inc	    hl
 		    inc	    e
 
-		    ld	    a, (ElevatorX)
+		    ld	    a, (+vars.ElevatorX)
 		    add	    a, (hl)
 		    ld	    (de), a			    ; Sprite X
 		    inc	    hl
@@ -199,7 +199,7 @@ SetElevatorSpr2:
 		    djnz    SetElevatorSpr2
 
 ; Set sprites colors
-		    ld	    de,	SprElevatorCol
+		    ld	    de,	+vars.SprElevatorCol
 		    ld	    hl,	SprElevatorDat
 		    ld	    c, 0Ch			    ; Number of	sprites	used in	the elevator
 		    inc	    hl

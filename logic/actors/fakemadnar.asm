@@ -57,7 +57,7 @@ FakeMadnarTrap:
 		    call    SetActorSpeedY		    ; Set the Y	speed to simulate he is	falling	into the trap
 
 		    ld	    a, 1
-		    ld	    (RescuedArray+16h),	a	    ; Mark as rescued
+		    ld	    (+vars.RescuedArray+16h),	a	    ; Mark as rescued
 		    ld	    (ix+ACTOR2.Timer), 10h
 
 		    ld	    de,	8060h			    ; Pitfall location

@@ -5,7 +5,7 @@
 ;----------------------------------------------------------------------------
 
 InitFlame:
-		    ld	    a, (REMOVE_FLAMES)		    ; Not used
+		    ld	    a, (+vars.REMOVE_FLAMES)		    ; Not used
 		    or	    a
 
 InitFlame2:
@@ -37,7 +37,7 @@ jpSetActorSpeed:
 ;----------------------------------------------------------------------------
 
 FlamesLogic:
-		    ld	    a, (FireTrooper_KO)
+		    ld	    a, (+vars.FireTrooper_KO)
 		    or	    a
 		    jp	    nz,	RemoveActor_		    ; Remove flames after defeating Fire Trooper
 

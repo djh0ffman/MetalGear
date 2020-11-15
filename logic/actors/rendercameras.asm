@@ -41,11 +41,11 @@ DrawCamera:
 ;----------------------------------------------------------------------------
 
 DrawCameras:
-		    ld	    a, (AlertModeCopy)
+		    ld	    a, (+vars.AlertModeCopy)
 		    or	    a
 		    ret	    z				    ; Not in alert mode
 
-		    ld	    hl,	EnemyList		    ; Array of enemies in the room
+		    ld	    hl,	+vars.EnemyList		    ; Array of enemies in the room
 		    ld	    b, 10h
 
 DrawCameras2:

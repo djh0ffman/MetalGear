@@ -7,7 +7,7 @@
 ;----------------------------------------------------------------------------
 
 ChkGasRooms:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    b, 9			    ; Number of	rooms with gas
 		    ld	    hl,	GasRooms		    ; List of rooms with gas
 
@@ -27,19 +27,19 @@ ChkGasRooms2:
 ;----------------------------------------------------------------------------
 
 ChkGasMask:
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    SELECTED_GAS_MASK
 		    ret	    z				    ; The gas mask is selected
 
 		    ld	    c, 10h			    ; Damage delay
 
 DecrementLife_C:
-		    ld	    a, (DamageDelayTimer)
+		    ld	    a, (+vars.DamageDelayTimer)
 		    and	    a
 		    ret	    nz				    ; Wait a bit to avoid continuous damage
 
 		    ld	    a, c
-		    ld	    (DamageDelayTimer),	a	    ; Set damage delay
+		    ld	    (+vars.DamageDelayTimer),	a	    ; Set damage delay
 
 DecrementLife_2:
 		    ld	    b, 2

@@ -6,11 +6,11 @@
 ;----------------------------------------------------------------------------
 
 ChkAlertTrigger:
-		    ld	    a, (IsolatedRoom)		    ; Can't use binoculars. Shooting does not trigger the alarm
+		    ld	    a, (+vars.IsolatedRoom)		    ; Can't use binoculars. Shooting does not trigger the alarm
 		    cp	    1
 		    ret	    z				    ; It is an isolated	room
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    hl,	RoomShotSecure
 		    ld	    b, 55
 
@@ -21,7 +21,7 @@ ChkAlertTrigger2:
 		    inc	    hl
 		    djnz    ChkAlertTrigger2
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    and	    a
 		    ret	    nz				    ; Already in alert mode
 

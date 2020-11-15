@@ -5,36 +5,36 @@
 ;----------------------------------------------------------------------------
 
 ChkPBombShot:
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    10h				    ; Fire button pressed?
 		    ret	    z
 
 		    ld	    a, PLASTIC_BOMB
 		    call    GetWeaponInvAdd		    ; Pointer to the weapon in inventory
 		    inc	    hl
-		    ld	    (TempData),	hl
+		    ld	    (+vars.TempData),	hl
 
 		    ld	    a, (hl)			    ; Plastic bomb units (low byte)
 		    inc	    hl
 		    or	    (hl)			    ; Has plastic bombs?
 		    ret	    z				    ; No
 
-		    ld	    a, (PlayerShotsList)
+		    ld	    a, (+vars.PlayerShotsList)
 		    and	    a
 		    ret	    nz				    ; Only one plastic bomb can	be set
 
-		    ld	    ix,	PlayerShotsList
+		    ld	    ix,	+vars.PlayerShotsList
 		    call    ReserveShotSpr		    ; Reserve the sprites needed for the plastic bomb
 		    ret	    nc				    ; Not enough free sprites
 
-		    ld	    hl,	(TempData)
+		    ld	    hl,	(+vars.TempData)
 		    ld	    c, 1			    ; Use type:	the item is consumable and removed from	inventory if all units are used
 		    call    DecItemUnits
 
 		    ld	    (ix+PLAYER_SHOT.Timer), 30h	    ; Plastic bomb timer
 		    ld	    (ix+PLAYER_SHOT.KILL_BY_CONTACT), 0	; Does not kill	by contact
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    dec	    a
 		    add	    a, a
 		    add	    a, a
@@ -48,7 +48,7 @@ ChkPBombShot:
 		    ld	    b, a			    ; BC = offset Y
 
 		    inc	    de
-		    ld	    hl,	(PlayerYdec)
+		    ld	    hl,	(+vars.PlayerYdec)
 		    add	    hl,	bc
 		    ld	    (ix+PLAYER_SHOT.Ydec), l
 		    ld	    (ix+PLAYER_SHOT.Y),	h	    ; Plastic bomb Y
@@ -59,7 +59,7 @@ ChkPBombShot:
 		    ld	    a, (de)
 		    ld	    b, a			    ; BC = offset X
 
-		    ld	    hl,	(PlayerXdec)
+		    ld	    hl,	(+vars.PlayerXdec)
 		    add	    hl,	bc
 		    ld	    (ix+PLAYER_SHOT.Xdec), l
 		    ld	    (ix+PLAYER_SHOT.X),	h	    ; Plastic bomb X

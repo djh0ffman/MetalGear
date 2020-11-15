@@ -5,7 +5,7 @@
 ;----------------------------------------------------------------------------
 
 SwapSprBuffer:
-		    ld	    hl,	(SprColAddress)
+		    ld	    hl,	(+vars.SprColAddress)
 		    bit	    2, h
 		    ld	    hl,	0F600h
 		    ld	    de,	0F400h
@@ -17,8 +17,8 @@ SwapSprBuffer:
 		    ld	    b, 0EFh
 
 SwapSprBuffer2:
-		    ld	    (SprAttAddress), hl
-		    ld	    (SprColAddress), de
+		    ld	    (+vars.SprAttAddress), hl
+		    ld	    (+vars.SprColAddress), de
 		    jp	    WRTVDP
 
 ;----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ SwapSprBuffer2:
 ;----------------------------------------------------------------------------
 
 UpdateSpritesShuf:
-		    ld	    hl,	SprShuffleOffset
+		    ld	    hl,	+vars.SprShuffleOffset
 		    ld	    a, (hl)
 		    add	    a, 68h
 		    and	    78h
@@ -38,16 +38,16 @@ UpdateSpritesShuf:
 
 		    ld	    a, (VDP_DW)
 		    ld	    c, a
-		    ld	    hl,	(SprColAddress)
+		    ld	    hl,	(+vars.SprColAddress)
 		    call    SetVRAMAddWR_
 
 ; Update colors
-		    ld	    a, (SprShuffleOffset)
+		    ld	    a, (+vars.SprShuffleOffset)
 		    ld	    d, 16			    ; 32 sprites / 2
 		    add	    a, a
 
 UpdateSpritesShuf2:
-		    ld	    h, SpritesColors/512;	74h			    ; (!?) #74*2 = #E800 (SpritesColors)
+		    ld	    h, +vars.SpritesColors/512;	74h			    ; (!?) #74*2 = #E800 (+vars.SpritesColors)
 		    ld	    l, a
 		    add	    hl,	hl
 		    ld	    b, 32			    ; Bytes per	sprite pair (16x2)
@@ -59,9 +59,9 @@ UpdateSpritesShuf2:
 		    jr	    nz,	UpdateSpritesShuf2
 
 ; Update attributes
-		    ld	    a, (SprShuffleOffset)
+		    ld	    a, (+vars.SprShuffleOffset)
 		    ld	    d, 16			    ; 32 sprites / 2
-		    ld	    h, SprAttRAM/256;	0EAh			    ; (!?) #EA00 = SpriteAttributesRAM
+		    ld	    h, +vars.SprAttRAM/256;	0EAh			    ; (!?) #EA00 = SpriteAttributesRAM
 
 UpdateSpritesShuf3:
 		    ld	    l, a
@@ -82,8 +82,8 @@ UpdateSpritesShuf3:
 ;----------------------------------------------------------------------------
 
 UpdateSprites:
-		    ld	    hl,	SpritesColors
-		    ld	    de,	(SprColAddress)
+		    ld	    hl,	+vars.SpritesColors
+		    ld	    de,	(+vars.SprColAddress)
 		    ld	    bc,	280h			    ; #200 color + #80 attributes
 		    jr	    RAMtoVRAM_
 
@@ -96,16 +96,16 @@ UpdateSprites:
 ;----------------------------------------------------------------------------
 
 SetBinoTargetSpr:
-		    ld	    hl,	BinocularSprCol
-		    ld	    de,	(SprColAddress)		    ; Address of current sprites color buffer
+		    ld	    hl,	+vars.BinocularSprCol
+		    ld	    de,	(+vars.SprColAddress)		    ; Address of current sprites color buffer
 		    ld	    a, 40h			    ; 4	* 16
 		    call    ADD_DE_A__			    ; DE = Destination VRAM address
 
 		    ld	    bc,	1C0h			    ; 28 * 16
 		    call    RAMtoVRAM__			    ; Set sprite color
 
-		    ld	    hl,	SprShootsAtt
-		    ld	    de,	(SprAttAddress)
+		    ld	    hl,	+vars.SprShootsAtt
+		    ld	    de,	(+vars.SprAttAddress)
 		    ld	    a, 10h			    ; 4	* 4
 		    call    ADD_DE_A__
 		    ld	    bc,	70h			    ; 28 * 4

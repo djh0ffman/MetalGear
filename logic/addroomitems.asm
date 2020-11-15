@@ -6,13 +6,13 @@
 ;---------------------------------------------------------------------------
 
 AddRoomItems:
-		    ld	    hl,	ItemsInTheRoom		    ; ID, size,	Y, X
-		    ld	    de,	 ItemsInTheRoom+1	    ; ID, size,	Y, X
+		    ld	    hl,	+vars.ItemsInTheRoom		    ; ID, size,	Y, X
+		    ld	    de,	 +vars.ItemsInTheRoom+1	    ; ID, size,	Y, X
 		    ld	    bc,	2Fh
 		    ld	    (hl), b
 		    ldir
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    218				    ; From this	room on, there are no items
 		    ret	    nc
 
@@ -32,7 +32,7 @@ AddRoomItems:
 		    ld	    de,	idxRoomItems
 		    call    GetPointerDE2A_
 
-		    ld	    hl,	ItemsInTheRoom		    ; ID, size,	Y, X
+		    ld	    hl,	+vars.ItemsInTheRoom		    ; ID, size,	Y, X
 
 AddRoomItems2:
 		    ld	    a, (de)
@@ -44,18 +44,18 @@ AddRoomItems2:
 		    cp	    ROCKET_LAUNCHER
 		    jr	    nz,	AddRoomItems3
 
-		    ld	    a, (JeniRocketF)
+		    ld	    a, (+vars.JeniRocketF)
 		    and	    a
 		    ret	    z				    ; Don't put the rocket launcher before speaking to Schneider
 
 AddRoomItems3:
 		    ld	    a, b
 		    cp	    9
-		    ld	    bc,	WeaponsTaken
+		    ld	    bc,	+vars.WeaponsTaken
 		    jr	    c, AddRoomItems4
 
 		    sub	    8
-		    ld	    bc,	ItemsTaken
+		    ld	    bc,	+vars.ItemsTaken
 
 AddRoomItems4:
 		    dec	    a

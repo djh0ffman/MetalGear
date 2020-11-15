@@ -30,7 +30,7 @@ CowardDuckIntro:
 		    dec	    (ix+COWARD_D.TIMER)
 		    ret	    nz				    ; Wait before talking
 
-		    ld	    hl,	CowardDuckSpeech
+		    ld	    hl,	+vars.CowardDuckSpeech
 		    ld	    a, (hl)
 		    or	    a				    ; Has said the intro speech?
 		    jr	    nz,	CowardDuckIntro2	    ; Yes
@@ -58,7 +58,7 @@ CD_ChoseLR:
 
 		    ld	    (ix+COWARD_D.TIMER), 8	    ; Iterations that will move
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    (ix+COWARD_D.X)		    ; Is the player to the right or to the left?
 
 		    ld	    de,	200h			    ; Speed to move to the right
@@ -304,7 +304,7 @@ BoomChgXDelta:
 ;---------------------------------------------------------------------------
 
 InitCowardDuck:
-		    ld	    a, (Card8Taken)
+		    ld	    a, (+vars.Card8Taken)
 		    or	    a				    ; Card 8 taken?
 		    jr	    nz,	DismissActor_
 

@@ -6,7 +6,7 @@
 
 
 InitMachGunKid:
-		    ld	    hl,	MachGunStatus		    ; Bit0 = Dead, 1 = Speech done
+		    ld	    hl,	+vars.MachGunStatus		    ; Bit0 = Dead, 1 = Speech done
 		    bit	    0, (hl)			    ; Is he dead?
 		    jp	    nz,	DismissActor		    ; Yes, remove actor
 
@@ -45,7 +45,7 @@ MachGunKidIntro:
 		    dec	    (ix+ACTOR2.TIMER)
 		    ret	    nz				    ; Intro delay to allow sprites refresh
 
-		    ld	    hl,	MachGunStatus		    ; Bit0 = Dead, 1 = Speech done
+		    ld	    hl,	+vars.MachGunStatus		    ; Bit0 = Dead, 1 = Speech done
 		    bit	    1, (hl)			    ; Speech done?
 		    jr	    nz,	MachGunKidIntro2
 
@@ -101,7 +101,7 @@ MG_ThinkMovement3:
 
 
 MG_ChkSameWall:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    (ix+ACTOR2.X)
 		    add	    a, 8
 		    cp	    11h
@@ -109,7 +109,7 @@ MG_ChkSameWall:
 
 ; Move towards the player
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    (ix+ACTOR2.X)
 		    ld	    b, DIR_LEFT
 		    ld	    a, -4			    ; Left speed
@@ -160,7 +160,7 @@ MG_MoveToShot2:
 
 
 MG_Shooting:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    (ix+ACTOR2.X)
 		    add	    a, 30h
 		    cp	    61h
@@ -227,7 +227,7 @@ MG_ChoseDir:
 
 ; Moves	towards	the player
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    c				    ; MGK X
 		    dec	    b				    ; Left
 		    ld	    a, -4			    ; Left speed

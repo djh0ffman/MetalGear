@@ -10,24 +10,24 @@ EndingSetup:
 		    call    ClearScreen_
 
 		    ld	    a, 251
-		    ld	    (Room), a			    ; Ending room. Not really a	room, but used to load the right tileset
+		    ld	    (+vars.Room), a			    ; Ending room. Not really a	room, but used to load the right tileset
 		    call    LoadRoomTiles_		    ; load tileset used	in the ending
 		    call    ChkRoomPal_			    ; Set the palette
 
 		    xor	    a
-		    ld	    (EndingStatus), a
+		    ld	    (+vars.EndingStatus), a
 		    ld	    hl,	200h
-		    ld	    (DestructTimer), hl		    ; Remaining	time
+		    ld	    (+vars.DestructTimer), hl		    ; Remaining	time
 
 		    ld	    a, GAME_MODE_RADIO		    ; Radio
-		    ld	    (GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    (+vars.GameMode),	a		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 
 		    ld	    a, 80h
-		    ld	    (PlayerX), a
-		    ld	    (PlayerY), a
+		    ld	    (+vars.PlayerX), a
+		    ld	    (+vars.PlayerY), a
 
 		    ld	    a, FREQ_BIGBOSS_BUILDING2	    ; Big boss
-		    ld	    (RadioFreq), a
+		    ld	    (+vars.RadioFreq), a
 		    jp	    EnableScreenBnk
 
 
@@ -38,21 +38,21 @@ EndingSetup:
 ;----------------------------------------------------------------------------
 
 EndingLogic:
-		    ld	    a, (EndingStatus)
+		    ld	    a, (+vars.EndingStatus)
 		    ld	    b, a
 		    djnz    EndingLogic2
 
 		    call    EndingSnakeRun		    ; Snake running animation
 
-		    ld	    hl,	EndingCnt
+		    ld	    hl,	+vars.EndingCnt
 		    dec	    (hl)
 		    jp	    nz,	EndingExplosion		    ; Animate explosion
 
 		    ld	    a, 80h
-		    ld	    (EndingCnt), a
+		    ld	    (+vars.EndingCnt), a
 
 		    xor	    a
-		    ld	    (SnakeSprId), a
+		    ld	    (+vars.SnakeSprId), a
 		    call    EndingSnakeRun3
 
 		    ld	    hl,	8040h
@@ -71,12 +71,12 @@ EndingLogic:
 EndingLogic2:
 		    djnz    EndingLogic3
 
-		    ld	    hl,	EndingCnt
+		    ld	    hl,	+vars.EndingCnt
 		    dec	    (hl)
 		    ret	    nz
 
 		    xor	    a
-		    ld	    (EndingCnt), a
+		    ld	    (+vars.EndingCnt), a
 		    jr	    NextEndingStatus
 
 
@@ -89,7 +89,7 @@ EndingLogic2:
 EndingLogic3:
 		    djnz    EndingLogic4
 
-		    ld	    hl,	EndingCnt
+		    ld	    hl,	+vars.EndingCnt
 		    dec	    (hl)
 		    jp	    nz,	EndingExplosion
 		    jr	    NextEndingStatus
@@ -104,7 +104,7 @@ EndingLogic3:
 EndingLogic4:
 		    djnz    EndingLogic5
 
-		    ld	    a, (SoundWorkAreaB+2)
+		    ld	    a, (+vars.SoundWorkAreaB+2)
 		    and	    a
 		    ret	    nz				    ; Waits until the explosion	sfx ends
 
@@ -113,7 +113,7 @@ EndingLogic4:
 		    call    DrawRadio_
 
 		    ld	    a, 40h
-		    ld	    (EndingCnt), a
+		    ld	    (+vars.EndingCnt), a
 		    jr	    NextEndingStatus
 
 
@@ -126,7 +126,7 @@ EndingLogic4:
 EndingLogic5:
 		    djnz    EndingLogic6
 
-		    ld	    hl,	EndingCnt
+		    ld	    hl,	+vars.EndingCnt
 		    dec	    (hl)
 		    ret	    nz
 
@@ -165,11 +165,11 @@ EndingLogic6:
 EndingLogic7:
 		    djnz    EndingLogic8
 
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    and	    3
 		    ret	    nz
 
-		    ld	    hl,	RadioFreq
+		    ld	    hl,	+vars.RadioFreq
 		    ld	    a, (hl)
 		    add	    a, 1
 		    daa
@@ -177,19 +177,19 @@ EndingLogic7:
 
 		    call    DrawRadioFreq_		    ; Update frequency display
 
-		    ld	    a, (RadioFreq)
+		    ld	    a, (+vars.RadioFreq)
 		    cp	    FREQ_NEWS
 		    ret	    nz
 
 		    ld	    a, 10h
-		    ld	    (RadioLedDelay), a		    ; Delay before the first/next led turns on
+		    ld	    (+vars.RadioLedDelay), a		    ; Delay before the first/next led turns on
 
 		    xor	    a
-		    ld	    (RadioLedCnt), a
-		    ld	    (EquipRadioStatus),	a	    ; Equip and	radio status
+		    ld	    (+vars.RadioLedCnt), a
+		    ld	    (+vars.EquipRadioStatus),	a	    ; Equip and	radio status
 
 NextEndingStatus:
-		    ld	    hl,	EndingStatus
+		    ld	    hl,	+vars.EndingStatus
 		    inc	    (hl)
 		    ret
 
@@ -205,7 +205,7 @@ EndingLogic8:
 
 		    call    RadioSignalUp_		    ; Draw leds	turning	on
 
-		    ld	    a, (EquipRadioStatus)	    ; Equip and	radio status
+		    ld	    a, (+vars.EquipRadioStatus)	    ; Equip and	radio status
 		    dec	    a
 		    ret	    nz
 
@@ -252,7 +252,7 @@ EndingLogic10:
 		    ret	    nz
 
 		    ld	    a, 5Ch			    ; Mute music
-		    ld	    (MusicToSet), a		    ; New music	to play	(fade out current one)
+		    ld	    (+vars.MusicToSet), a		    ; New music	to play	(fade out current one)
 
 		    call    CopyPalToRAM_
 
@@ -274,7 +274,7 @@ EndingLogic11:
 		    call    ClearScreen_
 
 		    ld	    a, 70h
-		    ld	    (EndingCnt), a
+		    ld	    (+vars.EndingCnt), a
 		    jr	    NextEndingStatus
 
 
@@ -287,7 +287,7 @@ EndingLogic11:
 EndingLogic12:
 		    djnz    EndingLogic13
 
-		    ld	    hl,	EndingCnt
+		    ld	    hl,	+vars.EndingCnt
 		    dec	    (hl)
 		    ret	    nz
 
@@ -331,7 +331,7 @@ EndingLogic13:
 EndingEscaping:
 		    call    EndingSnakeRun		    ; Snake running animation
 
-		    ld	    hl,	DestructTimerH
+		    ld	    hl,	+vars.DestructTimerH
 		    ld	    a, (hl)
 		    dec	    hl
 		    or	    (hl)
@@ -357,7 +357,7 @@ EndingEscaping2:
 
 EndingTimerEnd:
 		    xor	    a
-		    ld	    (EndingCnt), a
+		    ld	    (+vars.EndingCnt), a
 
 		    ld	    hl,	70C0h			    ; X,Y
 		    ld	    bc,	2010h			    ; width, height
@@ -377,7 +377,7 @@ EndingTimerEnd:
 EndingTextBox:
 		    call    TextBoxLogic_
 
-		    ld	    a, (GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    a, (+vars.GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 		    cp	    GAME_MODE_RADIO
 		    ret
 
@@ -389,19 +389,19 @@ EndingTextBox:
 ;----------------------------------------------------------------------------
 
 EndingSnakeRun:
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    bit	    3, a
 		    ld	    a, 4
 		    jr	    z, EndingSnakeRun2
 		    inc	    a
 
 EndingSnakeRun2:
-		    ld	    (SnakeSprId), a		    ; Run frame
+		    ld	    (+vars.SnakeSprId), a		    ; Run frame
 
-		    ld	    hl,	(PlayerXdec)
+		    ld	    hl,	(+vars.PlayerXdec)
 		    ld	    de,	-8
 		    add	    hl,	de
-		    ld	    (PlayerXdec), hl		    ; Moving slowly to the left
+		    ld	    (+vars.PlayerXdec), hl		    ; Moving slowly to the left
 
 EndingSnakeRun3:
 		    call    SetSnakeSprAttr_

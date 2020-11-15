@@ -18,7 +18,7 @@ ChkLaserShot2:
 		    cp	    8				    ; Detection	radius
 		    ret	    nc				    ; The player is not	in the X range
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    111				    ; Basement building	3 room with two	laser cameras
 							    ; These lasers are shorter
 		    jr	    nz,	ChkLaserShot3

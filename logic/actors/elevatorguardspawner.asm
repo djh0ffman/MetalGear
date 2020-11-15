@@ -8,7 +8,7 @@
 InitSpawnGuardElev:
 		    ld	    (ix+ELEV_GUARD_SPAWNER.COLLISION_CFG), 0 ; Disable collision
 
-		    ld	    a, (PreviousRoom)
+		    ld	    a, (+vars.PreviousRoom)
 		    cp	    240				    ; Elevator
 		    ld	    (ix+ELEV_GUARD_SPAWNER.Wait), 1Eh
 		    ld	    (ix+ELEV_GUARD_SPAWNER.WaitLoops), 5 ; Enought time	for the	player to move away
@@ -26,7 +26,7 @@ InitSpawnGuardElev:
 ;---------------------------------------------------------------------------
 
 SpawnGuardElev:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    jp	    nz,	DismissActor0		    ; Remove the actor
 

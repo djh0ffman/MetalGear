@@ -35,7 +35,7 @@ GuardLogic:
 		    sub	    3				    ; Is he sleeping?
 		    call    nz,	ChkActSeePlayer		    ; No, check	if he sees the player
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a				    ; Alert on?
 		    jp	    nz,	TransformAlertGuard	    ; Transform	the guard in alert guard
 
@@ -185,7 +185,7 @@ GuardPatrolWait:
 ;----------------------------------------------------------------------------
 
 ChkSleepyGuard:
-		    ld	    a, (SleepyGuardFlag)
+		    ld	    a, (+vars.SleepyGuardFlag)
 		    or	    a
 		    ret	    z				    ; The guard	is not sleepy
 

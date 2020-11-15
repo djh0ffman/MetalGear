@@ -10,30 +10,30 @@
 
 
 UpdateSound:
-		    ld	    a, (SoundDataSaved)
+		    ld	    a, (+vars.SoundDataSaved)
 		    or	    a
 		    jr	    nz,	UpdateSound2
 
 ; Check	if Big Boss explosion is playing and ending
 ; In that case play escape music
 
-		    ld	    a, (BigBossDeadSnd)
+		    ld	    a, (+vars.BigBossDeadSnd)
 		    cp	    53h				    ; Playing Big Boss dead sfx?
 		    jr	    nz,	UpdateSound2		    ; No
 
-		    ld	    a, (SoundWorkAreaB+2)
+		    ld	    a, (+vars.SoundWorkAreaB+2)
 		    or	    a				    ; Has finished Big Boss dead sfx?
 		    jr	    nz,	UpdateSound2		    ; No
 
 		    xor	    a
-		    ld	    (BigBossDeadSnd), a		    ; Clear flag
+		    ld	    (+vars.BigBossDeadSnd), a		    ; Clear flag
 
 		    ld	    a, 3Bh			    ; Beyond Big Boss (escape music)
-		    ld	    (AreaMusic), a
+		    ld	    (+vars.AreaMusic), a
 		    call    SetSound			    ; Set escape music
 
 UpdateSound2:
-		    ld	    a, (PGS_MixerVal)
+		    ld	    a, (+vars.PGS_MixerVal)
 		    call    SetPsgMixer
 
 		    exx
@@ -42,28 +42,28 @@ UpdateSound2:
 		    exx
 
 		    xor	    a
-		    ld	    (flagSndDatRestored), a	    ; Reset flag
+		    ld	    (+vars.flagSndDatRestored), a	    ; Reset flag
 
-		    ld	    a, (RestoreSoundData)
+		    ld	    a, (+vars.RestoreSoundData)
 		    or	    a
 		    jr	    z, UpdateSound3		    ; Do not restore previous music data
 
 		    ld	    a, c
-		    ld	    hl,	SoundWorkArea2
-		    ld	    de,	SoundWorkArea
+		    ld	    hl,	+vars.SoundWorkArea2
+		    ld	    de,	+vars.SoundWorkArea
 		    call    CopySoundData
 
 		    ld	    a, 0
-		    ld	    (SoundDataSaved), a
+		    ld	    (+vars.SoundDataSaved), a
 		    ld	    a, 1
-		    ld	    (flagSndDatRestored), a	    ; Music data was restored in this iteration
+		    ld	    (+vars.flagSndDatRestored), a	    ; Music data was restored in this iteration
 
 UpdateSound3:
-		    ld	    a, (SoundDataSaved)
+		    ld	    a, (+vars.SoundDataSaved)
 		    or	    a				    ; Is there music data waiting to be	restored?
 		    jr	    nz,	ProcessChannels
 
-		    ld	    a, (MusicToSet)		    ; New music	to play	(fade out current one)
+		    ld	    a, (+vars.MusicToSet)		    ; New music	to play	(fade out current one)
 		    or	    a				    ; Is there a new music waiting to be played?
 		    call    nz,	MusicFadeOut		    ; Fade out current music and set the new one
 
@@ -71,7 +71,7 @@ UpdateSound3:
 
 ProcessChannels:
 		    ld	    c, 1
-		    ld	    ix,	SoundWorkArea
+		    ld	    ix,	+vars.SoundWorkArea
 		    exx
 
 UpdateSound5:
@@ -151,7 +151,7 @@ ProcessChannelData:
 
 ; Radio	noise frequency	logic
 
-		    ld	    a, (RadioFreq)
+		    ld	    a, (+vars.RadioFreq)
 		    and	    0F0h
 		    srl	    a
 		    srl	    a
@@ -159,14 +159,14 @@ ProcessChannelData:
 		    srl	    a
 		    inc	    a
 		    ld	    b, a
-		    ld	    a, (RadioFreq)
+		    ld	    a, (+vars.RadioFreq)
 		    add	    a, 6
 
 RadioNoiseLoop:
 		    sub	    6
 		    djnz    RadioNoiseLoop
 
-		    ld	    (RadioFreqOffset), a	    ; Value used to modify the radio noise SFX depending on radio frequency
+		    ld	    (+vars.RadioFreqOffset), a	    ; Value used to modify the radio noise SFX depending on radio frequency
 
 ProcessChannelData2:
 		    ld	    a, (ix+SOUND.NOTE_MODE)	    ; 1	= Note mode, 0 = Sfx mode
@@ -268,7 +268,7 @@ ChkCmd_1x:
 		    cp	    5				    ; Channel 3? (Used for SFXs)
 		    jr	    nz,	SetNoisePeriod
 
-		    ld	    a, (SoundWorkAreaSfx+2)
+		    ld	    a, (+vars.SoundWorkAreaSfx+2)
 		    or	    a				    ; Sfx playing?
 		    jr	    nz,	SfxLogic2		    ; Do not modify noise when playing a SFX
 
@@ -306,12 +306,12 @@ SfxLogic4:
 SetRadioFreqTone:
 		    ex	    de,	hl
 
-		    ld	    a, (SoundWorkArea+2)
+		    ld	    a, (+vars.SoundWorkArea+2)
 		    cp	    50h				    ; SFX radio	noise
 		    jr	    nz,	SetSfxFreq
 
 		    push    bc
-		    ld	    a, (RadioFreqOffset)	    ; Value used to modify the radio noise SFX depending on radio frequency
+		    ld	    a, (+vars.RadioFreqOffset)	    ; Value used to modify the radio noise SFX depending on radio frequency
 		    ld	    b, a
 		    ld	    a, l
 		    sub	    b
@@ -367,7 +367,7 @@ NoteLogic:
 		    dec	    (ix+SOUND.NOTE_COUNTER)			    ; Decrement	note lenght
 		    jp	    z, ProcessChannelData3
 
-		    ld	    a, (MuteSoundFlag)		    ; 1	= Mute
+		    ld	    a, (+vars.MuteSoundFlag)		    ; 1	= Mute
 		    or	    a
 		    ret	    nz
 
@@ -573,7 +573,7 @@ NoteOffCmd:
 		    ld	    (ix+SOUND.INSTRUMENT), a
 		    inc	    hl
 
-		    ld	    a, (MuteSoundFlag)		    ; 1	= Mute
+		    ld	    a, (+vars.MuteSoundFlag)		    ; 1	= Mute
 		    or	    a
 		    jr	    z, ProcessCommand
 
@@ -677,7 +677,7 @@ SetNote2:
 		    ld	    e, (ix+SOUND.NOTE_LENGHT)
 		    ld	    (ix+SOUND.NOTE_COUNTER),	e
 
-		    ld	    a, (MuteSoundFlag)		    ; 1	= Mute
+		    ld	    a, (+vars.MuteSoundFlag)		    ; 1	= Mute
 		    or	    a
 		    ret	    nz
 
@@ -742,7 +742,7 @@ SetInstrument2:
 		    ld	    a, (ix+SOUND.NOTE_LENGHT)
 		    ld	    (ix+SOUND.NOTE_COUNTER),	a
 
-		    ld	    a, (MuteSoundFlag)		    ; 1	= Mute
+		    ld	    a, (+vars.MuteSoundFlag)		    ; 1	= Mute
 		    or	    a
 		    ret	    nz
 
@@ -881,7 +881,7 @@ CmdEndLogic:
 		    dec	    c
 		    dec	    c				    ; Adjust PSG register to channel 3 frequency
 
-		    ld	    ix,	SoundWorkAreaC
+		    ld	    ix,	+vars.SoundWorkAreaC
 		    ld	    (ix+SOUND.VOLUME), 5	    ; Default volume
 		    call    SetChnFreq			    ; Restore channel 3	frequency
 
@@ -895,7 +895,7 @@ CmdEndLogic:
 ;----------------------------------------------------------------------------
 
 UpdateFreqVol:
-		    ld	    a, (flagSndDatRestored)
+		    ld	    a, (+vars.flagSndDatRestored)
 		    or	    a
 		    ret	    z
 
@@ -910,7 +910,7 @@ UpdateFreqVol:
 ;----------------------------------------------------------------------------
 
 UpdateChFreq:
-		    ld	    a, (SoundWorkAreaSfx+2)
+		    ld	    a, (+vars.SoundWorkAreaSfx+2)
 		    ld	    e, a
 		    ld	    a, c
 		    cp	    5				    ; Channel 3	freq. register?
@@ -1004,10 +1004,10 @@ NoteFrequency:	    db	6Bh, 65h, 5Fh, 5Ah, 55h, 50h, 4Ch, 47h,	43h, 40h, 3Ch, 39h
 ;----------------------------------------------------------------------------
 
 MusicFadeOut:
-		    ld	    hl,	FadeStepCnt
+		    ld	    hl,	+vars.FadeStepCnt
 		    inc	    (hl)
 
-		    ld	    a, (SoundWorkArea+2)
+		    ld	    a, (+vars.SoundWorkArea+2)
 		    cp	    41h				    ; Ending music? (Music: Return of Fox Hunder)
 		    jr	    nz,	MusicFadeOut2
 
@@ -1034,7 +1034,7 @@ MusicFadeOut3:
 		    ret	    c				    ; The fade has not finished	yet
 
 		    xor	    a
-		    ld	    hl,	MusicToSet		    ; New music	to play	(fade out current one)
+		    ld	    hl,	+vars.MusicToSet		    ; New music	to play	(fade out current one)
 		    ld	    e, (hl)			    ; E	= Music	to play
 		    ld	    (hl), a
 
@@ -1055,7 +1055,7 @@ MusicFadeOut3:
 ;----------------------------------------------------------------------------
 
 UpdateVolume:
-		    ld	    a, (SoundWorkAreaSfx+2)
+		    ld	    a, (+vars.SoundWorkAreaSfx+2)
 		    ld	    e, a			    ; E=Sfx ID
 
 		    ld	    a, c
@@ -1088,7 +1088,7 @@ UpdateChVol:
 		    ld	    d, a
 		    ld	    h, (ix+SOUND.VOLUME)	    ; Envelope wave shape
 
-		    ld	    a, (SoundDataSaved)
+		    ld	    a, (+vars.SoundDataSaved)
 		    or	    a
 		    jr	    nz,	UpdateChVol2
 
@@ -1096,7 +1096,7 @@ UpdateChVol:
 		    or	    a
 		    jr	    z, UpdateChVol2
 
-		    ld	    a, (VolumeFadeVal)
+		    ld	    a, (+vars.VolumeFadeVal)
 		    or	    a
 		    jp	    z, UpdateChVol2
 
@@ -1144,7 +1144,7 @@ CopySoundData:
 		    ld	    c, a
 
 		    xor	    a
-		    ld	    (RestoreSoundData),	a
+		    ld	    (+vars.RestoreSoundData),	a
 		    ret
 
 
@@ -1274,7 +1274,7 @@ PointerNextCmd:
 ;----------------------------------------------------------------------------
 
 UpdateMixer:
-		    ld	    a, (PGS_MixerVal)
+		    ld	    a, (+vars.PGS_MixerVal)
 		    ld	    e, a			    ; E	= Current mixer	configuration
 
 		    ld	    a, (ix+SOUND.CONFIG)	    ; 3=Use Envelope, 2=Set Env. Freq. 1=Channel ON/OFF, 0=Noise ON/OFF
@@ -1306,7 +1306,7 @@ UpdateMixer2:
 		    call    nz,	DisableMixerBit
 
 SetPsgMixer:
-		    ld	    (PGS_MixerVal), a
+		    ld	    (+vars.PGS_MixerVal), a
 		    ld	    e, a
 		    ld	    a, 7
 		    jp	    WRTPSG

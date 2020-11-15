@@ -8,23 +8,23 @@
 SetupDemoPlay:
 		    call    ClearGameVars_
 
-		    ld	    a, (DemoPlayId)
+		    ld	    a, (+vars.DemoPlayId)
 		    inc	    a
 		    and	    3
-		    ld	    (DemoPlayId), a		    ; Select demo mode scene
+		    ld	    (+vars.DemoPlayId), a		    ; Select demo mode scene
 
 		    ld	    de,	idxDemoPlayCtrl
 		    call    GetPointerDE2A_		    ; Get presaved controls of game demo scene
 
 		    ld	    a, (de)			    ; First action/control hold	time
-		    ld	    (DemolHoldTime), a
+		    ld	    (+vars.DemolHoldTime), a
 		    inc	    de
 		    ld	    a, (de)			    ; First action/controls data (e.g.:	UP pressed)
 		    call    StoreControls__
-		    ld	    (DemoDataPointer), de	    ; Pointer to presaved demo controls
+		    ld	    (+vars.DemoDataPointer), de	    ; Pointer to presaved demo controls
 
 ; Set up game demo scene
-		    ld	    a, (DemoPlayId)
+		    ld	    a, (+vars.DemoPlayId)
 		    dec	    a
 		    jr	    z, SetDemoPlay1		    ; Demo gameplay 1
 
@@ -45,20 +45,20 @@ SetTutorialDemo:
 		    call    LoadGameGfx_
 
 		    ld	    a, FREQ_BIGBOSS		    ; Radio frequency: Big Boss
-		    ld	    (RadioFreq), a
+		    ld	    (+vars.RadioFreq), a
 
 		    ld	    a, 10h
-		    ld	    (Life), a			    ; Life value
+		    ld	    (+vars.Life), a			    ; +vars.Life value
 
 		    call    DrawRadio_			    ; Draw radio screen
 
 		    ld	    a, 10h
-		    ld	    (RadioLedDelay), a		    ; Delay before the first/next led turns on
+		    ld	    (+vars.RadioLedDelay), a		    ; Delay before the first/next led turns on
 
 		    xor	    a
-		    ld	    (TutorialStatus), a
-		    ld	    (RadioLedCnt), a
-		    ld	    (EquipRadioStatus),	a	    ; Equip and	radio status
+		    ld	    (+vars.TutorialStatus), a
+		    ld	    (+vars.RadioLedCnt), a
+		    ld	    (+vars.EquipRadioStatus),	a	    ; Equip and	radio status
 		    jr	    SetDemoPlay6
 
 
@@ -70,7 +70,7 @@ SetTutorialDemo:
 
 SetDemoPlay1:
 		    ld	    a, 5
-		    ld	    (Room), a
+		    ld	    (+vars.Room), a
 		    jr	    SetDemoPlay3
 
 
@@ -82,26 +82,26 @@ SetDemoPlay1:
 
 SetDemoPlay2:
 		    ld	    a, 31
-		    ld	    (Room), a
+		    ld	    (+vars.Room), a
 
 		    ld	    a, HAND_GUN
-		    ld	    (SelectedWeapon), a
-		    ld	    (WeaponInUse), a
-		    ld	    (Weapons), a
+		    ld	    (+vars.SelectedWeapon), a
+		    ld	    (+vars.WeaponInUse), a
+		    ld	    (+vars.Weapons), a
 
 SetDemoPlay3:
 		    call    InitGame_			    ; Initialize game status (first room, door status...)
 
-		    ld	    a, (MusicInDemoMode)	    ; Flag to enable or	disable	music in demo mode
+		    ld	    a, (+vars.MusicInDemoMode)	    ; Flag to enable or	disable	music in demo mode
 		    and	    a
 		    jr	    nz,	SetDemoPlay4		    ; Skip music
 
 		    ld	    a, 2Ch			    ; Theme of Tara music
-		    ld	    (AreaMusic), a
+		    ld	    (+vars.AreaMusic), a
 		    call    SetSound_
 
 SetDemoPlay4:
-		    ld	    a, (DemoPlayId)
+		    ld	    a, (+vars.DemoPlayId)
 		    cp	    2				    ; Gameplay 1 or 2?
 		    ld	    de,	1070h			    ; Start coordinates
 		    jr	    c, SetDemoPlay5
@@ -109,7 +109,7 @@ SetDemoPlay4:
 		    ld	    de,	7028h			    ; Start coordinates
 
 SetDemoPlay5:
-		    ld	    hl,	PlayerY
+		    ld	    hl,	+vars.PlayerY
 		    ld	    (hl), e			    ; Player Y
 		    inc	    hl
 		    inc	    hl
@@ -117,7 +117,7 @@ SetDemoPlay5:
 
 SetDemoPlay6:
 		    ld	    a, 1
-		    ld	    (PlayingFlag), a
+		    ld	    (+vars.PlayingFlag), a
 		    ret
 
 
@@ -130,11 +130,11 @@ SetDemoPlay6:
 ;----------------------------------------------------------------------------
 
 GameDemoLogic:
-		    ld	    a, (DemoPlayId)
+		    ld	    a, (+vars.DemoPlayId)
 		    rra					    ; Tutorial mode?
 		    jp	    c, GameLogic_		    ; Gameplay mode
 
-		    ld	    a, (TutorialStatus)
+		    ld	    a, (+vars.TutorialStatus)
 		    dec	    a
 		    jr	    z, ShowGameTutorial		    ; Show tutorial
 
@@ -143,7 +143,7 @@ GameDemoLogic:
 
 		    call    RadioSignalUp_		    ; Radio signal leds	effect
 
-		    ld	    a, (EquipRadioStatus)	    ; Equip and	radio status
+		    ld	    a, (+vars.EquipRadioStatus)	    ; Equip and	radio status
 		    dec	    a				    ; Are all the radio	signal leds on?
 		    ret	    nz
 
@@ -156,12 +156,12 @@ GameDemoLogic:
 ShowGameTutorial:
 		    call    TextBoxLogic_		    ; Show text	of the tutorial
 
-		    ld	    a, (GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    a, (+vars.GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 		    cp	    GAME_MODE_RADIO
 		    ret	    nz				    ; The tutorial has not ended yet
 
 NextTutorialStatus:
-		    ld	    hl,	TutorialStatus
+		    ld	    hl,	+vars.TutorialStatus
 		    inc	    (hl)
 
 TutorialDummy:
@@ -175,29 +175,29 @@ TutorialDummy:
 ;----------------------------------------------------------------------------
 
 DemoControler:
-		    ld	    hl,	DemolHoldTime
+		    ld	    hl,	+vars.DemolHoldTime
 		    dec	    (hl)			    ; Decrement	action/control hold time
 		    jr	    nz,	DemoControler2
 
-		    ld	    hl,	(DemoDataPointer)	    ; Pointer to presaved demo controls
+		    ld	    hl,	(+vars.DemoDataPointer)	    ; Pointer to presaved demo controls
 		    inc	    hl
 		    ld	    a, (hl)			    ; Get action/control hold time
 		    cp	    0FFh			    ; End demo?
 		    jr	    z, EndDemoMode
 
-		    ld	    (DemolHoldTime), a
+		    ld	    (+vars.DemolHoldTime), a
 		    inc	    hl
-		    ld	    (DemoDataPointer), hl	    ; Pointer to presaved demo controls
+		    ld	    (+vars.DemoDataPointer), hl	    ; Pointer to presaved demo controls
 
 DemoControler2:
-		    ld	    hl,	(DemoDataPointer)	    ; Pointer to presaved demo controls
+		    ld	    hl,	(+vars.DemoDataPointer)	    ; Pointer to presaved demo controls
 		    ld	    a, (hl)			    ; Action/control data
 		    jp	    StoreControls__		    ; Simulate controls	pressed
 
 
 EndDemoMode:
 		    xor	    a
-		    ld	    (PlayingFlag), a
+		    ld	    (+vars.PlayingFlag), a
 		    ret
 
 

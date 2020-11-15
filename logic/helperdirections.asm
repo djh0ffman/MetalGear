@@ -10,7 +10,7 @@
 ;----------------------------------------------------------------------------
 
 GetDirToPlayer:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    sub	    (ix+ACTOR.Y)
 		    ld	    d, DIR_DOWN			    ; Down
 		    jr	    nc,	GetDirToPlayer2
@@ -21,7 +21,7 @@ GetDirToPlayer:
 GetDirToPlayer2:
 		    ld	    b, a			    ; Y	distance
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    (ix+ACTOR.X)
 		    ld	    e, DIR_RIGHT		    ; Right
 		    jr	    nc,	GetDirToPlayer3

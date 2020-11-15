@@ -5,378 +5,378 @@
 ;
 ;----------------------------------------------------------------------------
 
-		    map	#c000
+		    STRUCT vars,$c000
 		    
-GameStatus:	    # 1
-GameSubstatus:	    # 1
-ControlConfig:	    # 1
+GameStatus:	    TEXT 1
+GameSubstatus:	    TEXT 1
+ControlConfig:	    TEXT 1
 							    ; Bit6: 1=Enable music/Player control
-TickCounter:	    # 1
-WaitCounter:	    # 1
-TickInProgress:	    # 1
-ControlsTrigger:    # 1
+TickCounter:	    TEXT 1
+WaitCounter:	    TEXT 1
+TickInProgress:	    TEXT 1
+ControlsTrigger:    TEXT 1
 							    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
-ControlsHold:	    # 1
+ControlsHold:	    TEXT 1
 							    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
-Pause_1_F5_2:	    # 1
-TutorialStatus:	    # 1
-DemolHoldTime:	    # 1
-UnusedVar1:	    # 1
-DemoPlayId:	    # 1
-DemoDataPointer:    # 2
+Pause_1_F5_2:	    TEXT 1
+TutorialStatus:	    TEXT 1
+DemolHoldTime:	    TEXT 1
+UnusedVar1:	    TEXT 1
+DemoPlayId:	    TEXT 1
+DemoDataPointer:    TEXT 2
 							    ; Pointer to presaved demo controls
-SprShuffleOffset:   # 1
+SprShuffleOffset:   TEXT 1
 
 ;
 ; Sound	work area
 ; 3 music channels + 1 sfx
 ;
-SoundWorkArea:	    # 20h
-SoundWorkAreaB:	    # 20h
-SoundWorkAreaC:	    # 20h
-SoundWorkAreaSfx:   # 20h
+SoundWorkArea:	    TEXT 20h
+SoundWorkAreaB:	    TEXT 20h
+SoundWorkAreaC:	    TEXT 20h
+SoundWorkAreaSfx:   TEXT 20h
 
-SoundWorkArea2:	    # 60h
+SoundWorkArea2:	    TEXT 60h
 							    ; Sound work area backup
 
 
-PGS_MixerVal:	    # 1
-RestoreSoundData:   # 1
-SoundDataSaved:	    # 1
-flagSndDatRestored: # 1
-MusicToSet:	    # 1
+PGS_MixerVal:	    TEXT 1
+RestoreSoundData:   TEXT 1
+SoundDataSaved:	    TEXT 1
+flagSndDatRestored: TEXT 1
+MusicToSet:	    TEXT 1
 							    ; New music	to play	(fade out current one)
-FadeStepCnt:	    # 1
-VolumeFadeVal:	    # 1
-UnusedVar2:         # 1
-MuteSoundFlag:	    # 1
+FadeStepCnt:	    TEXT 1
+VolumeFadeVal:	    TEXT 1
+UnusedVar2:         TEXT 1
+MuteSoundFlag:	    TEXT 1
 							    ; 1	= Mute
-RadioFreqOffset:    # 1
+RadioFreqOffset:    TEXT 1
 							    ; Value used to modify the radio noise SFX depending on radio frequency
-UnusedVar3:         # 1
-BigBossDeadSnd:	    # 1
-UnusedVar4:         # 14h
+UnusedVar3:         TEXT 1
+BigBossDeadSnd:	    TEXT 1
+UnusedVar4:         TEXT 14h
 
 
-ControlsTrig_:	    # 1
-ControlsHold_:	    # 1
-FKeysTrigger:	    # 1
+ControlsTrig_:	    TEXT 1
+ControlsHold_:	    TEXT 1
+FKeysTrigger:	    TEXT 1
 							    ; 0	0 RET F5 F4 F3 F2 F1
-FKeysHold:	    # 1
+FKeysHold:	    TEXT 1
 							    ; 0	0 RET F5 F4 F3 F2 F1
-SprColAddress:	    # 2
-SprAttAddress:	    # 2
-MenuStatus:	    # 1
-MenuCnt:	    # 1
-UnusedVar5:         # 6
-GameVars:	    # 3
-PlayingFlag:	    # 1
-LeavedOuterHeaven:  # 1
-RestoreGameFlag:    # 1
-UnusedVar6:         # 0Ah
-Room:		    # 1
+SprColAddress:	    TEXT 2
+SprAttAddress:	    TEXT 2
+MenuStatus:	    TEXT 1
+MenuCnt:	    TEXT 1
+UnusedVar5:         TEXT 6
+GameVars:	    TEXT 3
+PlayingFlag:	    TEXT 1
+LeavedOuterHeaven:  TEXT 1
+RestoreGameFlag:    TEXT 1
+UnusedVar6:         TEXT 0Ah
+Room:		    TEXT 1
 							    ; Also used	as LogoTimer
-Life:		    # 1
+Life:		    TEXT 1
 							    ; LogoCnt
-Class:		    # 1
+Class:		    TEXT 1
 							    ; Logo end flag
-NextRoomDirect:	    # 1
+NextRoomDirect:	    TEXT 1
 							    ; 4=Right, 3=Left, 2=Down, 1=Up
-SelectedWeapon:	    # 1
-SelectedItem:	    # 1
-PreviousRoom:	    # 1
-MaxLife:	    # 1
-RadioFreq:	    # 1
-Poisoned:	    # 1
-RescuedCnt:	    # 1
+SelectedWeapon:	    TEXT 1
+SelectedItem:	    TEXT 1
+PreviousRoom:	    TEXT 1
+MaxLife:	    TEXT 1
+RadioFreq:	    TEXT 1
+Poisoned:	    TEXT 1
+RescuedCnt:	    TEXT 1
 							    ; Rescued prisoners	count (0-4)
-EquipRemoved:	    # 1
+EquipRemoved:	    TEXT 1
 							    ; The equipment and	weapons	have been removed by the enemy (captured)
-DestructionTimerOn: # 1
-DestructTimer:	    # 1
-DestructTimerH:	    # 1
-PrisonWall1Life:    # 1
+DestructionTimerOn: TEXT 1
+DestructTimer:	    TEXT 1
+DestructTimerH:	    TEXT 1
+PrisonWall1Life:    TEXT 1
 							    ; Snake prison wall	energy
-PrisonWall2Life:    # 1
+PrisonWall2Life:    TEXT 1
 							    ; GreyFox prison wall energy
-MaxAmmoRatioF:	    # 1
+MaxAmmoRatioF:	    TEXT 1
 							    ; Bit 0=Max.Ammo, 1=Max.Rations
-WeaponInUse:	    # 1
-PlayerMovSpeed:	    # 2
-UnusedVar7:         # 0Bh
-byte_C150:	    # 1
+WeaponInUse:	    TEXT 1
+PlayerMovSpeed:	    TEXT 2
+UnusedVar7:         TEXT 0Bh
+byte_C150:	    TEXT 1
 							    ; Unused?
-GameMode:	    # 1
+GameMode:	    TEXT 1
 							    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
-Dificulty:	    # 1
-EquipRadioStatus:   # 1
+Dificulty:	    TEXT 1
+EquipRadioStatus:   TEXT 1
 							    ; Equip and	radio status
-SelectIdx:	    # 1
-MenuCursorXY:	    # 2
-CurrentTileSet:	    # 1
-IsolatedRoom:	    # 1
+SelectIdx:	    TEXT 1
+MenuCursorXY:	    TEXT 2
+CurrentTileSet:	    TEXT 1
+IsolatedRoom:	    TEXT 1
 							    ; Can't use binoculars. Shooting does not trigger the alarm
-AreaMusic:	    # 1
-UnusedVar8:         # 1
-HeightParachuteCnt: # 1
-ControlHoldWait:    # 1
-UnusedVar9:         # 1
-isOnBridge:	    # 1
-RadioCallFlag:	    # 1
+AreaMusic:	    TEXT 1
+UnusedVar8:         TEXT 1
+HeightParachuteCnt: TEXT 1
+ControlHoldWait:    TEXT 1
+UnusedVar9:         TEXT 1
+isOnBridge:	    TEXT 1
+RadioCallFlag:	    TEXT 1
 							    ; 1=Start incoming call, 2=Stop incoming call
-IncomingCallTimer:  # 1
-MapZone:	    # 1
+IncomingCallTimer:  TEXT 1
+MapZone:	    TEXT 1
 							    ; Values of	5 or more need the antenna
-JumpRoomId:	    # 1
+JumpRoomId:	    TEXT 1
 							    ; 1	= From room 45,	2 = From room 46, others = 117
-RadioCallFlagCopy:  # 2
-RestoreSavedGame:   # 1
+RadioCallFlagCopy:  TEXT 2
+RestoreSavedGame:   TEXT 1
 							    ; ;Set after loading tape data
-TailDataByte:	    # 1
-DoNotAddEnemies:    # 1
-TilesetBank:	    # 1
+TailDataByte:	    TEXT 1
+DoNotAddEnemies:    TEXT 1
+TilesetBank:	    TEXT 1
 							    ; 0=First bank of 256 tiles, 1=Second bank
-CowardDuckSpeech:   # 1
-AlertModeCopy2:	    # 1
-UnusedVar10:         # 15h
-PlayerControlMod:   # 1
+CowardDuckSpeech:   TEXT 1
+AlertModeCopy2:	    TEXT 1
+UnusedVar10:         TEXT 15h
+PlayerControlMod:   TEXT 1
 							    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
-PlayerYdec:	    # 1
-PlayerY:	    # 1
-PlayerXdec:	    # 1
-PlayerX:	    # 1
-PlayerDirection:    # 1
+PlayerYdec:	    TEXT 1
+PlayerY:	    TEXT 1
+PlayerXdec:	    TEXT 1
+PlayerX:	    TEXT 1
+PlayerDirection:    TEXT 1
 							    ; 1=Up, 2 =	Down, 3=Left, 4=Right
-PlayerSpeedY:	    # 2
-PlayerSpeedX:	    # 2
-SnakeSprId:	    # 1
-PlayerAnimation:    # 1
+PlayerSpeedY:	    TEXT 2
+PlayerSpeedX:	    TEXT 2
+SnakeSprId:	    TEXT 1
+PlayerAnimation:    TEXT 1
 							    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
-PlayerDirectionNew: # 1
+PlayerDirectionNew: TEXT 1
 							    ; 1=Up, 2=Down, 3=Left, 4=Right
-PlayerAnimWaitCnt:  # 1
-StopPlayerFlag:	    # 1
+PlayerAnimWaitCnt:  TEXT 1
+StopPlayerFlag:	    TEXT 1
 							    ; 1=The player is not moving
-PlayerFrameNum:	    # 1
-PunchCnt:	    # 1
-DirectionMask:	    # 1
+PlayerFrameNum:	    TEXT 1
+PunchCnt:	    TEXT 1
+DirectionMask:	    TEXT 1
 							    ; Bitmask of the last pressed direction control
-DirectionMaskOld:   # 1
+DirectionMaskOld:   TEXT 1
 							    ; Bitmask of the previous pressed direction	control
-ElevatorY:	    # 1
-ElevatorX:	    # 1
-ElevatorDir:	    # 1
+ElevatorY:	    TEXT 1
+ElevatorX:	    TEXT 1
+ElevatorDir:	    TEXT 1
 							    ; 1=up, 2=down
-ElevatorStatus:	    # 1
-ElevatorLimitUp:    # 1
-ElevatorLimitDown:  # 1
-DamageDelayTimer:   # 1
-BinoculStatus:	    # 1
-BinocularDir:	    # 1
-TimerBinocular:	    # 1
-DeadTimer:	    # 1
-SubMachGunTimer:    # 1
-BurstCnt:	    # 1
-InAirFlow:	    # 1
+ElevatorStatus:	    TEXT 1
+ElevatorLimitUp:    TEXT 1
+ElevatorLimitDown:  TEXT 1
+DamageDelayTimer:   TEXT 1
+BinoculStatus:	    TEXT 1
+BinocularDir:	    TEXT 1
+TimerBinocular:	    TEXT 1
+DeadTimer:	    TEXT 1
+SubMachGunTimer:    TEXT 1
+BurstCnt:	    TEXT 1
+InAirFlow:	    TEXT 1
 							    ; 1	= Snake	is being pushed	by the air floor in the	roof
-UnusedVar11:        # 1Eh
-BombOrderBuffer:    # 10h
-CurrentPal:	    # 31h
-							    ; Color number, color data1, color data 2... #FF end
-PlayerShotsList:    # 1
-PlayerShot1Stat:    # 3
-PlayerShot1Y:	    # 2
-PlayerShot1X:	    # 17Ah
+UnusedVar11:        TEXT 1Eh
+BombOrderBuffer:    TEXT 10h
+CurrentPal:	    TEXT 31h
+							    ; Color number, color data1, color data 2... TEXTFF end
+PlayerShotsList:    TEXT 1
+PlayerShot1Stat:    TEXT 3
+PlayerShot1Y:	    TEXT 2
+PlayerShot1X:	    TEXT 17Ah
 
-MaxAmmoGun:	    # 2
-MaxAmmoSMG:	    # 2
-MaxAmmoGrenade:	    # 2
-MaxAmmonRocket:	    # 2
-MaxAmmoBomb:	    # 2
-MaxAmmoMine:	    # 2
-MaxAmmoMissile:	    # 2
-UnusedVar12:        # 2Ch
-MaxRations:	    # 2
-UnusedVar13:        # 14h
+MaxAmmoGun:	    TEXT 2
+MaxAmmoSMG:	    TEXT 2
+MaxAmmoGrenade:	    TEXT 2
+MaxAmmonRocket:	    TEXT 2
+MaxAmmoBomb:	    TEXT 2
+MaxAmmoMine:	    TEXT 2
+MaxAmmoMissile:	    TEXT 2
+UnusedVar12:        TEXT 2Ch
+MaxRations:	    TEXT 2
+UnusedVar13:        TEXT 14h
 
-DoorsList:	    # 80h
+DoorsList:	    TEXT 80h
 							    ; 0=ID, 1=Open, 2=LogicOpen, 3=Type, 4=Cnt,	5=DrawY, 6=DrawX, 7=OpenOffY, 8=OpenNY,	9=OpenOffX, 10=OpenNX, 11=EnterOffY, 12=EnterNY, 13=EnterOffsetX, 14=EnterNY, 15=Destination room
 
-DoorOpenArray:	    # 0A0h
+DoorOpenArray:	    TEXT 0A0h
 							    ; 0=Open/1=Closed status of	all doors
-UnusedVar14:        # 0Ch
-IdDoorEnter:	    # 1
-OpenDoorStatus:	    # 1
-idxDoorOpen:	    # 1
-DoorsInRoom:	    # 1
+UnusedVar14:        TEXT 0Ch
+IdDoorEnter:	    TEXT 1
+OpenDoorStatus:	    TEXT 1
+idxDoorOpen:	    TEXT 1
+DoorsInRoom:	    TEXT 1
 							    ; Number of	doors in the room
 
-Weapons:	    # 1Ch
-InvSupressor:	    # 4
+Weapons:	    TEXT 1Ch
+InvSupressor:	    TEXT 4
 
-WeaponsTaken:	    # 1
-SMG_Taken:	    # 1
-GrenadeL_Taken:	    # 1
-RocketL_Taken:	    # 1
-PBomb_Taken:	    # 1
-Mines_Taken:	    # 1
-Missiles_Taken:	    # 1
-SupressorTaken:	    # 1
-TextBoxEff_Cnt:	    # 1
-TextBoxEff_DY:	    # 1
-TextBoxEff_DX:	    # 1
-TextBoxStepY:	    # 1
-TextBoxStepX:	    # 1
-TextBoxEff_NY:	    # 1
-TextBoxEff_NX:	    # 1
-TextBoxEff_Col:	    # 1
+WeaponsTaken:	    TEXT 1
+SMG_Taken:	    TEXT 1
+GrenadeL_Taken:	    TEXT 1
+RocketL_Taken:	    TEXT 1
+PBomb_Taken:	    TEXT 1
+Mines_Taken:	    TEXT 1
+Missiles_Taken:	    TEXT 1
+SupressorTaken:	    TEXT 1
+TextBoxEff_Cnt:	    TEXT 1
+TextBoxEff_DY:	    TEXT 1
+TextBoxEff_DX:	    TEXT 1
+TextBoxStepY:	    TEXT 1
+TextBoxStepX:	    TEXT 1
+TextBoxEff_NY:	    TEXT 1
+TextBoxEff_NX:	    TEXT 1
+TextBoxEff_Col:	    TEXT 1
 
 
-Equipment:	    # 1
+Equipment:	    TEXT 1
 							    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
-CigarsUnits:	    # 6Fh
+CigarsUnits:	    TEXT 6Fh
 
-ItemsTaken:	    # 1
-BSuitTaken:	    # 1
-FlashLightTaken:    # 1
-GooglesTaken:	    # 1
-GasMaskTaken:	    # 1
-CigarsTaken:	    # 1
-MineDetectTaken:    # 1
-AntennaTaken:	    # 1
-BinocularTaken:	    # 1
-OxygenTaken:	    # 1
-CompassTaken:	    # 1
-ParachuTaken:	    # 1
-AntidoteTaken:	    # 1
-Card1Taken:	    # 1
-Card2Taken:	    # 1
-Card3Taken:	    # 1
-Card4Taken:	    # 1
-Card5Taken:	    # 1
-Card6Taken:	    # 1
-Card7Taken:	    # 1
-Card8Taken:	    # 1
-RationTaken:	    # 1
-TransmiTaken:	    # 1
-UniformTaken:	    # 1
-CardBoardBoxTaken   # 1
-EquipBagTaken:	    # 1
-UnusedVar15:        # 6
-SpawnedItems:	    # 1
-SpawnItemData:	    # 0Fh
-							    ; Item ID, Y, X  (#FF = End	list)
-ItemsInTheRoom:	    # 30h
+ItemsTaken:	    TEXT 1
+BSuitTaken:	    TEXT 1
+FlashLightTaken:    TEXT 1
+GooglesTaken:	    TEXT 1
+GasMaskTaken:	    TEXT 1
+CigarsTaken:	    TEXT 1
+MineDetectTaken:    TEXT 1
+AntennaTaken:	    TEXT 1
+BinocularTaken:	    TEXT 1
+OxygenTaken:	    TEXT 1
+CompassTaken:	    TEXT 1
+ParachuTaken:	    TEXT 1
+AntidoteTaken:	    TEXT 1
+Card1Taken:	    TEXT 1
+Card2Taken:	    TEXT 1
+Card3Taken:	    TEXT 1
+Card4Taken:	    TEXT 1
+Card5Taken:	    TEXT 1
+Card6Taken:	    TEXT 1
+Card7Taken:	    TEXT 1
+Card8Taken:	    TEXT 1
+RationTaken:	    TEXT 1
+TransmiTaken:	    TEXT 1
+UniformTaken:	    TEXT 1
+CardBoardBoxTaken   TEXT 1
+EquipBagTaken:	    TEXT 1
+UnusedVar15:        TEXT 6
+SpawnedItems:	    TEXT 1
+SpawnItemData:	    TEXT 0Fh
+							    ; Item ID, Y, X  (TEXTFF = End	list)
+ItemsInTheRoom:	    TEXT 30h
 							    ; ID, size,	Y, X
-GameDataArea:	    # 2
-AlertMode:	    # 2
-RoomAlert:	    # 1
+GameDataArea:	    TEXT 2
+AlertMode:	    TEXT 2
+RoomAlert:	    TEXT 1
 							    ; The room where the alert started
-AlertRespawnTimer:  # 1
-NumRespawnGuards:   # 2
-EventCnt:	    # 1
-NumEnemies:	    # 1
-LaserRoomTimer:	    # 1
+AlertRespawnTimer:  TEXT 1
+NumRespawnGuards:   TEXT 2
+EventCnt:	    TEXT 1
+NumEnemies:	    TEXT 1
+LaserRoomTimer:	    TEXT 1
 							    ; Wait time	before moving lasers
-LaserRoomCnt:	    # 1
+LaserRoomCnt:	    TEXT 1
 							    ; Laser position counter
-XY_AlertIcon:	    # 3
-RoomAlertTrigged:   # 1
+XY_AlertIcon:	    TEXT 3
+RoomAlertTrigged:   TEXT 1
 							    ; This is the room where the alert was triggered
-OpenBigBossDoor:    # 1
+OpenBigBossDoor:    TEXT 1
 							    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
-UnusedVar16:        # 3
-RedAlertFlag:	    # 2
-PowerSwitchOn:	    # 1
+UnusedVar16:        TEXT 3
+RedAlertFlag:	    TEXT 2
+PowerSwitchOn:	    TEXT 1
 							    ; Power switch status 1=On,	0=Off/destroyed
-UnusedVar17:        # 9
-BossHindD_KO:	    # 1
-BossTank_KO:	    # 1
-Bulldozer_KO:	    # 1
-MetalGear_KO:	    # 1
+UnusedVar17:        TEXT 9
+BossHindD_KO:	    TEXT 1
+BossTank_KO:	    TEXT 1
+Bulldozer_KO:	    TEXT 1
+MetalGear_KO:	    TEXT 1
 							    ; Metal Gear destroyed. Self destruction activated
-UnusedVar18:        # 2
-ArnoldsCnt:	    # 1
-FireTrooper_KO:	    # 1
-REMOVE_FLAMES:	    # 4					; Not used
-DoorBuild2LockedF:  # 1
+UnusedVar18:        TEXT 2
+ArnoldsCnt:	    TEXT 1
+FireTrooper_KO:	    TEXT 1
+REMOVE_FLAMES:	    TEXT 4					; Not used
+DoorBuild2LockedF:  TEXT 1
 							    ; 0	= Entrance door	of building 2 is closed. 1 = Open
-byte_C62D:	    # 1
-NumBasementDogs:    # 1
-NoEnemiesRoom:	    # 1
+byte_C62D:	    TEXT 1
+NumBasementDogs:    TEXT 1
+NoEnemiesRoom:	    TEXT 1
 							    ; 1=No enemies in the room
-MachGunStatus:	    # 1
+MachGunStatus:	    TEXT 1
 							    ; Bit1= Machine Gun	Kid speech, 0=Dead
-ShotGunnerStat:	    # 1
+ShotGunnerStat:	    TEXT 1
 							    ; Bit1=Shot	Gunner speech, 0=Dead
-AlertModeCopy:	    # 1
-SleepyGuardFlag:    # 1
-Guard1ExitedLorry:  # 1
-Guard2ExitedLorry:  # 1
-Guard3ExitedLorry:  # 1
-BigBossStat:	    # 1
+AlertModeCopy:	    TEXT 1
+SleepyGuardFlag:    TEXT 1
+Guard1ExitedLorry:  TEXT 1
+Guard2ExitedLorry:  TEXT 1
+Guard3ExitedLorry:  TEXT 1
+BigBossStat:	    TEXT 1
 							    ; 0=Dead, 1=Confession dialog
-GuardSilencerCnt:   # 1
+GuardSilencerCnt:   TEXT 1
 							    ; Four soldiers (supressor room)
-PowerSwitchOnCopy:  # 1
-DesertGuardsTextF:  # 1
-PowerSwitchY:	    # 1
-PowerSwitchX:	    # 4
-RescuedArray:	    # 17h
-JennifBrotherDead:  # 9
-MadnarMoved:	    # 1
-JeniRocketF:	    # 1
-SchneiderCaptured:  # 1
-JeniOpenDoorF:	    # 1
+PowerSwitchOnCopy:  TEXT 1
+DesertGuardsTextF:  TEXT 1
+PowerSwitchY:	    TEXT 1
+PowerSwitchX:	    TEXT 4
+RescuedArray:	    TEXT 17h
+JennifBrotherDead:  TEXT 9
+MadnarMoved:	    TEXT 1
+JeniRocketF:	    TEXT 1
+SchneiderCaptured:  TEXT 1
+JeniOpenDoorF:	    TEXT 1
 							    ; Flag to open the door to the compass room
-SwitchOffMSXF:	    # 4
+SwitchOffMSXF:	    TEXT 4
 							    ; 1	= Big Boss will	order to switch	off your MSX
-AlertSignNotOnScreen: #	1
+AlertSignNotOnScreen: TEXT	1
 							    ; 1	= No need to erase the alert sign. The alert was triggered by a	camera
-AlertIconTimer:	    # 37h
-SaveLoadMode:	    # 1
+AlertIconTimer:	    TEXT 37h
+SaveLoadMode:	    TEXT 1
 							    ; 1=Load mode, 2=Save mode
-SaveLoadStat:	    # 1
-FilenameFound:	    # 6
-Filename:	    # 6
-FilenameSize:	    # 52h
-CollisionTiles:	    # 100h
+SaveLoadStat:	    TEXT 1
+FilenameFound:	    TEXT 6
+Filename:	    TEXT 6
+FilenameSize:	    TEXT 52h
+CollisionTiles:	    TEXT 100h
 							    ; Collision	property of the	tiles (bit 0 = 1 collision)
-RadioCmd:	    # 1
+RadioCmd:	    TEXT 1
 							    ; 1=Send
-RadioLedCnt:	    # 1
-RadioLedDelay:	    # 1
+RadioLedCnt:	    TEXT 1
+RadioLedDelay:	    TEXT 1
 							    ; Delay before the first/next led turns on
-ReplyRadioPerson:   # 2
-AutoReplyDone:	    # 1
+ReplyRadioPerson:   TEXT 2
+AutoReplyDone:	    TEXT 1
 							    ; Flag to indicate that autoreply has been done.
-ReplyRequested:	    # 79h
-NumRadioPersons:    # 1
-RadioPersonsDat:    # 80h
+ReplyRequested:	    TEXT 79h
+NumRadioPersons:    TEXT 1
+RadioPersonsDat:    TEXT 80h
 							    ; 0=Frequency, 1=dummy, 2=bit0:autoreply 1:autotune, 3=Text	id
-CaptureStatus:	    # 1
-CaptureTimer:	    # 1Fh
-IntroSceneStatus:   # 1
-IntroSceneCnt:	    # 1
-EndingStatus:	    # 1
-EndingCnt:	    # 5
-TempImpactInfo:	    # 0D8h
+CaptureStatus:	    TEXT 1
+CaptureTimer:	    TEXT 1Fh
+IntroSceneStatus:   TEXT 1
+IntroSceneCnt:	    TEXT 1
+EndingStatus:	    TEXT 1
+EndingCnt:	    TEXT 5
+TempImpactInfo:	    TEXT 0D8h
 							    ; Buffer used to store the shape/size of an	actor
-GameProgressBuffer: # 220h
+GameProgressBuffer: TEXT 220h
 							    ; The last byte is the checksum
-GfxPitfallBuffer:   # 2C0h
+GfxPitfallBuffer:   TEXT 2C0h
 							    ; Buffer used to unpack the	pitfall	tiles
-SkipTextMode:	    # 1
+SkipTextMode:	    TEXT 1
 							    ; 0	= Text can be skipped. Need to press a key to read next	text box
 							    ; 1	= Text can not be skipped. Need	to press a key to read next text box
 							    ; 2	= Text can not be skipped. Need	to wait	to read	next text box
-LorryMovTextF:	    # 2
-SkipTextF:	    # 0Dh
-TextId:		    # 1
-PrevGameMode:	    # 1
-TextWindowStatus:   # 1
-TextPointer:	    # 2
-TextBoxType:	    # 1
+LorryMovTextF:	    TEXT 2
+SkipTextF:	    TEXT 0Dh
+TextId:		    TEXT 1
+PrevGameMode:	    TEXT 1
+TextWindowStatus:   TEXT 1
+TextPointer:	    TEXT 2
+TextBoxType:	    TEXT 1
 							    ; High nibble = Show prompt	icon, low nibble = Window type
 							    ; Window types:
 							    ; 0	- 1 x 7
@@ -384,77 +384,78 @@ TextBoxType:	    # 1
 							    ; 2	- 5 x 16
 							    ; 3	- 5 x 23
 							    ; 4	- 2 x 17
-TextY:		    # 1
-TextX:		    # 1
-TextNY:		    # 1
-TextNX:		    # 1
-PendingTextFlag:    # 1
-WaitTextCnt:	    # 1
-TextCharXY:	    # 2
-pTexBuffer:	    # 2
-PromptXY:	    # 2
-flagTxtItem:	    # 0Eh	
-TextBuffer:	    # 0F0h
-EnemyList:	    # 80h				    ; Array of enemies in the room
-EnemyListEntry1:    # 80h
-EnemyListEntry2:    # 700h
-EnemyListCopy:	    # 800h				    ; Used when	entering binoculars mode
-RoomTileBuffer:	    # 500h
-PasswordBuffer:	    # 0Ch
-PassKeysTrigger:    # 1
-KeyboardRow7:	    # 1
-KeyboardRow6:	    # 1
-KeyboardRow5:	    # 1
-KeyboardRow4:	    # 1
-KeyboardRow3:	    # 1
-KeyboardRow2:	    # 1
-KeyboardRow1:	    # 1
-KeyboardRow0:	    # 1
-PassKeysHold:	    # 0EBh
-SavedTilesBuffer:   # 100h				    ; Buffer used to save the background tiles of a tileblock
-BufferColor:	    # 8					    ; Buffer used to store the colors' indexes for decoding 2/3bpp graphics
-BufferGfx:	    # 0F8h				    ; Buffer used to decode 2bpp and 3bpp graphics
+TextY:		    TEXT 1
+TextX:		    TEXT 1
+TextNY:		    TEXT 1
+TextNX:		    TEXT 1
+PendingTextFlag:    TEXT 1
+WaitTextCnt:	    TEXT 1
+TextCharXY:	    TEXT 2
+pTexBuffer:	    TEXT 2
+PromptXY:	    TEXT 2
+flagTxtItem:	    TEXT 0Eh	
+TextBuffer:	    TEXT 0F0h
+EnemyList:	    TEXT 80h				    ; Array of enemies in the room
+EnemyListEntry1:    TEXT 80h
+EnemyListEntry2:    TEXT 700h
+EnemyListCopy:	    TEXT 800h				    ; Used when	entering binoculars mode
+RoomTileBuffer:	    TEXT 500h
+PasswordBuffer:	    TEXT 0Ch
+PassKeysTrigger:    TEXT 1
+KeyboardRow7:	    TEXT 1
+KeyboardRow6:	    TEXT 1
+KeyboardRow5:	    TEXT 1
+KeyboardRow4:	    TEXT 1
+KeyboardRow3:	    TEXT 1
+KeyboardRow2:	    TEXT 1
+KeyboardRow1:	    TEXT 1
+KeyboardRow0:	    TEXT 1
+PassKeysHold:	    TEXT 0EBh
+SavedTilesBuffer:   TEXT 100h				    ; Buffer used to save the background tiles of a tileblock
+BufferColor:	    TEXT 8					    ; Buffer used to store the colors' indexes for decoding 2/3bpp graphics
+BufferGfx:	    TEXT 0F8h				    ; Buffer used to decode 2bpp and 3bpp graphics
 
 ; Sprites colors
-SpritesColors:	    # 40h
-BinocularSprCol:    # 50h
-GrenadTargetCol:    # 0B0h
-SprElevatorCol:	    # 0C0h
+SpritesColors:	    TEXT 40h
+BinocularSprCol:    TEXT 50h
+GrenadTargetCol:    TEXT 0B0h
+SprElevatorCol:	    TEXT 0C0h
 
 ; Sprites attributes
 ; Y, X,	pattern, EarlyClock+color
-SprAttRAM:	    # 10h
-SprShootsAtt:	    # 14h
-GrenaTargetAtt:	    # 4
-EnemySprAttRAM:	    # 18h
-SnakeAttrLow:	    # 10h
-SprElevatorAttr:    # 1B0h
+SprAttRAM:	    TEXT 10h
+SprShootsAtt:	    TEXT 14h
+GrenaTargetAtt:	    TEXT 4
+EnemySprAttRAM:	    TEXT 18h
+SnakeAttrLow:	    TEXT 10h
+SprElevatorAttr:    TEXT 1B0h
 
 
-TempData:	    # 2
-TempData2:	    # 2					    ; Enemy XY,	MetaTileSetAddr
-TempData3:	    # 2					    ; MetaTiles, Enemy
-MetatilesNX:	    # 3Ah
-DecodeTileBuf:	    # 40h
-ShotSpeed:	    # 1
-ShotDirectionV:	    # 1
-ShotDirectionH:	    # 1
-TmpShootSpeedY:	    # 2
-TmpShotCos:	    # 1
-QuadranDegree:	    # 46Ah
-Stack:		    # 1
-BankIn60:	    # 1
-							    ; Copy of bank selected in #6000-#7FFF
-BankIn80:	    # 1
-							    ; Copy of bank selected in #8000-#9FFF
-BankInA0:	    # 1
-							    ; Copy of bank selected in #A000-#BFFF
-BankIn60Fixed:	    # 1
-BankIn80Fixed:	    # 1
-BankInA0Fixed:	    # 1
+TempData:	    TEXT 2
+TempData2:	    TEXT 2					    ; Enemy XY,	MetaTileSetAddr
+TempData3:	    TEXT 2					    ; MetaTiles, Enemy
+MetatilesNX:	    TEXT 3Ah
+DecodeTileBuf:	    TEXT 40h
+ShotSpeed:	    TEXT 1
+ShotDirectionV:	    TEXT 1
+ShotDirectionH:	    TEXT 1
+TmpShootSpeedY:	    TEXT 2
+TmpShotCos:	    TEXT 1
+QuadranDegree:	    TEXT 46Ah
+Stack:		    TEXT 1
+BankIn60:	    TEXT 1
+							    ; Copy of bank selected in TEXT6000-TEXT7FFF
+BankIn80:	    TEXT 1
+							    ; Copy of bank selected in TEXT8000-TEXT9FFF
+BankInA0:	    TEXT 1
+							    ; Copy of bank selected in TEXTA000-TEXTBFFF
+BankIn60Fixed:	    TEXT 1
+BankIn80Fixed:	    TEXT 1
+BankInA0Fixed:	    TEXT 1
 
-MusicInDemoMode:    # 1
+MusicInDemoMode:    TEXT 1
 							    ; Flag to enable or	disable	music in demo mode
-FKeysTriggerMen:    # 1
-FKeysHoldMenu:	    # 1					    ; 0	0 RET F5 F4 F3 F2 F1
+FKeysTriggerMen:    TEXT 1
+FKeysHoldMenu:	    TEXT 1					    ; 0	0 RET F5 F4 F3 F2 F1
 
+ ENDS

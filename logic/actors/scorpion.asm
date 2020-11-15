@@ -9,7 +9,7 @@ InitScorpion:
 		    ld	    (ix+ACTOR.Wait), 8
 
 		    ld	    a, r
-		    ld	    hl,	TickCounter
+		    ld	    hl,	+vars.TickCounter
 		    xor	    (hl)
 		    and	    3
 		    inc	    a

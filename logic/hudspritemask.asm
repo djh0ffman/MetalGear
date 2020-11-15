@@ -6,7 +6,7 @@
 ;----------------------------------------------------------------------------
 
 SetHUDSprMask:
-		    ld	    de,	SprAttRAM
+		    ld	    de,	+vars.SprAttRAM
 		    ld	    hl,	MaskSprAttrib		    ; Spr att: Y, X, num, EC-color
 		    ld	    b, 8			    ; 8	sprites
 
@@ -25,7 +25,7 @@ SetHUDSprMask3:
 		    pop	    hl
 		    djnz    SetHUDSprMask2
 
-		    ld	    de,	SpritesColors
+		    ld	    de,	+vars.SpritesColors
 		    ld	    a, 0Fh
 
 SetHUDSprMask4:

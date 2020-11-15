@@ -14,7 +14,7 @@ InitGuardElevat:
 
 ; The guard is in front	of the elevator
 
-		    ld	    a, (PreviousRoom)
+		    ld	    a, (+vars.PreviousRoom)
 		    cp	    0F0h			    ; Elevator
 		    jp	    z, DismissActor0		    ; The guards are removed if	the player comes from the elevator
 
@@ -70,7 +70,7 @@ GuardElevator:
 		    cp	    3				    ; Alert status?
 		    jr	    nc,	GuardElevator2		    ; Do not transform in alert	guard if the alert is triggered
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a				    ; In alert mode?
 		    jp	    nz,	TransformAlertGuard	    ; Transform	the guard in alert guard
 
@@ -93,7 +93,7 @@ GuardElevator2:
 ;----------------------------------------------------------------------------
 
 GuardElevatorWalk:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    cp	    3Dh				    ; Can the guard see	the player?
 		    jr	    c, GuardElevSetAlert	    ; Trigger the alert
 
@@ -145,7 +145,7 @@ GuardReachElevator:
 ;----------------------------------------------------------------------------
 
 GuardElevIdle:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    cp	    3Dh				    ; Can the guard see	the player?
 		    jr	    c, GuardElevSetAlert	    ; Trigger the alert
 
@@ -178,7 +178,7 @@ GuardElevIdle:
 GuardElevSetAlert:
 		    push    ix
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    (ix+ELEVATOR_GUARD.X)
 		    ld	    a, 0Ah			    ; Guard left sprite	ID
 		    jr	    c, GuardElevSetAlert2
@@ -198,7 +198,7 @@ GuardElevSetAlert2:
 		    ld	    (ix+ELEVATOR_GUARD.SpriteId), a ; Look at the player
 		    ld	    (ix+ELEVATOR_GUARD.AlertDelay), 0Fh
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    ret	    nz				    ; Already in alert mode
 
@@ -224,7 +224,7 @@ DrawAlertSign:
 
 		    push    hl
 
-		    ld	    hl,	XY_AlertIcon
+		    ld	    hl,	+vars.XY_AlertIcon
 		    ld	    (hl), e
 		    inc	    hl
 		    ld	    (hl), d			    ; Save alert icon XY
@@ -318,11 +318,11 @@ GuardRandomDir:
 GuardElevLeave:
 		    call    AnimateGuard
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    cp	    3Dh
 		    ret	    nc				    ; The player is not	in the same corridor
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    add	    a, 10h
 		    cp	    (ix+ELEVATOR_GUARD.X)
 		    jp	    nc,	GuardElevSetAlert	    ; The guard	can see	the player
@@ -341,10 +341,10 @@ GuardElevAlert:
 		    dec	    (ix+ELEVATOR_GUARD.AlertDelay)
 		    ret	    nz				    ; Waits while alert	sign is	visible
 
-		    ld	    ix,	EnemyListEntry1
+		    ld	    ix,	+vars.EnemyListEntry1
 		    call    TransformAlertGuard		    ; Transform	the first guard	in alert guard
 
-		    ld	    ix,	EnemyListEntry2
+		    ld	    ix,	+vars.EnemyListEntry2
 		    ld	    (ix+ELEVATOR_GUARD.Status),	4   ; Flee status
 		    ld	    (ix+ELEVATOR_GUARD.Moving),	1   ; Enable movement
 

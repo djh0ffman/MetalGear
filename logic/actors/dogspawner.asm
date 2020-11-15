@@ -31,7 +31,7 @@ SpawnDogLogic:
 		    dec	    (ix+DOG.Timer)
 		    ret	    nz				    ; Spawn delay
 
-		    ld	    hl,	NumBasementDogs		    ; Number of	dogs in	the previous room
+		    ld	    hl,	+vars.NumBasementDogs		    ; Number of	dogs in	the previous room
 		    ld	    a, (hl)
 		    or	    a				    ; Any dog?
 		    jp	    z, DismissActor0		    ; A	dog can	not be spawned if there	was no one in the previous room

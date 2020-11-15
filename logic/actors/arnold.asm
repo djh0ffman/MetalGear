@@ -5,7 +5,7 @@
 ;---------------------------------------------------------------------------
 
 InitArnold:
-		    ld	    a, (Card7Taken)
+		    ld	    a, (+vars.Card7Taken)
 		    or	    a
 		    jp	    nz,	DismissActor		    ; Remove Arnolds if	card 7 was already obtained
 
@@ -50,7 +50,7 @@ ArnoldLogic:
 ;----------------------------------------------------------------------------
 
 ArnoldWatch:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    sub	    (ix+ARNOLD.Y)
 		    add	    a, 10h
 		    cp	    21h				    ; Check if the player is in	the same Y range
@@ -60,7 +60,7 @@ ArnoldSeePlayer:
 		    ld	    (ix+ARNOLD.Status),	1	    ; Status: run towards the player
 		    call    SetArnoldRndWait
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    (ix+ARNOLD.X)		    ; Check if the player is to	the right or to	the left
 
 		    ld	    a, DIR_LEFT
@@ -104,7 +104,7 @@ ArnoldTurn:						    ; Set random wait time
 ;----------------------------------------------------------------------------
 
 ArnoldTowardsPlayer:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    sub	    (ix+ARNOLD.Y)
 		    add	    a, 10h
 		    cp	    21h
@@ -156,7 +156,7 @@ ArnoldStopChase2:
 ;----------------------------------------------------------------------------
 
 ArnoldReturn:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    sub	    (ix+ARNOLD.Y)
 		    add	    a, 10h
 		    cp	    21h
@@ -189,7 +189,7 @@ ArnoldBounceBack:
 		    ld	    a, (ix+ARNOLD.SpeedX)
 		    ld	    (ix+ARNOLD.SpeedXCopy), a
 
-		    ld	    a, (PlayerX)		    ; (!?) Check player	location to select push	speed. Using a missile could push Arnold in the	wrong direction	(towards the missile)
+		    ld	    a, (+vars.PlayerX)		    ; (!?) Check player	location to select push	speed. Using a missile could push Arnold in the	wrong direction	(towards the missile)
 		    cp	    (ix+ARNOLD.X)
 
 		    ld	    a, 2			    ; Push speed to the	right

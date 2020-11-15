@@ -8,14 +8,14 @@
 ;---------------------------------------------------------------------------
 
 ChkSaveGameStatus:
-		    ld	    a, (MetalGear_KO)		    ; Metal Gear destroyed. Self destruction activated
+		    ld	    a, (+vars.MetalGear_KO)		    ; Metal Gear destroyed. Self destruction activated
 		    and	    a
 		    ret	    nz				    ; The game status is not saved after destroying Metal Gear
 
 		    ld	    hl,	SaveStatRooms		    ; List of rooms that work as checkpoints
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    d, a
-		    ld	    a, (PreviousRoom)
+		    ld	    a, (+vars.PreviousRoom)
 		    ld	    e, a
 		    ld	    b, 31			    ; Number of	available checkpoints
 
@@ -46,7 +46,7 @@ RestoreGameStat:
 		    call    SaveGameStaus2
 
 		    xor	    a
-		    ld	    (DamageDelayTimer),	a
+		    ld	    (+vars.DamageDelayTimer),	a
 		    ret
 
 
@@ -60,10 +60,10 @@ StoreGameStat:
 		    ld	    a, 1			    ; Save mode
 
 SaveGameStaus2:
-		    ld	    ix,	TempData
+		    ld	    ix,	+vars.TempData
 		    ld	    (ix+0), a
 
-		    ld	    de,	GameProgressBuffer
+		    ld	    de,	+vars.GameProgressBuffer
 		    ld	    hl,	GameDataAreas
 
 SaveGameStaus3:
@@ -111,17 +111,17 @@ SaveGameStaus5:
 
 ; FF = End
 ;---------------------------------------------------------------------------
-GameDataAreas:	    dw Room
+GameDataAreas:	    dw +vars.Room
 		    db 20h
-		    dw PlayerControlMod			    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    dw +vars.PlayerControlMod			    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    db 20h
-		    dw MaxAmmoGun
+		    dw +vars.MaxAmmoGun
 		    db 50h
-		    dw DoorOpenArray			    ; 0=Open/1=Closed status of	all doors
+		    dw +vars.DoorOpenArray			    ; 0=Open/1=Closed status of	all doors
 		    db 0D8h
-		    dw Equipment			    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
+		    dw +vars.Equipment			    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
 		    db 90h
-		    dw GameDataArea
+		    dw +vars.GameDataArea
 		    db 0A0h
 		    db 0FFh
 

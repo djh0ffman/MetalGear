@@ -19,10 +19,10 @@ LoadIntroGfx:
 		    call    SetMetalGearLogo		    ; Setup Metal Gear logo
 
 		    ld	    a, 60h
-		    ld	    (MenuCnt), a
+		    ld	    (+vars.MenuCnt), a
 
 		    xor	    a
-		    ld	    (MenuStatus), a
+		    ld	    (+vars.MenuStatus), a
 
 		    call    ClearP1_24x8
 
@@ -39,7 +39,7 @@ LoadIntroGfx:
 ;----------------------------------------------------------------------------
 
 MenuLogoLogic:
-		    ld	    a, (MenuStatus)
+		    ld	    a, (+vars.MenuStatus)
 		    ld	    hl,	idxIntro
 
 JumpIndex2:
@@ -68,8 +68,8 @@ LogoSfx:
 
 NextMenuStatus:
 		    ld	    a, 0Ch
-		    ld	    (MenuCnt), a
-		    ld	    hl,	MenuStatus
+		    ld	    (+vars.MenuCnt), a
+		    ld	    hl,	+vars.MenuStatus
 		    inc	    (hl)
 		    ret
 
@@ -82,13 +82,13 @@ NextMenuStatus:
 ;----------------------------------------------------------------------------
 
 LogoScroll:
-		    ld	    hl,	MenuCnt			    ; Logo scroll iterations
+		    ld	    hl,	+vars.MenuCnt			    ; Logo scroll iterations
 		    dec	    (hl)
 		    jr	    z, NextMenuStatus
 
 
 DrawMG_Logo:
-		    ld	    a, (MenuCnt)
+		    ld	    a, (+vars.MenuCnt)
 		    dec	    a
 		    ld	    hl,	MGLogoYpos
 		    call    ADD_HL_A_
@@ -124,11 +124,11 @@ EraseLogoRests:
 		    call    ClearPage0_
 
 		    ld	    a, 1
-		    ld	    (MenuCnt), a
+		    ld	    (+vars.MenuCnt), a
 		    call    DrawMG_Logo			    ; Draw Metal Gear logo in its final	location
 
 		    xor	    a
-		    ld	    (MenuCnt), a		    ; (!?)
+		    ld	    (+vars.MenuCnt), a		    ; (!?)
 		    jp	    NextMenuStatus
 
 
@@ -137,7 +137,7 @@ EraseLogoRests:
 ;-------------------------------------------------------------------------------
 
 PrintPushSpace:
-		    ld	    hl,	MenuCnt
+		    ld	    hl,	+vars.MenuCnt
 		    dec	    (hl)
 		    ret	    nz
 
@@ -189,7 +189,7 @@ MGLogoColors:	    db    0,   2,   3,   4,   5,   9, 10, 14
 
 SetMetalGearLogo:
 		    ld	    hl,	MGLogoColors
-		    ld	    de,	BufferColor		    ; Buffer used to store the colors' indexes for decoding 2/3bpp graphics
+		    ld	    de,	+vars.BufferColor		    ; Buffer used to store the colors' indexes for decoding 2/3bpp graphics
 		    ld	    bc,	8
 		    ldir				    ; Set the colors used by Metal Gear	logo
 

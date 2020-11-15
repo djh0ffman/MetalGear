@@ -5,7 +5,7 @@
 ;---------------------------------------------------------------------------
 
 InitLaserShot:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    111				    ; Building 3 basement cameras (door	to gas room)
 							    ; The lasers of these cameras are shorter
 		    jr	    nz,	InitLaserShot2

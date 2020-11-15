@@ -14,8 +14,8 @@ ChkCharTyped:
 
 ReadKeyboard:
 		    ld	    b, 9			    ; Keyboard rows to read
-		    ld	    hl,	PassKeysHold
-		    ld	    de,	PassKeysTrigger
+		    ld	    hl,	+vars.PassKeysHold
+		    ld	    de,	+vars.PassKeysTrigger
 
 ReadKeyboard2:
 		    push    bc
@@ -51,7 +51,7 @@ ReadKeyboard2:
 ;---------------------------------------------------------------------------
 
 GetTyped:
-		    ld	    hl,	PassKeysTrigger
+		    ld	    hl,	+vars.PassKeysTrigger
 		    ld	    b, 9			    ; Number of	rows
 
 GetTyped2:
@@ -84,8 +84,8 @@ AddCharPassBuf:
 		    add	    a, a
 		    add	    a, a			    ; x8
 		    add	    a, c
-		    ld	    de,	PasswordBuffer
-		    ld	    hl,	 PasswordBuffer+1
+		    ld	    de,	+vars.PasswordBuffer
+		    ld	    hl,	 +vars.PasswordBuffer+1
 		    ld	    bc,	0Bh
 		    ldir
 		    ld	    (de), a
@@ -108,7 +108,7 @@ PassHIRAKE:	    db	11h, 25h, 23h, 1Bh, 47h, 1Dh, 27h, 11h,	20h, 19h, 1Ah,0FFh
 
 
 ChkPassword:
-		    ld	    hl,	 PasswordBuffer+0Bh
+		    ld	    hl,	 +vars.PasswordBuffer+0Bh
 
 ChkPassword2:
 		    ld	    a, (de)
@@ -170,11 +170,11 @@ IncreaseClass:
 SetMaxAmmount:
 		    djnz    SetMaxRations
 
-		    ld	    a, (MaxAmmoRatioF)		    ; Bit 0=Max.Ammo, 1=Max.Rations
+		    ld	    a, (+vars.MaxAmmoRatioF)		    ; Bit 0=Max.Ammo, 1=Max.Rations
 		    set	    0, a
-		    ld	    (MaxAmmoRatioF), a		    ; Bit 0=Max.Ammo, 1=Max.Rations
+		    ld	    (+vars.MaxAmmoRatioF), a		    ; Bit 0=Max.Ammo, 1=Max.Rations
 
-		    ld	    hl,	MaxAmmoGun
+		    ld	    hl,	+vars.MaxAmmoGun
 		    ld	    de,	999h
 		    ld	    b, 8
 
@@ -194,12 +194,12 @@ SetMaxAmmount2:
 SetMaxRations:
 		    djnz    SetAllCards
 
-		    ld	    a, (MaxAmmoRatioF)		    ; Bit 0=Max.Ammo, 1=Max.Rations
+		    ld	    a, (+vars.MaxAmmoRatioF)		    ; Bit 0=Max.Ammo, 1=Max.Rations
 		    set	    1, a
-		    ld	    (MaxAmmoRatioF), a		    ; Bit 0=Max.Ammo, 1=Max.Rations
+		    ld	    (+vars.MaxAmmoRatioF), a		    ; Bit 0=Max.Ammo, 1=Max.Rations
 
 		    ld	    hl,	999h
-		    ld	    (MaxRations), hl
+		    ld	    (+vars.MaxRations), hl
 		    ret
 
 
@@ -227,12 +227,12 @@ SetAllCards2:
 		    djnz    SetAllCards2
 
 		    xor	    a
-		    ld	    (DoorOpenArray+0Bh), a	    ; Open GreyFox cell	door
+		    ld	    (+vars.DoorOpenArray+0Bh), a	    ; Open GreyFox cell	door
 		    ret
 
 
 AddCardToEquip:
-		    ld	    hl,	Equipment		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
+		    ld	    hl,	+vars.Equipment		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
 
 AddCardToEquip2:
 		    ld	    a, (hl)
@@ -251,7 +251,7 @@ AddCardToEquip3:
 		    add	    a, 23h			    ; #23 + #e(CARD 1 item id) = #31 ("1") Card number
 		    ld	    (hl), a
 		    ld	    a, e
-		    ld	    hl,	ItemsTaken
+		    ld	    hl,	+vars.ItemsTaken
 		    dec	    a
 		    call    ADD_HL_A_
 		    ld	    (hl), 1			    ; Mark the card as owned

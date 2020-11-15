@@ -5,7 +5,7 @@
 ;---------------------------------------------------------------------------
 
 InitShotGunner:
-		    ld	    hl,	ShotGunnerStat		    ; Bit1=Shot	Gunner speech, 0=Dead
+		    ld	    hl,	+vars.ShotGunnerStat		    ; Bit1=Shot	Gunner speech, 0=Dead
 		    bit	    0, (hl)			    ; Is he dead?
 		    jp	    nz,	DismissActor		    ; Yes, remove actor
 
@@ -13,7 +13,7 @@ InitShotGunner:
 		    ld	    (ix+SHOT_GUNNER.IntroDelay), 2  ; Intro delay to allow sprites refresh
 		    inc	    (ix+SHOT_GUNNER.Moving)	    ; 0=Does not move
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    (ix+SHOT_GUNNER.X)
 		    ld	    a, 4			    ; Right speed
 		    ld	    b, a			    ; Right
@@ -56,7 +56,7 @@ ShotGunnerIntro:
 		    dec	    (ix+SHOT_GUNNER.IntroDelay)	    ; Intro delay to allow sprites refresh
 		    ret	    nz
 
-		    ld	    hl,	ShotGunnerStat		    ; Bit1=Shot	Gunner speech, 0=Dead
+		    ld	    hl,	+vars.ShotGunnerStat		    ; Bit1=Shot	Gunner speech, 0=Dead
 		    bit	    1, (hl)			    ; Intro speech done?
 		    jr	    nz,	ShotGunnerIntro2	    ; Yes, next	status
 
@@ -114,11 +114,11 @@ SGunnerShotLogic:
 		    dec	    (ix+ACTOR.Wait)		    ; Decrement	shoot timer
 		    jr	    z, SGunnerThinkDir
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    cp	    166
 		    jr	    c, SGunnerShotLogic2
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    170
 		    ret	    nc				    ; The player is behind the boxes
 
@@ -132,7 +132,7 @@ SGunnerShotLogic2:
 
 
 SGunnerThinkDir:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    (ix+ACTOR.X)
 		    ld	    a, 4			    ; Right speed
 		    ld	    b, a			    ; Right

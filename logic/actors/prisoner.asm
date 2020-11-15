@@ -16,14 +16,14 @@ InitPrisoner:
 		    ld	    (ix+PRISONER.FALL_TIME), 20h
 		    ld	    (ix+PRISONER.TIMER), 2
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    hl,	RoomsPrisoner
 		    ld	    bc,	23
 		    cpir				    ; Get the prisoner ID / index
 
 		    ld	    e, c
 		    ld	    d, 0
-		    ld	    hl,	RescuedArray
+		    ld	    hl,	+vars.RescuedArray
 		    add	    hl,	de			    ; Pointer to rescued status	of the prisoner
 
 		    ld	    a, (hl)
@@ -79,11 +79,11 @@ PrisonerIdle:
 		    ld	    b, 0Fh
 		    call    Anim2FramesActor		    ; Animathe the prisoner each 8 iterations
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    193				    ; Coward Duck room
 		    jr	    nz,	PrisonerIdle2
 
-		    ld	    a, (Card8Taken)
+		    ld	    a, (+vars.Card8Taken)
 		    or	    a
 		    ret	    z				    ; You can't rescue the prisoners until defeating Coward Duck and taking card 8
 
@@ -149,7 +149,7 @@ RescuePrisoner:
 ;----------------------------------------------------------------------------
 
 MadnarLogic:
-		    ld	    a, (RescuedArray+14h)
+		    ld	    a, (+vars.RescuedArray+14h)
 		    or	    a				    ; Is Ellen rescued?
 		    ld	    a, 124			    ; TEXT: I'M DR. PETTROVICH.*MY DAUGHTER ELLEN WAS TAKEN AS HOSTAGE.*SAVE ELLEN OR,I WON'T DISCUSS METAL GEAR.
 		    jr	    z, RescueAndShowTxt		    ; (!?) You can rescue him several times and	upgrade	your rank!
@@ -214,7 +214,7 @@ PrisonerRescued:
 		    cp	    ID_MADNAR
 		    jr	    z, MadnarLogic
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    b, 81h			    ; TEXT: THANK YOU. I'M THE DAUGHTER OF DR. PETTROVICH, ELLEN.
 		    cp	    167				    ; Ellen's room
 		    jr	    z, RescuePrisoner
@@ -293,7 +293,7 @@ PrisonerTexts:	    db	129,  90
 
 
 InitEllenVoice:
-		    ld	    a, (RescuedArray+14h)
+		    ld	    a, (+vars.RescuedArray+14h)
 		    or	    a				    ; Was Ellen	rescued?
 		    jp	    nz,	DismissActor0		    ; Yes, remove the actor
 

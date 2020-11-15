@@ -6,7 +6,7 @@
 ;----------------------------------------------------------------------------
 
 ChkElectricFloor:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    16				    ; Electrified floor	soldier
 		    ld	    bc,	6061h			    ; Electrified floor	tiles
 		    jr	    z, ChkElectricFloor2
@@ -26,7 +26,7 @@ ChkElectricFloor:
 		    ret	    nz				    ; Not a room with electrified floor
 
 ChkElectricFloor2:
-		    ld	    a, (PowerSwitchOn)		    ; Power switch status 1=On,	0=Off/destroyed
+		    ld	    a, (+vars.PowerSwitchOn)		    ; Power switch status 1=On,	0=Off/destroyed
 		    and	    a				    ; Is the power switch on?
 		    ret	    z				    ; No, it is	off or destroyed
 
@@ -49,7 +49,7 @@ ChkElectricFloor2:
 		    ret	    nz				    ; No
 
 ChkElectricFloor3:
-		    ld	    a, (DamageDelayTimer)
+		    ld	    a, (+vars.DamageDelayTimer)
 		    and	    a				    ; Was the player electrified recently?
 		    ret	    nz				    ; Yes, wait	a bit to avoid continuous damage
 
@@ -57,7 +57,7 @@ ChkElectricFloor3:
 		    call    SetSoundEntry
 
 		    ld	    a, 8			    ; Damage delay
-		    ld	    (DamageDelayTimer),	a
+		    ld	    (+vars.DamageDelayTimer),	a
 
 		    jr	    DecrementLife_2		    ; Decrement	two points of life
 

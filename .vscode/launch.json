@@ -1,0 +1,32 @@
+{
+// Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+    
+        {
+            "type": "dezog",
+            "request": "launch",
+            "name": "Debug OpenMSX",
+            "remoteType": "openmsx",
+            "listFiles": [
+                {
+                    "path": "MetalGear.lst",
+                    "useFiles": true,
+                    "asm": "sjasmplus",
+                    "mainFile": "MetalGear.asm",
+                    "filter": "/^(?<address>[0-9A-F]{4})\\s(?<bytes>(?:(?:[0-9a-f]{2})\\s|\\s{2}\\s){4,})\t(?<mnemonics>.*)//"
+                }
+            ],
+            "startAutomatically": true,
+            "commandsAfterLaunch": [
+                "-assert enable" // start with ASSERT mode ON
+            ],
+            "resetOnLaunch": true,
+            "rootFolder": "${workspaceFolder}",
+            "tmpDir": ".tmp",
+            "load": "MetalGear.rom"
+        }
+    ]
+}

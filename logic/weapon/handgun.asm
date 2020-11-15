@@ -6,7 +6,7 @@
 ;----------------------------------------------------------------------------
 
 ChkHandGunShot:
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    10h				    ; Fire button pressed?
 		    ret	    z				    ; No
 
@@ -14,7 +14,7 @@ ChkHandGunShot:
 		    call    GetWeaponInvAdd		    ; Pointer to item in inventory
 
 		    inc	    hl				    ; Pointer to hand gun ammo
-		    ld	    (TempData),	hl
+		    ld	    (+vars.TempData),	hl
 
 		    ld	    a, (hl)
 		    inc	    hl
@@ -29,25 +29,25 @@ ChkHandGunShot:
 		    call    ReserveShotSpr		    ; Reserve the sprites needed for this shot
 		    ret	    nc				    ; Not enough free sprites
 
-		    ld	    hl,	(TempData)
+		    ld	    hl,	(+vars.TempData)
 		    ld	    c, 0			    ; Use type:	item is	not removed
 		    call    DecItemUnits		    ; Decrement	ammo amount
 
 		    ld	    (ix+PLAYER_SHOT.Timer), 10h	    ; Shot range counter
 		    ld	    (ix+PLAYER_SHOT.KILL_BY_CONTACT), 1	; Kills	by contact
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    ld	    (ix+PLAYER_SHOT.Ydec), 0
 		    ld	    (ix+PLAYER_SHOT.Ydec_Alt), 0
 		    ld	    (ix+PLAYER_SHOT.Y_Alt), a	    ; Same Y used by the player
 		    sub	    14
 		    ld	    (ix+PLAYER_SHOT.Y),	a	    ; Player shots use two Ys (Y and Y - 14)
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    (ix+PLAYER_SHOT.Xdec), 0
 		    ld	    (ix+PLAYER_SHOT.X),	a
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    ld	    (ix+PLAYER_SHOT.Direction),	a
 
 		    ld	    hl,	ShootDirSpeeds		    ; X	and Y speeds of	the bullet depending on	the direction
@@ -63,7 +63,7 @@ ChkHandGunShot:
 
 		    ld	    (ix+PLAYER_SHOT.SpriteID), 0
 
-		    ld	    a, (InvSupressor)
+		    ld	    a, (+vars.InvSupressor)
 		    and	    a				    ; Has the supressor?
 		    ld	    a, 0Ch			    ; Hand gun shot sfx
 		    jr	    z, ChkHandGunShot2		    ; No

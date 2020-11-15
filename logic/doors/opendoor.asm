@@ -5,7 +5,7 @@
 ;----------------------------------------------------------------------------
 
 ChkOpenDoor:
-		    ld	    a, (PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    a, (+vars.PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 		    cp	    7				    ; Box?
 		    jr	    nz,	ChkOpenDoor2
 
@@ -58,7 +58,7 @@ ChkElevatorDoor:
 
 ; It is	an elevator exit door
 
-		    ld	    a, (PlayerDirection)	    ; All elevators room have their exits in the right side
+		    ld	    a, (+vars.PlayerDirection)	    ; All elevators room have their exits in the right side
 		    sub	    DIR_RIGHT
 		    jp	    nz,	DoorLocked
 
@@ -66,7 +66,7 @@ ChkElevatorDoor:
 
 
 ChkNoCardDoorUp:
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    dec	    a				    ; Going up?
 		    jp	    nz,	DoorLocked		    ; No, the player can't open the door
 
@@ -122,11 +122,11 @@ ChkCard:
 		    ld	    l, c
 		    ld	    h, b			    ; HL = pointer to door type
 
-		    ld	    a, (SelectedItem)
+		    ld	    a, (+vars.SelectedItem)
 		    cp	    d				    ; Is the player using the right card?
 		    jp	    nz,	DoorLocked
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    cp	    (hl)			    ; Is the player in the right direction to open the door?
 							    ; Door render type is equivalent to	player direction.
 		    jp	    nz,	DoorLocked
@@ -144,12 +144,12 @@ ChkPunchDoor:
 		    ld	    l, c
 		    ld	    h, b			    ; HL = door	type
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    cp	    (hl)			    ; Is the player in the right direction to open the door?
 							    ; Door render type is equivalent to	player direction.
 		    jp	    nz,	DoorLocked
 
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    dec	    a				    ; Punching?
 		    jp	    nz,	DoorLocked
 
@@ -166,11 +166,11 @@ ChkDoorLorry:
 		    ld	    l, c
 		    ld	    h, b			    ; HL = door	type
 
-		    ld	    a, (PlayerShotsList)
+		    ld	    a, (+vars.PlayerShotsList)
 		    cp	    PLASTIC_BOMB
 		    jr	    nz,	ChkDoorLorry2
 
-		    ld	    a, (PlayerShot1Stat)
+		    ld	    a, (+vars.PlayerShot1Stat)
 		    cp	    2				    ; Exploding?
 		    jr	    nz,	ChkDoorLorry2
 
@@ -182,18 +182,18 @@ ChkDoorLorry:
 
 
 ChkDoorLorry2:
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    dec	    a				    ; Is the player punching?
 		    jp	    nz,	DoorLocked		    ; No
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    cp	    (hl)
 		    jp	    nz,	DoorLocked
 
 		    call    ChkTouchDoor
 		    ret	    nc
 
-		    ld	    a, (PunchCnt)
+		    ld	    a, (+vars.PunchCnt)
 		    cp	    8
 		    jp	    nz,	DoorLocked
 
@@ -212,11 +212,11 @@ ChkDoorLorry2:
 ChkDesertDoorBuild2:
 		    ld	    l, c
 		    ld	    h, b			    ; HL = door	type
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    73				    ; Building 2 first room (trying to open it from inside?)
 		    jr	    nz,	ChkDesertDoorBuild2_
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    sub	    2				    ; Down?
 		    jp	    nz,	DoorLocked
 
@@ -224,14 +224,14 @@ ChkDesertDoorBuild2:
 
 
 ChkDesertDoorBuild2_:
-		    ld	    a, (DoorBuild2LockedF)	    ; 0	= Entrance door	of building 2 is closed. 1 = Open
+		    ld	    a, (+vars.DoorBuild2LockedF)	    ; 0	= Entrance door	of building 2 is closed. 1 = Open
 		    and	    a
 		    jp	    z, DoorLocked		    ; The guards have not opened it
 
 ; Enter	the door and lock it again
 
 		    xor	    a
-		    ld	    (DoorBuild2LockedF), a	    ; 0	= Entrance door	of building 2 is closed. 1 = Open
+		    ld	    (+vars.DoorBuild2LockedF), a	    ; 0	= Entrance door	of building 2 is closed. 1 = Open
 		    jp	    DoorUnlocked
 
 
@@ -246,12 +246,12 @@ ChkCompassDoor:
 		    ld	    l, c
 		    ld	    h, b			    ; HL = Pointer to door render type
 
-		    ld	    a, (JeniOpenDoorF)		    ; Flag to open the door to the compass room
+		    ld	    a, (+vars.JeniOpenDoorF)		    ; Flag to open the door to the compass room
 		    and	    a
 		    jp	    z, DoorLocked
 
 		    xor	    a
-		    ld	    (JeniOpenDoorF), a		    ; Flag to open the door to the compass room
+		    ld	    (+vars.JeniOpenDoorF), a		    ; Flag to open the door to the compass room
 		    jp	    DoorUnlocked
 
 
@@ -266,12 +266,12 @@ ChkBigBossDoor:
 		    ld	    l, c
 		    ld	    h, b			    ; Pointer to door render type
 
-		    ld	    a, (OpenBigBossDoor)	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
+		    ld	    a, (+vars.OpenBigBossDoor)	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
 		    and	    a
 		    jp	    z, DoorLocked
 
 		    xor	    a
-		    ld	    (OpenBigBossDoor), a	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
+		    ld	    (+vars.OpenBigBossDoor), a	    ; Flag to open door	from Metal Gear	to Big Boss room, and door to escape ladders.
 		    jp	    DoorUnlocked
 
 
@@ -293,24 +293,24 @@ ChkPrisonWalls:
 
 		    ld	    a, (de)			    ; Get the right direction to punch the wall
 		    ld	    d, a
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    cp	    d				    ; Is the player in the right direction?
 		    jr	    nz,	DoorLocked		    ; No
 
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    dec	    a				    ; Is the player punching?
 		    jr	    nz,	DoorLocked		    ; No
 
 		    call    ChkTouchDoor		    ; Check if the player is near the wall
 		    ret	    nc
 
-		    ld	    a, (TempData)
+		    ld	    a, (+vars.TempData)
 		    cp	    0Ch				    ; Door ID: wall GreyFox cell
-		    ld	    hl,	PrisonWall2Life		    ; GreyFox prison wall energy
+		    ld	    hl,	+vars.PrisonWall2Life		    ; GreyFox prison wall energy
 
 		    jr	    z, ChkPrisonWalls2
 
-		    ld	    hl,	PrisonWall1Life		    ; Snake prison wall	energy
+		    ld	    hl,	+vars.PrisonWall1Life		    ; Snake prison wall	energy
 
 ChkPrisonWalls2:
 		    dec	    (hl)
@@ -332,11 +332,11 @@ ChkBasementWall:
 		    ld	    l, c
 		    ld	    h, b			    ; Pointer to door render type
 
-		    ld	    a, (PlayerShotsList)
+		    ld	    a, (+vars.PlayerShotsList)
 		    cp	    PLASTIC_BOMB		    ; Is a plastic bomb	in the room?
 		    jr	    nz,	ChkPunchBaseWall	    ; No
 
-		    ld	    a, (PlayerShot1Stat)
+		    ld	    a, (+vars.PlayerShot1Stat)
 		    cp	    2				    ; Is the bomb exploding?
 		    jr	    nz,	ChkPunchBaseWall	    ; No
 
@@ -355,11 +355,11 @@ ChkPunchBaseWall:
 
 		    ld	    a, (de)			    ; Get the right direction to punch the wall
 		    ld	    d, a
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    cp	    d				    ; Is the player in the right direction?
 		    jr	    nz,	DoorLocked
 
-		    ld	    a, (PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
+		    ld	    a, (+vars.PlayerControlMod)	    ; 8=Intro scene, 7=Ladders climb, 6=ladders	walk, 5=Air flow, 4=Parachute, 3=Dead, 2=Elevator, 1=Punch, 0=Walk
 		    dec	    a				    ; Is the player punching?
 		    jr	    nz,	DoorLocked
 
@@ -405,9 +405,9 @@ ChkTouchDoor:
 		    inc	    hl				    ; HL = pointer to check area Y
 
 ChkTouchDoor2:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    d, a
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 
 ChkTouchDoor3:
 		    sub	    (hl)
@@ -440,7 +440,7 @@ DoorUnlocked:
 ;----------------------------------------------------------------------------
 
 ChkBombLocation:
-		    ld	    a, (PlayerShot1X)
+		    ld	    a, (+vars.PlayerShot1X)
 		    ld	    d, a
-		    ld	    a, (PlayerShot1Y)
+		    ld	    a, (+vars.PlayerShot1Y)
 		    jr	    ChkTouchDoor3

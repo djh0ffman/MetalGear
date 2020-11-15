@@ -13,7 +13,7 @@
 ;----------------------------------------------------------------------------
 
 ChkOnBridge:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    45				    ; Room moving bridge 1
 		    jr	    z, ChkOnBridge2
 
@@ -21,7 +21,7 @@ ChkOnBridge:
 		    ret	    nz				    ; There is no bridge in this room
 
 ChkOnBridge2:
-		    ld	    a, (isOnBridge)
+		    ld	    a, (+vars.isOnBridge)
 		    and	    a
 		    ret	    nz				    ; The player is not	on a moving bridge actor
 
@@ -32,7 +32,7 @@ ChkOnBridge2:
 		    dec	    l
 		    ret	    nz				    ; On the fixed part
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    45
 		    ld	    a, 5Bh			    ; Door ID in wall of bricks	room
 		    ld	    c, 1			    ; Jump room	ID 1
@@ -42,13 +42,13 @@ ChkOnBridge2:
 		    inc	    c				    ; Jump room	ID 2
 
 ChkOnBridge3:
-		    ld	    (IdDoorEnter), a		    ; ID of the	"door" use to locate the player in the next room
+		    ld	    (+vars.IdDoorEnter), a		    ; ID of the	"door" use to locate the player in the next room
 		    ld	    a, c
-		    ld	    (JumpRoomId), a		    ; 1	= From room 45,	2 = From room 46, others = 117
+		    ld	    (+vars.JumpRoomId), a		    ; 1	= From room 45,	2 = From room 46, others = 117
 
 		    xor	    a
-		    ld	    (OpenDoorStatus), a
+		    ld	    (+vars.OpenDoorStatus), a
 
 		    inc	    a
-		    ld	    (GameMode),	a		    ; Next room	status
+		    ld	    (+vars.GameMode),	a		    ; Next room	status
 		    ret

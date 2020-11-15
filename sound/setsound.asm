@@ -12,7 +12,7 @@ SetSound:
 		    cp	    53h				    ; Big Boss Dead sfx?
 		    jr	    nz,	SetSound2
 
-		    ld	    (BigBossDeadSnd), a		    ; Clear flag in case Big Boss explosion was	playing
+		    ld	    (+vars.BigBossDeadSnd), a		    ; Clear flag in case Big Boss explosion was	playing
 
 SetSound2:
 		    cp	    4Dh				    ; Sfx: pause
@@ -26,15 +26,15 @@ SetSound2:
 
 SaveSoundState:
 		    ld	    a, c
-		    ld	    hl,	SoundWorkArea
-		    ld	    de,	SoundWorkArea2
+		    ld	    hl,	+vars.SoundWorkArea
+		    ld	    de,	+vars.SoundWorkArea2
 		    call    CopySoundData		    ; Save the current music status so it can be restored later
 
 		    ld	    a, 1
-		    ld	    (SoundDataSaved), a
+		    ld	    (+vars.SoundDataSaved), a
 
 SetSound3:
-		    ld	    hl,	 SoundWorkArea+2
+		    ld	    hl,	 +vars.SoundWorkArea+2
 		    ld	    b, 1			    ; 1	channel
 
 		    ld	    a, c
@@ -50,14 +50,14 @@ SetMusic:
 		    inc	    b
 		    inc	    b
 
-		    ld	    a, (SoundDataSaved)
+		    ld	    a, (+vars.SoundDataSaved)
 		    or	    a				    ; Was the music paused?
 		    jr	    nz,	SetMusic2
 
 		    xor	    a
-		    ld	    (FadeStepCnt), a
-		    ld	    (VolumeFadeVal), a
-		    ld	    (MusicToSet), a		    ; New music	to play	(fade out current one)
+		    ld	    (+vars.FadeStepCnt), a
+		    ld	    (+vars.VolumeFadeVal), a
+		    ld	    (+vars.MusicToSet), a		    ; New music	to play	(fade out current one)
 
 SetMusic2:
 		    ld	    a, c
@@ -65,7 +65,7 @@ SetMusic2:
 		    jr	    z, GetSoundData_
 
 		    xor	    a
-		    ld	    (SoundWorkAreaSfx+2), a	    ; Mute sfx
+		    ld	    (+vars.SoundWorkAreaSfx+2), a	    ; Mute sfx
 
 GetSoundData_:
 		    jr	    GetSoundData
@@ -79,8 +79,8 @@ GetSoundData_:
 ;----------------------------------------------------------------------------
 
 SetSfx:
-		    ld	    l, (SoundWorkAreaSfx+2)&255		;72h			    ; (!?) #C072 SoundWorkAreaSfx+2
-		    ld	    a, (SoundWorkAreaC+2)
+		    ld	    l, (+vars.SoundWorkAreaSfx+2)&255		;72h			    ; (!?) #C072 +vars.SoundWorkAreaSfx+2
+		    ld	    a, (+vars.SoundWorkAreaC+2)
 		    cp	    59h				    ; Music paused/stopped
 		    ret	    nc
 

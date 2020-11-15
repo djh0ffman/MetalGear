@@ -5,11 +5,11 @@
 ;---------------------------------------------------------------------------
 
 InitCameraLaser:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    118				    ; Metal Gear
 		    jr	    nz,	InitCameraLaser2
 
-		    ld	    a, (MetalGear_KO)		    ; Metal Gear destroyed. Self destruction activated
+		    ld	    a, (+vars.MetalGear_KO)		    ; Metal Gear destroyed. Self destruction activated
 		    or	    a
 		    jp	    nz,	DismissActor0		    ; After destroying Metal Gear, the cameras are not active anymore
 
@@ -35,7 +35,7 @@ InitCamera2:
 		    ld	    a, r
 		    ld	    (ix+ACTOR.Wait), a		    ; Random wait time
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    ld	    hl,	RoomsWithCamera
 		    ld	    bc,	0Bh
 		    cpir				    ; Get the room index
@@ -143,7 +143,7 @@ CameraLogic:
 ;----------------------------------------------------------------------------
 
 CamameraMove:
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    jp	    nz,	RenderCamera		    ; The cameras does not move	in alert mode and are drawn as bitmap
 
@@ -266,11 +266,11 @@ LaserCameraMove:
 		    call    ChkReachPoint		    ; Check if the camera has reached a	destination point
 
 LaserCamChkShot:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    cp	    (ix+ACTOR.Y)
 		    ret	    c				    ; The player is behind the camera
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    4				    ; Detection	range /	2
 		    ld	    d, (ix+ACTOR.X)
 		    cp	    d
@@ -326,7 +326,7 @@ LaserCameraShot2:
 ; Check	if the player is "near"
 ; From this point on, the logic	is weird.
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    (ix+ACTOR.X)
 		    jr	    nc,	LaserCameraShot3
 
@@ -377,7 +377,7 @@ StopLaserCamera:
 ;
 
 CameraChkContinue:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    c, (ix+ACTOR.X)
 		    cp	    c				    ; Same X?
 		    jr	    z, StopLaserCamera		    ; Yes, stop	the camera

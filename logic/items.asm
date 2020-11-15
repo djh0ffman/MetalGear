@@ -5,11 +5,11 @@
 ;----------------------------------------------------------------------------
 
 ChkTakeItems:
-		    ld	    hl,	ItemsInTheRoom		    ; ID, size,	Y, X
+		    ld	    hl,	+vars.ItemsInTheRoom		    ; ID, size,	Y, X
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    ld	    e, a
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    d, a			    ; DE = XY player
 
 		    ld	    bc,	300h			    ; B	= Max. 3 items,	C = item index = 0
@@ -23,7 +23,7 @@ ChkTakeItems2:
 		    and	    a				    ; Empty structure?
 		    call    nz,	ChkTakeItem		    ; Check if the player takes	the item
 
-		    ld	    a, (GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    a, (+vars.GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 		    cp	    GAME_MODE_TEXT_BOX		    ; Showing a	text
 		    jr	    nz,	ChkTakeItems3
 
@@ -62,7 +62,7 @@ ChkTakeItem:
 		    pop	    ix				    ; IX = Pointer to item structure
 
 		    ld	    a, c
-		    ld	    (TempData),	a		    ; Item index
+		    ld	    (+vars.TempData),	a		    ; Item index
 
 		    inc	    hl
 		    bit	    0, (hl)			    ; Size
@@ -99,7 +99,7 @@ ChkTakeItem4:
 
 		    inc	    hl
 		    ld	    a, (hl)
-		    ld	    (TempData2), a		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    (+vars.TempData2), a		    ; Enemy XY,	MetaTileSetAddr
 
 		    dec	    hl
 		    dec	    hl
@@ -107,7 +107,7 @@ ChkTakeItem4:
 		    dec	    hl
 		    ld	    a, (hl)			    ; Item ID
 
-		    ld	    (TempData+1), a
+		    ld	    (+vars.TempData+1), a
 		    cp	    AMMO_CRATE
 		    jp	    z, PickAmmoCrate		    ; Increment	the ammo of the	weapons	in the inventory
 
@@ -117,7 +117,7 @@ ChkTakeItem4:
 
 		    call    SetItemAsTaken
 
-		    ld	    a, (TempData+1)		    ; Item ID
+		    ld	    a, (+vars.TempData+1)		    ; Item ID
 		    sub	    SUPRESSOR			    ; Last weapon ID
 		    cp	    1Ah				    ; Trash bag	with items and weapons
 		    jp	    z, RecoverEquipment		    ; Recover items and	weapons. Add transmitter to inventory
@@ -137,10 +137,10 @@ ChkTakeItem4:
 ;----------------------------------------------------------------------------
 
 AddItemInventory:
-		    ld	    a, (TempData+1)		    ; Item ID
+		    ld	    a, (+vars.TempData+1)		    ; Item ID
 		    sub	    SUPRESSOR			    ; Remove weapons IDs. Adjust first item ID to 0
 
-		    ld	    hl,	Equipment		    ; Pointer to equipment items array
+		    ld	    hl,	+vars.Equipment		    ; Pointer to equipment items array
 		    ld	    b, 25			    ; Number of	available slots
 		    ld	    c, a
 
@@ -164,10 +164,10 @@ AddItemInventory3:
 		    jr	    nz,	AddItemInventory4
 
 		    ld	    a, 10h
-		    ld	    (IncomingCallTimer), a
+		    ld	    (+vars.IncomingCallTimer), a
 
 		    xor	    a
-		    ld	    (RadioCallFlag), a		    ; Force pending incoming calls
+		    ld	    (+vars.RadioCallFlag), a		    ; Force pending incoming calls
 
 AddItemInventory4:
 		    call    AddItemAmount		    ; Increment	item units
@@ -185,7 +185,7 @@ PickSupressor:
 		    call    SetItemAsTaken
 
 		    ld	    a, SUPRESSOR
-		    ld	    (InvSupressor), a		    ; set the supressor	in the last slot
+		    ld	    (+vars.InvSupressor), a		    ; set the supressor	in the last slot
 		    jp	    EraseTakenItem
 
 
@@ -199,7 +199,7 @@ PickSupressor:
 PickUpWeapon:
 		    call    SetItemAsTaken
 
-		    ld	    a, (TempData+1)		    ; Weapon ID
+		    ld	    a, (+vars.TempData+1)		    ; Weapon ID
 		    call    GetWeaponInvAdd
 		    jr	    c, GetWeapon		    ; Weapon not in inventory
 
@@ -207,9 +207,9 @@ PickUpWeapon:
 		    call    AddItemAmount		    ; Increment	amount
 		    pop	    hl
 
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    ld	    c, a
-		    ld	    a, (TempData+1)
+		    ld	    a, (+vars.TempData+1)
 		    cp	    c				    ; Is this weapon selected?
 		    jp	    nz,	EraseTakenItem
 
@@ -228,8 +228,8 @@ PickUpWeapon:
 ;----------------------------------------------------------------------------
 
 GetWeapon:
-		    ld	    a, (TempData+1)
-		    ld	    hl,	Weapons
+		    ld	    a, (+vars.TempData+1)
+		    ld	    hl,	+vars.Weapons
 		    ld	    b, 7			    ; Max. number of weapons
 		    ld	    c, a			    ; Weapon ID
 
@@ -257,12 +257,12 @@ GetWeapon3:
 		    cp	    GRENADE_LAUNCHER
 		    jr	    z, GetWeapon5		    ; Is the grenade launcher the first	weapon obtained?
 
-		    ld	    (WeaponInUse), a
-		    ld	    (SelectedWeapon), a		    ; Select this weapon
+		    ld	    (+vars.WeaponInUse), a
+		    ld	    (+vars.SelectedWeapon), a		    ; Select this weapon
 
 		    call    LoadSprProjectile		    ; Load this	weapon proyectiles
 
-		    ld	    hl,	SprShootsAtt
+		    ld	    hl,	+vars.SprShootsAtt
 		    ld	    b, 18h
 		    ld	    a, 0E0h			    ; Hidden sprite Y
 
@@ -271,8 +271,8 @@ GetWeapon4:
 		    inc	    hl
 		    djnz    GetWeapon4			    ; Remove all bullets sprites in the	room
 
-		    ld	    hl,	PlayerShotsList
-		    ld	    de,	PlayerShot1Stat
+		    ld	    hl,	+vars.PlayerShotsList
+		    ld	    de,	+vars.PlayerShot1Stat
 		    ld	    bc,	17Fh
 		    ld	    (hl), 0
 		    ldir				    ; Remove all bullets data
@@ -294,11 +294,11 @@ GetWeapon5:
 
 RecoverEquipment:
 		    xor	    a
-		    ld	    (EquipRemoved), a		    ; Erase the	equipment removed flag
+		    ld	    (+vars.EquipRemoved), a		    ; Erase the	equipment removed flag
 		    inc	    a
-		    ld	    (EquipBagTaken), a		    ; Equipment	recovered
+		    ld	    (+vars.EquipBagTaken), a		    ; Equipment	recovered
 
-		    ld	    hl,	Equipment		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
+		    ld	    hl,	+vars.Equipment		    ; +0 Item ID, +1 tens/units, +2 hundreds, +3 unused
 		    ld	    b, 19h
 
 RecoverEquipment2:
@@ -316,7 +316,7 @@ AddTransmitter:
 		    inc	    hl
 		    ld	    a, 1			    ; Units
 		    ld	    (hl), a
-		    ld	    (TransmiTaken), a		    ; Transmitter taken	flag
+		    ld	    (+vars.TransmiTaken), a		    ; Transmitter taken	flag
 
 		    call    DrawWeaponHUD
 		    call    DrawItemHUD
@@ -355,7 +355,7 @@ PickAmmoCrate:
 		    ld	    a, 2			    ; Number of	missiles
 		    call    nc,	AddAmmo
 
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    and	    a
 		    jr	    z, EraseTakenItem		    ; No weapon	selected. No need to update the	HUD
 
@@ -365,7 +365,7 @@ PickAmmoCrate:
 		    call    RenderAmmoHUD		    ; Update units/ammoun amount in HUD
 
 EraseTakenItem:
-		    ld	    a, (TempData)		    ; Item index
+		    ld	    a, (+vars.TempData)		    ; Item index
 		    and	    a
 		    ld	    hl,	0A0B0h			    ; Item 1 background	buffer coordinates
 		    jr	    z, ErasePickedItem2
@@ -396,7 +396,7 @@ ErasePickedItem3:
 		    ld	    a, 24h			    ; SFX pick up item
 		    call    SetSoundEntry
 
-		    ld	    a, (TempData2)		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    a, (+vars.TempData2)		    ; Enemy XY,	MetaTileSetAddr
 		    and	    a
 		    ret	    nz				    ; Last item	in the room?
 
@@ -424,7 +424,7 @@ ErasePickedItem3:
 
 AddItemAmount:
 		    inc	    hl
-		    ld	    a, (TempData+1)		    ; Item ID
+		    ld	    a, (+vars.TempData+1)		    ; Item ID
 		    dec	    a
 		    call    GetItemAmount		    ; Amount
 
@@ -440,42 +440,42 @@ AddAmmo:
 LimitAmmo:
 		    ld	    a, HAND_GUN			    ; Keeps the	amount of ammo and rations in the limits
 		    call    GetWeaponInvAdd
-		    ld	    bc,	(MaxAmmoGun)
+		    ld	    bc,	(+vars.MaxAmmoGun)
 		    call    nc,	ChkMaxAmount
 
 		    ld	    a, SUB_MACHINE_GUN
 		    call    GetWeaponInvAdd
-		    ld	    bc,	(MaxAmmoSMG)
+		    ld	    bc,	(+vars.MaxAmmoSMG)
 		    call    nc,	ChkMaxAmount
 
 		    ld	    a, GRENADE_LAUNCHER
 		    call    GetWeaponInvAdd
-		    ld	    bc,	(MaxAmmoGrenade)
+		    ld	    bc,	(+vars.MaxAmmoGrenade)
 		    call    nc,	ChkMaxAmount
 
 		    ld	    a, ROCKET_LAUNCHER
 		    call    GetWeaponInvAdd
-		    ld	    bc,	(MaxAmmonRocket)
+		    ld	    bc,	(+vars.MaxAmmonRocket)
 		    call    nc,	ChkMaxAmount
 
 		    ld	    a, PLASTIC_BOMB
 		    call    GetWeaponInvAdd
-		    ld	    bc,	(MaxAmmoBomb)
+		    ld	    bc,	(+vars.MaxAmmoBomb)
 		    call    nc,	ChkMaxAmount
 
 		    ld	    a, LAND_MINE
 		    call    GetWeaponInvAdd
-		    ld	    bc,	(MaxAmmoMine)
+		    ld	    bc,	(+vars.MaxAmmoMine)
 		    call    nc,	ChkMaxAmount
 
 		    ld	    a, MISSILE
 		    call    GetWeaponInvAdd
-		    ld	    bc,	(MaxAmmoMissile)
+		    ld	    bc,	(+vars.MaxAmmoMissile)
 		    call    nc,	ChkMaxAmount
 
 		    ld	    a, SELECTED_RATION		    ; Ratios
 		    call    GetItemInvAdd
-		    ld	    bc,	(MaxRations)
+		    ld	    bc,	(+vars.MaxRations)
 		    call    nc,	ChkMaxAmount
 		    ret
 
@@ -503,11 +503,11 @@ SetItemAsTaken:
 
 SetItemAsTaken2:
 		    cp	    ARMOR
-		    ld	    hl,	WeaponsTaken		    ; Array of picked weapons
+		    ld	    hl,	+vars.WeaponsTaken		    ; Array of picked weapons
 		    jr	    c, SetItemAsTaken3
 
 		    sub	    8
-		    ld	    hl,	ItemsTaken		    ; Array of picket items
+		    ld	    hl,	+vars.ItemsTaken		    ; Array of picket items
 
 SetItemAsTaken3:
 		    dec	    a
@@ -524,7 +524,7 @@ SetItemAsTaken3:
 
 ClearGameVars:
 		    xor	    a
-		    ld	    hl,	GameVars
+		    ld	    hl,	+vars.GameVars
 		    ld	    bc,	2B6Fh
 		    ld	    d, h
 		    ld	    e, l
@@ -532,5 +532,5 @@ ClearGameVars:
 		    ld	    (hl), a			    ; 0
 		    ldir
 
-		    ld	    (Pause_1_F5_2), a
+		    ld	    (+vars.Pause_1_F5_2), a
 		    ret

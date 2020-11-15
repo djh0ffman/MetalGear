@@ -6,12 +6,12 @@
 ;----------------------------------------------------------------------------
 
 DrawDoors:
-		    ld	    a, (DoorsInRoom)		    ; Number of	doors in the room
+		    ld	    a, (+vars.DoorsInRoom)		    ; Number of	doors in the room
 		    and	    a				    ; Any door in the room?
 		    ret	    z				    ; No
 
 		    ld	    b, a			    ; Number of	doors
-		    ld	    hl,	DoorsList		    ; Pointer to array of doors	structures
+		    ld	    hl,	+vars.DoorsList		    ; Pointer to array of doors	structures
 
 DrawDoors2:
 		    push    bc
@@ -33,7 +33,7 @@ DrawDoors2:
 
 		    inc	    hl
 		    ld	    d, (hl)			    ; Door X
-		    ld	    (TempData),	de		    ; Door XY
+		    ld	    (+vars.TempData),	de		    ; Door XY
 
 		    call    DrawDoorType
 
@@ -80,14 +80,14 @@ DrawDoorType:
 ;----------------------------------------------------------------------------
 
 DrawDoorSouth:
-		    ld	    de,	(TempData)		    ; Door location XY
+		    ld	    de,	(+vars.TempData)		    ; Door location XY
 		    ld	    hl,	0E0C0h			    ; Gfx. coordinates in VRAM page 1
 		    ld	    bc,	2008h			    ; NX,NY
 		    ld	    a, 48h
 		    call    VDP_Copy_Dot		    ; Draw door
 
 		    ld	    bc,	401h			    ; Width and	height in tiles
-		    ld	    de,	(TempData)
+		    ld	    de,	(+vars.TempData)
 
 PutDoorCollTiles:
 		    ld	    hl,	DoorClosedTiles		    ; Transparent but collision	tiles
@@ -102,7 +102,7 @@ PutDoorCollTiles:
 
 DrawDoorWest:
 		    ld	    b, 8			    ; NX (width)
-		    ld	    de,	(TempData)		    ; Door XY
+		    ld	    de,	(+vars.TempData)		    ; Door XY
 		    ld	    hl,	0E0A0h			    ; Door bitmap coordinates in VRAM page 1
 
 DrawDoorWest2:
@@ -128,7 +128,7 @@ DrawDoorWest2:
 		    pop	    bc
 		    djnz    DrawDoorWest2
 
-		    ld	    de,	(TempData)
+		    ld	    de,	(+vars.TempData)
 		    ld	    a, d
 		    sub	    8
 		    ld	    d, a			    ; Door X - 8
@@ -143,7 +143,7 @@ DrawDoorWest2:
 
 DrawDoorEast:
 		    ld	    b, 8			    ; NX
-		    ld	    de,	(TempData)		    ; Door XY
+		    ld	    de,	(+vars.TempData)		    ; Door XY
 		    ld	    a, 28
 		    add	    a, e
 		    ld	    e, a			    ; Door X + 28
@@ -173,7 +173,7 @@ DrawDoorEast2:
 		    pop	    bc
 		    djnz    DrawDoorEast2
 
-		    ld	    de,	(TempData)
+		    ld	    de,	(+vars.TempData)
 
 SetDoorEWColl:
 		    ld	    bc,	204h			    ; Door size	in tiles (2x4) = 16x32
@@ -190,14 +190,14 @@ SetDoorEWColl:
 ;----------------------------------------------------------------------------
 
 DrawDoorNorth:
-		    ld	    de,	(TempData)		    ; Door XY
+		    ld	    de,	(+vars.TempData)		    ; Door XY
 		    ld	    hl,	0C4A0h			    ; Door bitmap coordinates in VRAM page 1
 		    ld	    bc,	1820h			    ; NX,NY (24	x 32)
 		    ld	    a, 48h
 		    call    VDP_Copy_Dot		    ; Draw door
 
 		    ld	    bc,	404h			    ; Door size	in tiles (4 x 4)
-		    ld	    de,	(TempData)
+		    ld	    de,	(+vars.TempData)
 		    ld	    a, d
 		    sub	    b
 		    ld	    d, a			    ; DX - 4
@@ -212,14 +212,14 @@ DrawDoorNorth:
 ;----------------------------------------------------------------------------
 
 DrawDoorElevator:
-		    ld	    de,	(TempData)		    ; Door XY
+		    ld	    de,	(+vars.TempData)		    ; Door XY
 		    ld	    hl,	0C4C0h			    ; Door bitmap coordinates in VRAM page 1
 		    ld	    bc,	1820h			    ; NX,NY (24	x 32)
 		    ld	    a, 48h
 		    call    VDP_Copy_Dot		    ; Draw door
 
 		    ld	    bc,	404h			    ; Door size	in tiles (4 x 4)
-		    ld	    de,	(TempData)
+		    ld	    de,	(+vars.TempData)
 		    ld	    a, d
 		    sub	    b
 		    ld	    d, a			    ; DX - 4
@@ -308,7 +308,7 @@ DrawWallBasem112:
 ;----------------------------------------------------------------------------
 
 DrawWall:
-		    ld	    hl,	(TempData)		    ; Wall XY
+		    ld	    hl,	(+vars.TempData)		    ; Wall XY
 
 		    push    hl
 		    push    de

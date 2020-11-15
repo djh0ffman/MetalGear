@@ -6,12 +6,12 @@
 ;---------------------------------------------------------------------------
 
 InitGuardSilencer:
-		    ld	    a, (SupressorTaken)
+		    ld	    a, (+vars.SupressorTaken)
 		    or	    a				    ; Is the suppresor in the inventory?
 		    jp	    nz,	DismissActor0		    ; Yes, remove the actor
 
 		    ld	    a, 3Eh			    ; Music: Mercenary
-		    ld	    (AreaMusic), a
+		    ld	    (+vars.AreaMusic), a
 		    call    SetSoundEntryChk
 
 		    inc	    (ix+GUARD_SILENCER.Moving)	    ; Enable movement
@@ -182,7 +182,7 @@ ChkChasePlayer:
 		    bit	    1, (ix+GUARD_SILENCER.DirMovement) ; Is this guard moving in the X or Y axis?
 		    jp	    z, ChkChasePlayer2
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    sub	    (ix+GUARD_SILENCER.Y)
 		    add	    a, 20h
 		    cp	    41h
@@ -192,7 +192,7 @@ ChkChasePlayer:
 
 
 ChkChasePlayer2:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    (ix+GUARD_SILENCER.X)
 		    add	    a, 20h
 		    cp	    41h

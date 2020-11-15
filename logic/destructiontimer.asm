@@ -8,11 +8,11 @@
 ;----------------------------------------------------------------------------
 
 DecNukeTimer:
-		    ld	    a, (DestructionTimerOn)
+		    ld	    a, (+vars.DestructionTimerOn)
 		    and	    a
 		    ret	    z				    ; Self destruction not enabled
 
-		    ld	    hl,	DestructTimer
+		    ld	    hl,	+vars.DestructTimer
 		    ld	    a, (hl)
 		    sub	    1
 		    daa
@@ -35,5 +35,5 @@ DecNukeTimer2:
 		    call    DrawCallTimer		    ; Update counter on	screen
 
 		    xor	    a
-		    ld	    (Life), a			    ; Empty energy bar
+		    ld	    (+vars.Life), a			    ; Empty energy bar
 		    jp	    SetDead			    ; Set dead mode

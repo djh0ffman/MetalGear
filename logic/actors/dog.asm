@@ -6,7 +6,7 @@
 
 InitDog:
 		    ld	    a, r
-		    ld	    hl,	TickCounter
+		    ld	    hl,	+vars.TickCounter
 		    xor	    (hl)
 		    and	    3				    ; Random number 0-3
 

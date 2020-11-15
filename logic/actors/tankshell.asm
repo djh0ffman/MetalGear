@@ -12,7 +12,7 @@ InitTankShell:
 		    ld	    (ix+SHELL_DESERT.SpriteId),	7Eh ; Tank shell sprite	ID
 
 		    ld	    a, r
-		    ld	    hl,	TickCounter
+		    ld	    hl,	+vars.TickCounter
 		    xor	    (hl)
 		    and	    0Fh
 		    add	    a, 0Ah

@@ -6,18 +6,18 @@
 ;----------------------------------------------------------------------------
 
 ChkWeaponShot:
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    and	    a
 		    ret	    z				    ; No weapon	selected
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    204
 		    ret	    z				    ; Brick wall (parachute)
 
 		    cp	    224
 		    ret	    nc				    ; Inside elevator
 
-		    ld	    a, (PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
+		    ld	    a, (+vars.PlayerAnimation)	    ; 0=Normal,	1=Punch, 2=Water, 3=Parachute, 4=Deep water, 5=Ladder, 6=Dead, 7=Box
 		    cp	    2
 		    ret	    z				    ; In water
 
@@ -27,7 +27,7 @@ ChkWeaponShot:
 		    cp	    7
 		    ret	    z				    ; Inside the box
 
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    dec	    a
 		    call    JumpIndex
 
@@ -50,7 +50,7 @@ ChkWeaponShot:
 ;----------------------------------------------------------------------------
 
 GetEmptyShotDat:
-		    ld	    hl,	PlayerShotsList
+		    ld	    hl,	+vars.PlayerShotsList
 		    ld	    de,	40h			    ; Shot structure size
 		    ld	    b, 6			    ; Max. number of shots
 
@@ -86,7 +86,7 @@ GetEmptyShotDat3:
 ;----------------------------------------------------------------------------
 
 ReserveShotSpr:
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    dec	    a
 		    ld	    hl,	NumSprShot		    ; Number of	sprites	per shot type
 		    call    ADD_HL_A
@@ -101,7 +101,7 @@ ReserveShotSpr:
 		    ld	    (iy+0), c			    ; Number of	sprites	used
 		    inc	    iy				    ; Pointer to layer+attributes of actor's sprites
 
-		    ld	    hl,	SprShootsAtt
+		    ld	    hl,	+vars.SprShootsAtt
 		    ld	    e, 4			    ; First shot sprite	layer
 		    ld	    b, 6
 
@@ -141,7 +141,7 @@ ReserveShotSpr3:
 
 
 ReserveShotSpr4:
-		    ld	    a, (SelectedWeapon)
+		    ld	    a, (+vars.SelectedWeapon)
 		    ld	    (ix+0), a			    ; Shot ID/type
 		    ld	    (ix+1), 0
 		    ld	    (ix+2), 0
@@ -167,7 +167,7 @@ NumSprShot:	    db	  1
 ;----------------------------------------------------------------------------
 
 PlayerShotsLogic:
-		    ld	    hl,	PlayerShotsList
+		    ld	    hl,	+vars.PlayerShotsList
 		    ld	    b, 6			    ; Max. number of player shots
 
 PlayerShotsLogic2:
@@ -214,7 +214,7 @@ PlayerShotLogic:
 ;----------------------------------------------------------------------------
 
 SetPlayerShotSpr:
-		    ld	    hl,	PlayerShotsList
+		    ld	    hl,	+vars.PlayerShotsList
 		    ld	    b, 6			    ; Max. number of player shots
 
 SetPlayerShotSpr2:
@@ -235,7 +235,7 @@ SetPlayerShotSpr2:
 SetPlayerShotSpr3:
 		    push    bc
 		    ld	    a, (hl)			    ; Sprite layer
-		    ld	    de,	SprAttRAM
+		    ld	    de,	+vars.SprAttRAM
 		    add	    a, a
 		    add	    a, a			    ; Sprite layer x4
 		    ld	    b, a			    ; Save offset to sprite attributes
@@ -247,7 +247,7 @@ SetPlayerShotSpr3:
 		    ldi					    ; Sprite pattern
 		    push    hl
 
-		    ld	    de,	SpritesColors
+		    ld	    de,	+vars.SpritesColors
 		    ld	    a, b			    ; B	= Sprite layer x4
 		    call    HL_4xA			    ; Layer x 16 (16 lines per sprite)
 		    add	    hl,	de
@@ -391,7 +391,7 @@ RemoveShot:
 RemoveShot2:
 		    ld	    a, (de)			    ; Sprite layer
 
-		    ld	    hl,	SprAttRAM
+		    ld	    hl,	+vars.SprAttRAM
 		    add	    a, a
 		    call    ADD_HL_2A
 

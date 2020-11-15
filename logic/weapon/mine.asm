@@ -5,7 +5,7 @@
 ;----------------------------------------------------------------------------
 
 ChkLMineShot:
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    10h				    ; Fire button pressed?
 		    ret	    z
 
@@ -13,7 +13,7 @@ ChkLMineShot:
 		    call    GetWeaponInvAdd		    ; Pointer to the land mines	in the inventory
 
 		    inc	    hl
-		    ld	    (TempData),	hl		    ; Pointer to number	of mines
+		    ld	    (+vars.TempData),	hl		    ; Pointer to number	of mines
 
 		    ld	    a, (hl)
 		    inc	    hl
@@ -26,17 +26,17 @@ ChkLMineShot:
 		    call    ReserveShotSpr		    ; Reserve sprites needed for the land mine
 		    ret	    nc				    ; There are	no enough free sprites
 
-		    ld	    hl,	(TempData)
+		    ld	    hl,	(+vars.TempData)
 		    ld	    c, 1			    ; Type: consumable item
 		    call    DecItemUnits		    ; Decrement	number of mines
 
 		    ld	    (ix+PLAYER_SHOT.KILL_BY_CONTACT), 1	; Kills	by contact
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    ld	    (ix+PLAYER_SHOT.Y),	a	    ; Mine Y
 		    ld	    (ix+PLAYER_SHOT.Ydec), 0
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    (ix+PLAYER_SHOT.X),	a	    ; Mine X
 		    ld	    (ix+PLAYER_SHOT.Xdec), 0
 

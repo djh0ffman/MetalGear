@@ -31,7 +31,7 @@ InitKonamiLogo:
 		    call    EnableScreenBnk
 
 
-		    ld	    hl,	Room
+		    ld	    hl,	+vars.Room
 		    ld	    (hl), 3Ch
 		    inc	    hl
 		    ld	    (hl), 31h
@@ -59,7 +59,7 @@ KonamiLogoPal:	    db	  0,   0,   0
 ;-------------------------------------------------------------------------------
 
 DrawKonamiLogo:
-		    ld	    hl,	Room
+		    ld	    hl,	+vars.Room
 		    dec	    (hl)
 		    ld	    a, (hl)
 		    and	    1
@@ -70,7 +70,7 @@ DrawKonamiLogo:
 		    jr	    nz,	DrawKonamiLogo2
 
 		    ld	    a, 1
-		    ld	    (Class), a			    ; Logo end flag
+		    ld	    (+vars.Class), a			    ; Logo end flag
 		    ret
 
 

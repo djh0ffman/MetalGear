@@ -21,7 +21,7 @@ InitGuardLorry:
 
 		    call    InitGuardPath2		    ; Sets the path that the guard will	follow
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    7				    ; Three lorries building 1,	next to	elevator room
 		    jr	    nz,	InitGuardLorry2
 
@@ -32,9 +32,9 @@ InitGuardLorry:
 		    ld	    (ix+ACTOR.IdxGuardSpeed), 8	    ; Second guard walks faster	(Bank0:5A5B WalkSpeeds)
 
 InitGuardLorry2:
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    5				    ; Three lorries yard
-		    ld	    hl,	Guard1ExitedLorry
+		    ld	    hl,	+vars.Guard1ExitedLorry
 		    jr	    z, ResetSpanwGuard
 
 		    cp	    7				    ; Three lorries building 1,	next to	elevator room
@@ -56,7 +56,7 @@ NotResetSpanwGuard:
 		    ld	    (ix+ACTOR.Moving), 1	    ; Enable movement
 		    ld	    (ix+ACTOR.idxPathPoint), 0
 
-		    ld	    a, (ControlConfig)		    ; Bit6: 1=Enable music/Player control
+		    ld	    a, (+vars.ControlConfig)		    ; Bit6: 1=Enable music/Player control
 		    bit	    6, a
 		    ld	    a, 64h
 		    jr	    z, InitGuardLorry5
@@ -83,9 +83,9 @@ GuardLorryLogic:
 		    dec	    (ix+ACTOR.LORRY_TIMER)
 		    ret	    nz				    ; Wait before the guard exits the lorry
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    5				    ; Three lorries yard
-		    ld	    hl,	Guard1ExitedLorry
+		    ld	    hl,	+vars.Guard1ExitedLorry
 		    jr	    z, SetGuardExitsLorry
 
 		    cp	    7				    ; Three lorries building 1
@@ -151,7 +151,7 @@ GuardLorryWalk:
 
 		    call    GuardLogic			    ; Guard logic: follow the path, stop, look around...
 
-		    ld	    a, (AlertMode)
+		    ld	    a, (+vars.AlertMode)
 		    or	    a
 		    jp	    nz,	TransformAlertGuard	    ;  In alert	mode the guard transforms into an alert	guard
 
@@ -195,9 +195,9 @@ GuardEnterLorry:
 		    dec	    (ix+ACTOR.LORRY_TIMER)
 		    ret	    nz				    ; Still entering the lorry
 
-		    ld	    a, (Room)
+		    ld	    a, (+vars.Room)
 		    cp	    5				    ; Three lorries in the yard
-		    ld	    hl,	Guard1ExitedLorry
+		    ld	    hl,	+vars.Guard1ExitedLorry
 		    jr	    z, GuardEnterLorry2
 
 		    cp	    7				    ; Three lorries in building	1

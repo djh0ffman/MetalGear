@@ -8,12 +8,12 @@
 ;----------------------------------------------------------------------------
 
 ChkIncomingCall:
-		    ld	    hl,	IncomingCallTimer
+		    ld	    hl,	+vars.IncomingCallTimer
 		    ld	    a, (hl)
 		    and	    a
 		    ret	    z				    ; Incoming call not	in progress
 
-		    ld	    a, (RadioCallFlag)		    ; 1=Start incoming call, 2=Stop incoming call
+		    ld	    a, (+vars.RadioCallFlag)		    ; 1=Start incoming call, 2=Stop incoming call
 		    cp	    2				    ; Stop incoming call?
 		    ret	    z
 
@@ -25,12 +25,12 @@ ChkIncomingCall:
 
 		    ld	    (hl), 58h			    ; Set incoming call	timer
 		    ld	    a, 1
-		    ld	    (RadioCallFlag), a		    ; Start incoming call
+		    ld	    (+vars.RadioCallFlag), a		    ; Start incoming call
 
 ChkIncomingCall2:
 		    dec	    (hl)			    ; Decrement	incoming call timer
 		    ret	    nz
 
 		    ld	    a, 2
-		    ld	    (RadioCallFlag), a		    ; Stop incoming call
+		    ld	    (+vars.RadioCallFlag), a		    ; Stop incoming call
 		    ret

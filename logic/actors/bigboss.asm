@@ -5,7 +5,7 @@
 ;----------------------------------------------------------------------------
 
 InitBigBoss:
-		    ld	    hl,	BigBossStat		    ; 0=Dead, 1=Confession dialog
+		    ld	    hl,	+vars.BigBossStat		    ; 0=Dead, 1=Confession dialog
 		    bit	    0, (hl)
 		    jp	    nz,	DismissActor		    ; Remove actor is defeated
 
@@ -49,7 +49,7 @@ BigBossSpeech:
 		    ld	    (ix+BIG_BOSS.Status), 1	    ; Status think next	movement
 		    call    SetRandomWait1_20
 
-		    ld	    hl,	BigBossStat		    ; 0=Dead, 1=Confession dialog
+		    ld	    hl,	+vars.BigBossStat		    ; 0=Dead, 1=Confession dialog
 		    bit	    1, (hl)			    ; Speech done?
 		    ret	    nz				    ; Yes, no need to say it again
 
@@ -254,7 +254,7 @@ BigBossCalcAway:
 		    call    BBChkUpDownCorridors	    ; Sets the direction and speed to run away from the	player
 		    jr	    nz,	BigBossCalcAway2
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    (ix+BIG_BOSS.X)
 
 		    ld	    a, DIR_RIGHT
@@ -281,7 +281,7 @@ BigBossSetSpeed:
 
 
 BigBossCalcAway2:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    cp	    (ix+BIG_BOSS.Y)
 
 		    ld	    a, DIR_DOWN
@@ -302,7 +302,7 @@ BBSetDirToPlayer:
 		    call    BBChkUpDownCorridors	    ; Sets the direction to move towards the player
 		    jr	    nz,	BBCalcShowUpDir2
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    (ix+BIG_BOSS.X)
 
 		    ld	    a, DIR_LEFT
@@ -312,7 +312,7 @@ BBSetDirToPlayer:
 
 
 BBCalcShowUpDir2:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    cp	    (ix+BIG_BOSS.Y)
 
 		    ld	    a, DIR_UP
@@ -421,13 +421,13 @@ BBChkCovered3:
 ;----------------------------------------------------------------------------
 
 BBChkPlayerNear:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    (ix+BIG_BOSS.X)
 		    add	    a, 48h
 		    cp	    91h
 		    ret	    nc
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    sub	    (ix+BIG_BOSS.Y)
 		    add	    a, 48h
 		    cp	    91h
@@ -447,13 +447,13 @@ BBChkShoot:
 
 ; Check	row
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    sub	    (ix+BIG_BOSS.X)
 		    jr	    CheckCrateSize
 
 
 CheckCrateColumn:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    sub	    (ix+BIG_BOSS.Y)
 
 CheckCrateSize:

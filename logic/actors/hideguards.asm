@@ -159,7 +159,7 @@ HideGuardRoom35:
 ;---------------------------------------------------------------------------
 
 HideGuardRoom39:
-		    ld	    a, (PreviousRoom)
+		    ld	    a, (+vars.PreviousRoom)
 		    cp	    242				    ; Elevator roof building 2
 		    ld	    a, (ix+ACTOR.Y)		    ; Enemy Y
 

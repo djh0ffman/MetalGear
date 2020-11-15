@@ -43,7 +43,7 @@ ChkPunchEnemy2:
 
 
 ChkPunchEnemy3:
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    dec	    a				    ; Up
 		    ld	    hl,	PunchUpDat
 		    jr	    z, ChkPunchEnemy4

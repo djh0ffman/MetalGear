@@ -5,7 +5,7 @@
 ;----------------------------------------------------------------------------
 
 EraseDoorLogic:
-		    ld	    a, (OpenDoorStatus)
+		    ld	    a, (+vars.OpenDoorStatus)
 		    call    JumpIndex
 
 		    dw InitOpenDoor
@@ -60,7 +60,7 @@ InitOpenDoor:
 		    ld	    (hl), a			    ; Door animation counter
 
 		    ld	    a, c			    ; Door render type
-		    ld	    (OpenDoorStatus), a		    ; The status is the	type of	door
+		    ld	    (+vars.OpenDoorStatus), a		    ; The status is the	type of	door
 
 		    ld	    hl,	DoorOpenSfxs		    ; List of SFXs for each type of door
 		    dec	    a
@@ -410,7 +410,7 @@ RestoreSavedTiles:
 		    ld	    e, (hl)			    ; Wall Y
 		    inc	    hl
 		    ld	    d, (hl)			    ; DE = Wall	broken render XY
-		    ld	    hl,	SavedTilesBuffer	    ; Buffer used to save the background tiles of a tileblock
+		    ld	    hl,	+vars.SavedTilesBuffer	    ; Buffer used to save the background tiles of a tileblock
 		    call    DrawTileBlkTimp2		    ; Draw a block of tiles to restore the wall	background
 
 		    pop	    hl
@@ -443,7 +443,7 @@ SetDoorOpen:
 
 		    ld	    a, (hl)			    ; Door ID
 		    dec	    a
-		    ld	    de,	DoorOpenArray		    ; 0=Open/1=Closed status of	all doors
+		    ld	    de,	+vars.DoorOpenArray		    ; 0=Open/1=Closed status of	all doors
 		    call    ADD_DE_A			    ; Pointer to open/closed status of the door
 
 		    xor	    a
@@ -484,7 +484,7 @@ EraseDoor:
 
 EraseDoor2:
 		    xor	    a
-		    ld	    (GameMode),	a		    ; Exit "open door mode" and return to "normal mode"
+		    ld	    (+vars.GameMode),	a		    ; Exit "open door mode" and return to "normal mode"
 
 		    ld	    a, c			    ; Door type
 		    cp	    7				    ; Is it a door or a	wall?
@@ -533,8 +533,8 @@ SetOpenDoorTiles:
 ;----------------------------------------------------------------------------
 
 GetOpeningDoorDat:
-		    ld	    a, (idxDoorOpen)		    ; Index of the door
-		    ld	    hl,	DoorsList		    ; Array of doors strcutures	in the room
+		    ld	    a, (+vars.idxDoorOpen)		    ; Index of the door
+		    ld	    hl,	+vars.DoorsList		    ; Array of doors strcutures	in the room
 		    add	    a, a
 		    add	    a, a
 		    add	    a, a

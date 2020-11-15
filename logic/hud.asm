@@ -25,18 +25,18 @@ RenderHUD:
 DrawCallTimer:
 		    ld	    c, 0			    ; Mask to erase CALL sign
 
-		    ld	    a, (RadioCallFlag)		    ; 1=Start incoming call, 2=Stop incoming call
+		    ld	    a, (+vars.RadioCallFlag)		    ; 1=Start incoming call, 2=Stop incoming call
 		    dec	    a				    ; Incoming call?
 		    jr	    nz,	DrawCallTimer2		    ; Erase
 
-		    ld	    a, (GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
+		    ld	    a, (+vars.GameMode)		    ; 0=Playing,1=NextRoom,2=Weapons,3=Equipment,4=Radio,5=Lorry,6=Moving elevator,7=OpenDoor,8=Binoculars,9=Dead, A=Text window, B=Captured, C	= Madnar moved:It's too late
 		    sub	    2				    ; Weapon menu?
 		    jr	    z, DrawCallTimer2
 
 		    dec	    a				    ; Equipment	menu?
 		    jr	    z, DrawCallTimer2
 
-		    ld	    a, (TickCounter)
+		    ld	    a, (+vars.TickCounter)
 		    bit	    3, a
 		    jr	    nz,	DrawCallTimer2		    ; Erase/Blink effect
 
@@ -47,7 +47,7 @@ DrawCallTimer:
 		    ld	    c, 0FFh			    ; Mask to draw the sign
 
 DrawCallTimer2:
-		    ld	    a, (DestructionTimerOn)
+		    ld	    a, (+vars.DestructionTimerOn)
 		    and	    a				    ; Destruction countdown activated?
 		    jr	    nz,	DrawDestrucTimer	    ; Yes, draw	the countdown timer
 
@@ -62,30 +62,30 @@ DrawCallTimer2:
 ;----------------------------------------------------------------------------
 
 DrawDestrucTimer:
-		    ld	    a, (EndingStatus)
+		    ld	    a, (+vars.EndingStatus)
 		    cp	    4
 		    ret	    nc				    ; Outer Heaven already destroyed
 
 		    ld	    c, 1
 		    ld	    de,	70C1h			    ; Counter XY
-		    ld	    a, (DestructTimerH)
+		    ld	    a, (+vars.DestructTimerH)
 		    rra
 		    rra
 		    rra
 		    rra
 		    call    PrintDigit			    ; Thousands
 
-		    ld	    a, (DestructTimerH)
+		    ld	    a, (+vars.DestructTimerH)
 		    call    PrintDigit			    ; Hundreds
 
-		    ld	    a, (DestructTimer)
+		    ld	    a, (+vars.DestructTimer)
 		    rra
 		    rra
 		    rra
 		    rra
 		    call    PrintDigit			    ; Tens
 
-		    ld	    a, (DestructTimer)
+		    ld	    a, (+vars.DestructTimer)
 		    jp	    PrintDigit			    ; Units
 
 
@@ -105,7 +105,7 @@ DecrementLife_4:
 ;----------------------------------------------------------------------------
 
 DecrementLife_B:
-		    ld	    hl,	Life			    ; LogoCnt
+		    ld	    hl,	+vars.Life			    ; LogoCnt
 		    ld	    a, (hl)
 		    and	    a				    ; Life = 0?
 		    jr	    z, SetDead
@@ -129,22 +129,22 @@ SetDead:
 		    call    DrawLife			    ; Update life bar
 
 		    ld	    a, CONTROL_DEAD
-		    ld	    (PlayerControlMod),	a	    ; Set dead control mode
+		    ld	    (+vars.PlayerControlMod),	a	    ; Set dead control mode
 
 		    ld	    a, 6
-		    ld	    (PlayerAnimation), a	    ; Dead animation
+		    ld	    (+vars.PlayerAnimation), a	    ; Dead animation
 
 		    ld	    a, GAME_MODE_DEAD
-		    ld	    (GameMode),	a		    ; Dead game	mode
+		    ld	    (+vars.GameMode),	a		    ; Dead game	mode
 
 		    ld	    a, 80h
-		    ld	    (DeadTimer), a
+		    ld	    (+vars.DeadTimer), a
 
 		    xor	    a
-		    ld	    (DamageDelayTimer),	a	    ; Reset damage delay timer
+		    ld	    (+vars.DamageDelayTimer),	a	    ; Reset damage delay timer
 
-		    ld	    hl,	SprShootsAtt
-		    ld	    de,	 SprShootsAtt+1
+		    ld	    hl,	+vars.SprShootsAtt
+		    ld	    de,	 +vars.SprShootsAtt+1
 		    ld	    bc,	17h
 		    ld	    (hl), 0E0h
 		    ldir				    ; Remove all bullets
@@ -168,7 +168,7 @@ DrawLife:
 		    ld	    c, 0Eh			    ; White
 		    call    DrawRect			    ; Life bar box
 
-		    ld	    a, (Life)			    ; Life value
+		    ld	    a, (+vars.Life)			    ; +vars.Life value
 		    and	    a				    ; 0?
 		    jr	    z, EraseLifeBar		    ; No need to draw the energy bar
 
@@ -184,7 +184,7 @@ DrawLife:
 		    call    FillRect			    ; Draw life	bar
 
 EraseLifeBar:
-		    ld	    a, (Life)			    ; LogoCnt
+		    ld	    a, (+vars.Life)			    ; LogoCnt
 		    cp	    30h
 		    ret	    z
 
@@ -216,12 +216,12 @@ DrawClass:
 		    call    PrintTextXY			    ; PRint "CLASS" text
 
 		    ld	    de,	34C9h			    ; XY
-		    ld	    a, (Class)			    ; Level
+		    ld	    a, (+vars.Class)			    ; Level
 		    inc	    a
 		    ld	    c, 3Bh			    ; Star tile
 		    call    DrawStars
 
-		    ld	    a, (Class)			    ; Logo end flag
+		    ld	    a, (+vars.Class)			    ; Logo end flag
 		    sub	    3
 		    ret	    z				    ; No need to erase/clear stars
 

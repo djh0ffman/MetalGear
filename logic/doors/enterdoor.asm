@@ -5,10 +5,10 @@
 ;----------------------------------------------------------------------------
 
 ChkDoors:
-		    ld	    hl,	DoorsList		    ; Pointer to array of doors	structures
+		    ld	    hl,	+vars.DoorsList		    ; Pointer to array of doors	structures
 		    ld	    c, 0			    ; Door door	index
 
-		    ld	    a, (DoorsInRoom)		    ; Number of	doors in the room
+		    ld	    a, (+vars.DoorsInRoom)		    ; Number of	doors in the room
 		    and	    a
 		    ret	    z				    ; There are	no doors
 
@@ -19,7 +19,7 @@ ChkDoors1:
 		    push    hl
 
 		    ld	    a, (hl)			    ; +0 Door ID
-		    ld	    (TempData),	a
+		    ld	    (+vars.TempData),	a
 
 		    inc	    hl				    ; +1
 
@@ -30,11 +30,11 @@ ChkDoors1:
 
 ; The last door	before Metal Gear is locked after self destruction is activated
 
-		    ld	    a, (MetalGear_KO)		    ; Metal Gear destroyed. Self destruction activated
+		    ld	    a, (+vars.MetalGear_KO)		    ; Metal Gear destroyed. Self destruction activated
 		    and	    a
 		    jr	    z, ChkDoors2
 
-		    ld	    a, (TempData)		    ; Door ID
+		    ld	    a, (+vars.TempData)		    ; Door ID
 		    cp	    62h				    ; Door card	1 before Metal Gear. Snake can't go back
 		    jr	    z, ChkNextDoor
 
@@ -46,13 +46,13 @@ ChkDoors2:
 		    pop	    bc
 
 		    ld	    a, c
-		    ld	    (idxDoorOpen), a
+		    ld	    (+vars.idxDoorOpen), a
 
 		    ld	    a, GAME_MODE_OPEN_DOOR
-		    ld	    (GameMode),	a		    ; Select open door mode
+		    ld	    (+vars.GameMode),	a		    ; Select open door mode
 
 		    xor	    a
-		    ld	    (OpenDoorStatus), a
+		    ld	    (+vars.OpenDoorStatus), a
 		    jp	    UpdateSnakeSpr
 
 ;----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ ChkDoors2:
 ;----------------------------------------------------------------------------
 
 ChkEnterDoor:
-		    ld	    a, (TempData)		    ; Door ID
+		    ld	    a, (+vars.TempData)		    ; Door ID
 		    cp	    40h				    ; Hidden door at room 6 (?!) Connected to room 204
 		    jr	    z, ChkNextDoor
 
@@ -91,20 +91,20 @@ ChkEnterDoor3:
 		    pop	    hl
 		    pop	    bc
 
-		    ld	    de,	DoorsList		    ; Array of doors in	the room
+		    ld	    de,	+vars.DoorsList		    ; Array of doors in	the room
 		    ld	    a, c
 		    call    HL_4xA
 		    add	    hl,	hl
 		    add	    hl,	hl			    ; x16
 		    add	    hl,	de			    ; HL = Pointer to door data
 		    ld	    a, (hl)			    ; ID
-		    ld	    (IdDoorEnter), a		    ; Save the door ID to know in which	door of	the new	room the player	will be	placed
+		    ld	    (+vars.IdDoorEnter), a		    ; Save the door ID to know in which	door of	the new	room the player	will be	placed
 
 		    xor	    a
-		    ld	    (OpenDoorStatus), a		    ; Init. door status
+		    ld	    (+vars.OpenDoorStatus), a		    ; Init. door status
 
 		    inc	    a
-		    ld	    (GameMode),	a		    ; Next room	mode
+		    ld	    (+vars.GameMode),	a		    ; Next room	mode
 		    ret
 
 
@@ -120,5 +120,5 @@ ChkNextDoor:
 		    djnz    ChkDoors1
 
 		    xor	    a
-		    ld	    (IdDoorEnter), a
+		    ld	    (+vars.IdDoorEnter), a
 		    ret

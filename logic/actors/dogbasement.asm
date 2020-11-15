@@ -13,7 +13,7 @@ InitDogBasement:
 
 		    inc	    (ix+DOG.Moving)		    ; Enable movement
 
-		    ld	    a, (NoEnemiesRoom)		    ; 1=No enemies in the room
+		    ld	    a, (+vars.NoEnemiesRoom)		    ; 1=No enemies in the room
 		    or	    a				    ; The dog is predefined in the room	or spawned?
 		    jr	    z, InitRunningDog		    ; It is an spawned dog (dog	that enters running in the room)
 
@@ -47,7 +47,7 @@ SetActorSpeed_:						    ; DE = Speed X, HL = Speed Y
 InitRunningDog:
 		    call    SetDogSprColNxStat		    ; Set dog sprites colors and next status
 
-		    ld	    a, (NextRoomDirect)		    ; 4=Right, 3=Left, 2=Down, 1=Up
+		    ld	    a, (+vars.NextRoomDirect)		    ; 4=Right, 3=Left, 2=Down, 1=Up
 		    dec	    a
 		    bit	    1, a
 		    jr	    nz,	SetDogHorSpeed		    ; The player entered from the left or right	side
@@ -55,7 +55,7 @@ InitRunningDog:
 ; The dog moves	in the Y axis
 
 SetVertDogSpeed:
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    cp	    (ix+DOG.Y)
 		    ld	    b, 0			    ; Up
 		    ld	    de,	0			    ; Speed X
@@ -121,7 +121,7 @@ DogBaseChase:
 		    jr	    z, SetVertDogSpeed
 
 SetDogHorSpeed:
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    cp	    (ix+DOG.X)
 		    ld	    b, 2			    ; Left
 		    ld	    hl,	0			    ; Speed Y

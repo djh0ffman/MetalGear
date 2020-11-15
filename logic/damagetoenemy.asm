@@ -5,7 +5,7 @@
 ;----------------------------------------------------------------------------
 
 ChkPlayerShots:
-		    ld	    a, (WeaponInUse)
+		    ld	    a, (+vars.WeaponInUse)
 		    and	    a
 		    ret	    z				    ; Any weapon in use
 
@@ -22,12 +22,12 @@ ChkPlayerShots:
 		    ld	    hl,	ActorShapeExpl		    ; Grenade, land mine, plastic bomb
 
 ChkPlayerShots2:
-		    ld	    (TempData2), hl		    ; Enemy XY,	MetaTileSetAddr
+		    ld	    (+vars.TempData2), hl		    ; Enemy XY,	MetaTileSetAddr
 
 		    call    GetWeaponDamages		    ; (TempPointer) = Pointer to damage	data
 
 		    ld	    b, a			    ; Maximum number of	simultaneous "bullets"
-		    ld	    ix,	PlayerShotsList
+		    ld	    ix,	+vars.PlayerShotsList
 
 ChkPlayerShots3:
 		    push    bc
@@ -59,7 +59,7 @@ ChkHitEnemies:
 		    rra
 		    ret	    nc				    ; This weapon does not kill	by contact
 
-		    ld	    iy,	EnemyList		    ; Array of enemies structures
+		    ld	    iy,	+vars.EnemyList		    ; Array of enemies structures
 		    ld	    b, 16			    ; Maximum number of	enemies	on a room
 
 ChkHitEnemies2:
@@ -94,7 +94,7 @@ ChkEneHitByShot:
 		    ret	    z				    ; This actor is not	affected by player's shots
 
 		    ld	    a, (iy+ACTOR.ID)		    ; Bit 7 = Killed
-		    ld	    hl,	(TempData2)		    ; List of actor shape IDs
+		    ld	    hl,	(+vars.TempData2)		    ; List of actor shape IDs
 		    call    GET_HL_A_DEC		    ; Get the type of shape/size used to check the collision
 		    inc	    a
 		    ret	    z				    ; This enemy has no	"shape/size"
@@ -166,7 +166,7 @@ ChkEnemyHitByShot5:
 ;
 ; Check	plastic	bombs on Metal Gear
 ;
-		    ld	    a, (WeaponInUse)
+		    ld	    a, (+vars.WeaponInUse)
 		    cp	    PLASTIC_BOMB		    ; Using plastic bombs?
 		    jr	    nz,	DecEnemyLife		    ; No
 
@@ -187,8 +187,8 @@ ChkEnemyHitByShot5:
 		    inc	    a				    ; Right
 
 ChkBombOrder:
-		    ld	    de,	 BombOrderBuffer+0Fh
-		    ld	    hl,	 BombOrderBuffer+0Eh
+		    ld	    de,	 +vars.BombOrderBuffer+0Fh
+		    ld	    hl,	 +vars.BombOrderBuffer+0Eh
 		    ld	    bc,	0Fh
 		    lddr
 
@@ -207,8 +207,8 @@ ChkBombOrder2:
 		    djnz    ChkBombOrder2
 
 		    xor	    a
-		    ld	    (EnemyListEntry1+0Dh), a	    ; Actor.LIFE: Kill laser camera 1
-		    ld	    (EnemyListEntry2+0Dh), a	    ; Actor.LIFE: Kill laser camera 2
+		    ld	    (+vars.EnemyListEntry1+0Dh), a	    ; Actor.LIFE: Kill laser camera 1
+		    ld	    (+vars.EnemyListEntry2+0Dh), a	    ; Actor.LIFE: Kill laser camera 2
 
 		    ld	    c, 2			    ; Metal Gear life points
 

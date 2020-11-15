@@ -6,35 +6,35 @@
 ;----------------------------------------------------------------------------
 
 ChkFireRocket:
-		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+		    ld	    a, (+vars.ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
 		    and	    10h				    ; Fire button pressed?
 		    ret	    z
 
 		    ld	    a, ROCKET_LAUNCHER		    ; Rocket launcher
 		    call    GetWeaponInvAdd		    ; Pointer to the weapon in inventory
 		    inc	    hl
-		    ld	    (TempData),	hl
+		    ld	    (+vars.TempData),	hl
 
 		    ld	    a, (hl)			    ; Ammon amount (low	byte)
 		    inc	    hl
 		    or	    (hl)			    ; Has rockets?
 		    ret	    z				    ; No
 
-		    ld	    a, (PlayerShotsList)
+		    ld	    a, (+vars.PlayerShotsList)
 		    and	    a
 		    ret	    nz				    ; There is already a rocket	in the room
 
-		    ld	    ix,	PlayerShotsList
+		    ld	    ix,	+vars.PlayerShotsList
 		    call    ReserveShotSpr		    ; Reserve the sprites needed for the rocket
 		    ret	    nc				    ; Not enough free sprites
 
-		    ld	    hl,	(TempData)
+		    ld	    hl,	(+vars.TempData)
 		    ld	    c, 0			    ; Use type:	item is	not removed
 		    call    DecItemUnits		    ; Decrement	number of rockets
 
 		    ld	    (ix+PLAYER_SHOT.KILL_BY_CONTACT), 1	; Kills	by contact
 
-		    ld	    a, (PlayerY)
+		    ld	    a, (+vars.PlayerY)
 		    ld	    (ix+PLAYER_SHOT.Ydec), 0
 		    ld	    (ix+PLAYER_SHOT.Ydec_Alt), 0
 		    ld	    (ix+PLAYER_SHOT.Y_Alt), a	    ; Rocket Y
@@ -42,11 +42,11 @@ ChkFireRocket:
 		    sub	    16
 		    ld	    (ix+PLAYER_SHOT.Y),	a	    ; Rocket Y on screen
 
-		    ld	    a, (PlayerX)
+		    ld	    a, (+vars.PlayerX)
 		    ld	    (ix+PLAYER_SHOT.Xdec), 0
 		    ld	    (ix+PLAYER_SHOT.X),	a	    ; Rocket X
 
-		    ld	    a, (PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
+		    ld	    a, (+vars.PlayerDirection)	    ; 1=Up, 2 =	Down, 3=Left, 4=Right
 		    ld	    (ix+PLAYER_SHOT.Direction),	a
 
 		    ld	    hl,	RocketSpeeds		    ; X	and Y speeds of	the rocket depending on	the direction
